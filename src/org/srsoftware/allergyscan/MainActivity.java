@@ -1,14 +1,13 @@
 package org.srsoftware.allergyscan;
 
-import com.example.allergyscan.R;
-
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.allergyscan.R;
 
 public class MainActivity extends Activity {
 
