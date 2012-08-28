@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
     protected void onStart() {    	
     	super.onStart();
       AllergenList allergenList=new AllergenList(getApplicationContext());
-      if (allergenList.isEmpty()) Log.w(TAG, "empty allergen list");
+      if (allergenList.isEmpty()) Log.w(TAG, "allergen list empty!");
     }
 
 		@Override
