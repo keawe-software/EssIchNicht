@@ -1,9 +1,13 @@
 package org.srsoftware.allergyscan;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
 
@@ -13,6 +17,8 @@ public class MainActivity extends Activity {
 
 	protected static String deviceid = null;
 	protected Object allergenList = null;
+	protected static String TAG="AllergyScan";
+	AllergyScanDatabase database=null;
 	
 		private void getDeviceId() {
 			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -22,7 +28,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Toast.makeText(getApplicationContext(), "onCreate", 5).show();
+        Log.d(TAG, "MainActivity.onCreate()");        
         getDeviceId();
         setContentView(R.layout.activity_main);
     }
@@ -30,14 +36,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {    	
     	super.onStart();
-    	allergenList=readAllergenList();
-    	Toast.makeText(getApplicationContext(), "onStart", 5).show();
+      AllergenList allergenList=new AllergenList(getApplicationContext());
+      if (allergenList.isEmpty()) Log.w(TAG, "empty allergen list");
     }
-
-    private Object readAllergenList() {
-			// TODO Auto-generated method stub
-			return null;
-		}
 
 		@Override
     protected void onResume() {
