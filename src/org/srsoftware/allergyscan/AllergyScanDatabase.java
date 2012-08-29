@@ -5,7 +5,6 @@ import java.util.Vector;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.DropBoxManager;
 import android.util.Log;
 
 public class AllergyScanDatabase extends SQLiteOpenHelper {

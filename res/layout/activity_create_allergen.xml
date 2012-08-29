@@ -21,19 +21,8 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/textView1"
         android:layout_marginTop="16dp"
-        android:autoText="true"
         android:ems="10"
-        android:inputType="textAutoComplete"
-        android:text="@string/name_of_allergen_here" />
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView1"
-        android:layout_below="@+id/autoCompleteTextView1"
-        android:layout_marginLeft="72dp"
-        android:layout_marginTop="21dp"
-        android:text="@string/save_value" />
+        android:hint="@string/name_of_allergen_here"
+        android:inputType="textAutoComplete" />
 
 </RelativeLayout>
