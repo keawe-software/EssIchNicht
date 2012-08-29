@@ -1,19 +1,19 @@
 package org.srsoftware.allergyscan;
 
-import com.example.allergyscan.R;
-import com.example.allergyscan.R.layout;
-import com.example.allergyscan.R.menu;
-
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
-import android.widget.AutoCompleteTextView;
+
+import com.example.allergyscan.R;
 
 public class CreateAllergenActivity extends Activity {
-
+	protected static String TAG="AllergyScan";
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "CreateAllergenActivity.onCreate");
         setContentView(R.layout.activity_create_allergen);
     }
 

@@ -2,6 +2,7 @@ package org.srsoftware.allergyscan;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -37,7 +38,8 @@ public class MainActivity extends Activity {
       if (allergenList.isEmpty()) {
       	Log.w(TAG, "allergen list empty!");
       	Toast.makeText(getApplicationContext(), "Noch keine Allergene vorhanden!", Toast.LENGTH_LONG).show();
-      	setContentView(R.layout.activity_create_allergen);
+      	Intent intent=new Intent(this,CreateAllergenActivity.class);
+      	startActivity(intent);
       }
     }
 
