@@ -1,14 +1,14 @@
 package org.srsoftware.allergyscan;
 
-import com.example.allergyscan.R;
-import com.example.allergyscan.R.layout;
-import com.example.allergyscan.R.menu;
-
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import com.example.allergyscan.R;
 
 public class AllergenSelectionActivity extends Activity {
 
@@ -16,7 +16,16 @@ public class AllergenSelectionActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_allergen_selection);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        ListView list = (ListView)findViewById(R.id.listView1);
+        list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        String[] values={ "Android", "iPhone", "WindowsMobile","Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X","Linux", "OS/2" };
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+        	  android.R.layout.simple_list_item_1, android.R.id.text1, values);
+
+        	// Assign adapter to ListView
+        	list.setAdapter(adapter);
+        
+        //getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

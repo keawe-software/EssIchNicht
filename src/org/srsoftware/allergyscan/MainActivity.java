@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
       if (allergenList.isEmpty()) {
       	Log.w(TAG, "allergen list empty!");
       	Toast.makeText(getApplicationContext(), "Noch keine Allergene vorhanden!", Toast.LENGTH_LONG).show();
-      	Intent intent=new Intent(this,CreateAllergenActivity.class);
+      	Intent intent=new Intent(this,AllergenSelectionActivity.class);
       	startActivity(intent);
       }
     }
