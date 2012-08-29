@@ -13,7 +13,7 @@ public class RemoteDatabase {
 	protected static String TAG="AllergyScan";
 	private static String adress="http://allergy.srsoftware.de/";
 	private static String allergenList="listAllergens.php";
-
+	private static String create="create.php?device=";
 	
 	public static TreeMap<Integer, String> getAvailableAllergens() throws IOException {
 		Log.d(TAG, "getAvailableAllergens");
