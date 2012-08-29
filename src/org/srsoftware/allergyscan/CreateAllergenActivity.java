@@ -23,7 +23,6 @@ public class CreateAllergenActivity extends Activity {
         final AutoCompleteTextView text=(AutoCompleteTextView)findViewById(R.id.autoCompleteTextView1);
         OnKeyListener listener=new OnKeyListener() {
 					
-					@Override
 					public boolean onKey(View v, int keyCode, KeyEvent event) {
 						if (event.getAction()==KeyEvent.ACTION_UP && keyCode==KeyEvent.KEYCODE_ENTER){
 							storeAllergen(text.getText().toString().trim());

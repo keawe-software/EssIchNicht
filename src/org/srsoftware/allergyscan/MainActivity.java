@@ -26,7 +26,6 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "MainActivity.onCreate()");        
         getDeviceId();
         setContentView(R.layout.activity_main);
     }
@@ -34,19 +33,18 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {    	
     	super.onStart();
-      AllergenList allergenList=new AllergenList(getApplicationContext());
-      if (allergenList.isEmpty()) {
-      	Log.w(TAG, "allergen list empty!");
-      	Toast.makeText(getApplicationContext(), "Noch keine Allergene vorhanden!", Toast.LENGTH_LONG).show();
-      	Intent intent=new Intent(this,AllergenSelectionActivity.class);
-      	startActivity(intent);
-      }
     }
 
 		@Override
     protected void onResume() {
     	super.onResume();
-    	Log.d(TAG, "onResume");
+      AllergenList allergenList=new AllergenList(getApplicationContext());
+      if (allergenList.isEmpty()) {
+      	Log.w(TAG, "allergen list empty!");
+      	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show();
+      	Intent intent=new Intent(this,AllergenSelectionActivity.class);
+      	startActivity(intent);
+      }
     }
     
     @Override
