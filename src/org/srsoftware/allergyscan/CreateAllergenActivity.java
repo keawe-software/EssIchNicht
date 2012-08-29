@@ -25,17 +25,12 @@ public class CreateAllergenActivity extends Activity {
 					
 					public boolean onKey(View v, int keyCode, KeyEvent event) {
 						if (event.getAction()==KeyEvent.ACTION_UP && keyCode==KeyEvent.KEYCODE_ENTER){
-							storeAllergen(text.getText().toString().trim());
+							RemoteDatabase.storeAllergen(text.getText().toString().trim());
 						}
 						return false;
 					}
 				};
 				text.setOnKeyListener(listener);
-    }
-
-    protected void storeAllergen(String allergen) {
-			Log.d(TAG, "here, \""+allergen+"\" should be stored");
-
     }
 
 		@Override

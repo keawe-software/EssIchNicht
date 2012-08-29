@@ -1,5 +1,6 @@
 package org.srsoftware.allergyscan;
 
+import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -41,22 +42,40 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
     };
 
     private void addAllergensToList() {
+    	Log.d(TAG, "addAllergensToList");
       ListView list = (ListView)findViewById(R.id.listView1);
-      list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-      TreeMap<Integer,String> availableAllergens=RemoteDatabase.getAvailableAllergens();
-      if (availableAllergens.isEmpty()){
-      	Toast.makeText(getApplicationContext(), R.string.no_allergens_in_database, Toast.LENGTH_LONG).show();
-      	createNewAllergen();
-      } else {
-      	Set<Entry<Integer, String>> entries = availableAllergens.entrySet();
-      	String[] values=new String[entries.size()];
-      	int index=0;
-      	for (Entry<Integer, String> entry: entries)	values[index++]=entry.getValue();
-      	ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice, values);
-        	// Assign adapter to ListView
-       	list.setAdapter(adapter);
+      list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);      
+      try {
+      	TreeMap<Integer,String> availableAllergens=RemoteDatabase.getAvailableAllergens();
+      	Log.d(TAG, "allergens: "+availableAllergens);
+      	if (availableAllergens==null || availableAllergens.isEmpty()){
+        	Toast.makeText(getApplicationContext(), R.string.no_allergens_in_database, Toast.LENGTH_LONG).show();
+        	createNewAllergen();
+        } else {
+
+        	Set<Entry<Integer, String>> entries = availableAllergens.entrySet();
+        	String[] values=new String[entries.size()];
+        	int index=0;
+        	for (Entry<Integer, String> entry: entries)	values[index++]=entry.getValue();
+        	ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice, values);
+          	// Assign adapter to ListView
+         	list.setAdapter(adapter);
+        }
+      } catch (IOException e){
+      	Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
+      	goHome();
       }
 		}
+
+		private void goHome() {
+    	Toast.makeText(getApplicationContext(), R.string.will_shut_down, Toast.LENGTH_LONG).show();
+			Intent startMain = new Intent(Intent.ACTION_MAIN);
+			startMain.addCategory(Intent.CATEGORY_HOME);
+			startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(startMain);
+
+		}
+
 
 		@Override
     public boolean onCreateOptionsMenu(Menu menu) {

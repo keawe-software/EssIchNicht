@@ -3,7 +3,7 @@
     <string name="app_name">AllergyScan</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Allergen-Scanner</string>
     <string name="title_activity_create_allergen">Allergen eintragen</string>
     <string name="enter_allergen">Neues Allergen in Datenbank eintragen:</string>
     <string name="name_of_allergen_here">&lt;Allergenbezeichnung></string>
@@ -13,5 +13,7 @@
     <string name="create_allergen">neues Allergen hinzufügen</string>
     <string name="no_allergens_selected">Noch keine Allergene ausgewählt!</string>
     <string name="no_allergens_in_database">Es befinden sich noch keine Allergene in der Datenbank!</string>
+    <string name="server_not_available">Es konnte keine Verbingung zum Server hergestellt werden.</string>
+    <string name="will_shut_down">Anwendung wird nun beendet.</string>
 
 </resources>
