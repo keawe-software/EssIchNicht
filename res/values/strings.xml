@@ -8,5 +8,7 @@
     <string name="enter_allergen">Neues Allergen eintragen:</string>
     <string name="name_of_allergen_here">&lt;Allergenbezeichnung></string>
     <string name="save_value">speichern</string>
+    <string name="title_activity_allergen_selection">AllergenSelectionActivity</string>
+    <string name="select_allergens">Wählen Sie die Stoffe, auf welche Sie allergisch sind</string>
 
 </resources>

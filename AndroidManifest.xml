@@ -25,11 +25,16 @@
         <activity
             android:name="org.srsoftware.allergyscan.CreateAllergenActivity"
             android:label="@string/title_activity_create_allergen" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.srsoftware.allergyscan.MainActivity" />
+        </activity>
+        <activity
+            android:name="org.srsoftware.allergyscan.AllergenSelectionActivity"
+            android:label="@string/title_activity_allergen_selection" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.srsoftware.allergyscan.MainActivity" />
         </activity>
     </application>
 

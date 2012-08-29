@@ -35,7 +35,6 @@ public class CreateAllergenActivity extends Activity {
     }
 
     protected void storeAllergen(String allergen) {
-	    // TODO Auto-generated method stub
 			Log.d(TAG, "here, \""+allergen+"\" should be stored");
 
     }
