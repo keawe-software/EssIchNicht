@@ -37,7 +37,11 @@ public class MainActivity extends Activity {
     protected void onStart() {    	
     	super.onStart();
       AllergenList allergenList=new AllergenList(getApplicationContext());
-      if (allergenList.isEmpty()) Log.w(TAG, "allergen list empty!");
+      if (allergenList.isEmpty()) {
+      	Log.w(TAG, "allergen list empty!");
+      	Toast.makeText(getApplicationContext(), "Noch keine Allergene vorhanden!", Toast.LENGTH_LONG).show();
+      	setContentView(R.layout.activity_create_allergen);
+      }
     }
 
 		@Override

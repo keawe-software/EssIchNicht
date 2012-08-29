@@ -4,5 +4,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_create_allergen">CreateAllergen</string>
+    <string name="enter_allergen">Neues Allergen eintragen:</string>
+    <string name="name_of_allergen_here">&lt;Allergenbezeichnung></string>
+    <string name="save_value">speichern</string>
 
 </resources>
