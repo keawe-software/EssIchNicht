@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
 		@Override
     protected void onResume() {
     	super.onResume();
-    	Toast.makeText(getApplicationContext(), "onResume", 5).show();
+    	Log.d(TAG, "onResume");
     }
     
     @Override
