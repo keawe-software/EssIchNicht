@@ -26,5 +26,14 @@
     <string name="title_activity_learning">LearningActivity</string>
     <string name="warning">Warnung!</string>
     <string name="no_scanner">Der ZXing-Barcodescanner ist nicht installiert. Dieser ist aber notwendig. Bitte installieren Sie diesen!</string>
+    <string name="product_code">Produkt-Code</string>
+    <string name="product_name">Name des Produkts</string>
+    <string name="cancel">abbrechen</string>
+    <string name="enter_product_name">Bitte geben Sie einen Namen für das Produkt (#product) ein.</string>
+    <string name="select_contained_allergens">Wählen Sie dann, welche Allergene das Produkt enthält</string>
+    <string name="contains_question">Ist #allergen in #product enthalten?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="dont_know">keine Ahnung</string>
 
 </resources>

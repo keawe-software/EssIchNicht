@@ -1,7 +1,5 @@
 package org.srsoftware.allergyscan;
 
-import java.util.TreeMap;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -11,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -21,7 +18,6 @@ import com.example.allergyscan.R;
 public class MainActivity extends Activity implements OnClickListener {
 
 	protected static String deviceid = null;
-	protected TreeMap<Integer,String> allergenList = null;
 	protected static String TAG="AllergyScan";
 	AllergyScanDatabase database=null;
 	
@@ -46,8 +42,7 @@ public class MainActivity extends Activity implements OnClickListener {
     protected void onResume() {
     	super.onResume();
     	AllergyScanDatabase asd=new AllergyScanDatabase(getApplicationContext());
-      allergenList=asd.getAllergenList();
-      if (allergenList.isEmpty()) {
+      if (asd.getAllergenList().isEmpty()) {
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show();
       	selectAllergens();
       } else {
@@ -62,9 +57,7 @@ public class MainActivity extends Activity implements OnClickListener {
     }
     
     private void learnCode() {
-    	Log.d(TAG, "learnCode 1");
-    	startActivity(new Intent(this,LearningActivity.class));
-    	
+    	startActivity(new Intent(this,LearningActivity.class));    	
     }
 
 		private boolean deviceEnabled() {
@@ -105,8 +98,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			startActivity(new Intent(this,PreferencesActivity.class));
     }
 
-		@Override
-    public void onClick(DialogInterface arg0, int arg1) {
+		public void onClick(DialogInterface arg0, int arg1) {
 			learnCode();	    
     }
 }

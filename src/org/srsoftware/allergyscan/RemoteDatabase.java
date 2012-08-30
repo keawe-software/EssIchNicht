@@ -40,4 +40,24 @@ public class RemoteDatabase {
 		reader.close();
 	}
 
+
+	public static Integer storeProduct(String productCode, String productName) throws IOException {
+		URL url=new URL(adress+create+MainActivity.deviceid+"&code="+productCode+"&product="+productName);
+		Log.d(TAG, url.toString());
+		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		String line=null;
+		Integer result=null;
+		if ((line=reader.readLine())!=null) result=Integer.parseInt(line.trim());
+		reader.close();
+		return result;
+	}
+
+
+	public static void storeAllergenInfo(int allergenId, Integer productId, boolean b) throws IOException {
+		URL url=new URL(adress+create+MainActivity.deviceid+"&aid="+allergenId+"&pid="+productId+"&contained="+b);
+		Log.d(TAG, url.toString());
+		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		reader.close();
+	}
+
 }

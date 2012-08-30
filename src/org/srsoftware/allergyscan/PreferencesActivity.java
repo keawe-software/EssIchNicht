@@ -48,8 +48,7 @@ public class PreferencesActivity extends Activity implements OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
-		@Override
-    public void onClick(View v) {
+		public void onClick(View v) {
 			settings.edit().putBoolean(getString(R.string.auto_update), autoUpdateCheckbox.isChecked()).commit();
     }
 
