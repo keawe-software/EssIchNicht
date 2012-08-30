@@ -62,8 +62,9 @@ public class MainActivity extends Activity implements OnClickListener {
     }
     
     private void learnCode() {
-	    // TODO Auto-generated method stub
-    	Log.d(TAG, "learnCode");
+    	Log.d(TAG, "learnCode 1");
+    	startActivity(new Intent(this,LearningActivity.class));
+    	
     }
 
 		private boolean deviceEnabled() {

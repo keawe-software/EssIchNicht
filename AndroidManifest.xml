@@ -51,6 +51,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.srsoftware.allergyscan.MainActivity" />
         </activity>
+        <activity
+            android:name="org.srsoftware.allergyscan.LearningActivity"
+            android:label="@string/title_activity_learning" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.srsoftware.allergyscan.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

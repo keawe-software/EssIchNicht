@@ -23,5 +23,8 @@
     <string name="hint">Hinweis</string>
     <string name="not_enabled">Die Software ist auf diesem Gerät noch nicht in vollem Umfang freigeschaltet. Um alle Funktion uneingeschränkt nutzen zu können, müssen sie zum Wohle der Community ein paar Produkte einpflegen!</string>
     <string name="ok">Ok</string>
+    <string name="title_activity_learning">LearningActivity</string>
+    <string name="warning">Warnung!</string>
+    <string name="no_scanner">Der ZXing-Barcodescanner ist nicht installiert. Dieser ist aber notwendig. Bitte installieren Sie diesen!</string>
 
 </resources>
