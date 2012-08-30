@@ -15,5 +15,9 @@
     <string name="no_allergens_in_database">Es befinden sich noch keine Allergene in der Datenbank!</string>
     <string name="server_not_available">Es konnte keine Verbingung zum Server hergestellt werden.</string>
     <string name="will_shut_down">Anwendung wird nun beendet.</string>
+    <string name="title_activity_preferences">PreferencesActivity</string>
+    <string name="title_activity_prefernces">PreferncesActivity</string>
+    <string name="automatic_database_updates">Datenbank automatisch aktualisieren</string>
+    <string name="auto_update">autoUpdate</string>
 
 </resources>

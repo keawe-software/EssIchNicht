@@ -5,6 +5,7 @@ import java.util.TreeMap;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
@@ -16,7 +17,7 @@ import com.example.allergyscan.R;
 public class MainActivity extends Activity {
 
 	protected static String deviceid = null;
-	protected Object allergenList = null;
+	protected TreeMap<Integer,String> allergenList = null;
 	protected static String TAG="AllergyScan";
 	AllergyScanDatabase database=null;
 	
@@ -41,17 +42,26 @@ public class MainActivity extends Activity {
     protected void onResume() {
     	super.onResume();
     	AllergyScanDatabase asd=new AllergyScanDatabase(getApplicationContext());
-      TreeMap<Integer,String> allergenList=asd.getAllergenList();
-
+      allergenList=asd.getAllergenList();
       if (allergenList.isEmpty()) {
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show();
       	selectAllergens();
+      } else if (autoUpdate()){      		
+      	doUpdate();
       }
     }
     
-    private void selectAllergens() {
-    	Intent intent=new Intent(this,AllergenSelectionActivity.class);
-    	startActivity(intent);
+    private void doUpdate() {
+	    Toast.makeText(getApplicationContext(), "Update der Alleergendatenbank wird durchgeführt, bitte warten", Toast.LENGTH_LONG).show();
+    }
+
+		private boolean autoUpdate() {
+    	SharedPreferences prefs=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+    	return prefs.getBoolean(getString(R.string.auto_update), true);
+    }
+
+		private void selectAllergens() {
+    	startActivity(new Intent(this,AllergenSelectionActivity.class));
     }
 
 		@Override
@@ -61,9 +71,16 @@ public class MainActivity extends Activity {
     }
     
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {    	
     	boolean dummy = super.onOptionsItemSelected(item);
-    	selectAllergens();
+    	switch (item.getItemId()){
+    		case R.id.allergen_selection: selectAllergens(); break;
+    		case R.id.menu_settings: editPreferences(); break;
+    	}
       return dummy;
+    }
+
+		private void editPreferences() {
+			startActivity(new Intent(this,PreferencesActivity.class));
     }
 }

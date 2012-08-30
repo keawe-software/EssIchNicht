@@ -57,7 +57,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 	public AllergyScanDatabase(Context context) {
 		super(context, "allergenDB", null, DB_VERSION);
-		Log.d(TAG, "AllergyScanDatabase.create("+context+")");
 	}
 
 	public TreeMap<Integer, String> getAllergenList() {	  
