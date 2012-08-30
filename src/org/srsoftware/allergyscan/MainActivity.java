@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -45,11 +44,8 @@ public class MainActivity extends Activity {
       TreeMap<Integer,String> allergenList=asd.getAllergenList();
 
       if (allergenList.isEmpty()) {
-      	Log.w(TAG, "allergen list empty!");
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show();
       	selectAllergens();
-      } else {
-      	Log.d(TAG, "selected allergens: "+allergenList.toString());
       }
     }
     

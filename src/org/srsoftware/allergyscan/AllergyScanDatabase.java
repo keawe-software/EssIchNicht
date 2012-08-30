@@ -14,7 +14,7 @@ import android.util.Log;
 public class AllergyScanDatabase extends SQLiteOpenHelper {
 	
 	
-	private static final int DB_VERSION=10;
+	private static final int DB_VERSION=11;
 	protected static String TAG="AllergyScan";
 	public static final String PRODUCTS="products";
 	public static final String ALLERGENS="allergens";
