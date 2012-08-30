@@ -19,5 +19,9 @@
     <string name="title_activity_prefernces">PreferncesActivity</string>
     <string name="automatic_database_updates">Datenbank automatisch aktualisieren</string>
     <string name="auto_update">autoUpdate</string>
+    <string name="performing_update">Update der Allergendatenbank wird durchgeführt. Bitte warten...</string>
+    <string name="hint">Hinweis</string>
+    <string name="not_enabled">Die Software ist auf diesem Gerät noch nicht in vollem Umfang freigeschaltet. Um alle Funktion uneingeschränkt nutzen zu können, müssen sie zum Wohle der Community ein paar Produkte einpflegen!</string>
+    <string name="ok">Ok</string>
 
 </resources>

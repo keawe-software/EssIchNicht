@@ -3,18 +3,22 @@ package org.srsoftware.allergyscan;
 import java.util.TreeMap;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.allergyscan.R;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener {
 
 	protected static String deviceid = null;
 	protected TreeMap<Integer,String> allergenList = null;
@@ -46,13 +50,29 @@ public class MainActivity extends Activity {
       if (allergenList.isEmpty()) {
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show();
       	selectAllergens();
-      } else if (autoUpdate()){      		
-      	doUpdate();
+      } else {
+      	if (!deviceEnabled()){
+      		AlertDialog alert=new AlertDialog.Builder(this).create();
+      		alert.setTitle(R.string.hint);
+      		alert.setMessage(getString(R.string.not_enabled));
+      		alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this);
+      		alert.show();      		
+      	} else if (autoUpdate()) doUpdate();
       }
     }
     
-    private void doUpdate() {
-	    Toast.makeText(getApplicationContext(), "Update der Alleergendatenbank wird durchgeführt, bitte warten", Toast.LENGTH_LONG).show();
+    private void learnCode() {
+	    // TODO Auto-generated method stub
+    	Log.d(TAG, "learnCode");
+    }
+
+		private boolean deviceEnabled() {
+    	// TODO: implement
+	    return false;
+    }
+
+		private void doUpdate() {
+	    Toast.makeText(getApplicationContext(), R.string.performing_update, Toast.LENGTH_LONG).show();
     }
 
 		private boolean autoUpdate() {
@@ -82,5 +102,10 @@ public class MainActivity extends Activity {
 
 		private void editPreferences() {
 			startActivity(new Intent(this,PreferencesActivity.class));
+    }
+
+		@Override
+    public void onClick(DialogInterface arg0, int arg1) {
+			learnCode();	    
     }
 }
