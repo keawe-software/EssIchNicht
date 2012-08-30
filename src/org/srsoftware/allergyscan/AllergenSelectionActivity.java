@@ -1,16 +1,19 @@
 package org.srsoftware.allergyscan;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,13 +26,19 @@ import android.widget.Toast;
 import com.example.allergyscan.R;
 
 public class AllergenSelectionActivity extends Activity implements OnClickListener {
-	protected static String TAG="AllergyScan";
+		protected static String TAG="AllergyScan";
+		private Button createButton,storeButton;
+		private ListView list;
+		private TreeMap<Integer,String> availableAllergens;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_allergen_selection);
-        Button btn=(Button)findViewById(R.id.createAllergenButton);
-        btn.setOnClickListener(this);
+        createButton=(Button)findViewById(R.id.createAllergenButton);
+        storeButton=(Button)findViewById(R.id.storeAllergenSelection);
+        list = (ListView)findViewById(R.id.listView1);
+        createButton.setOnClickListener(this);
+        storeButton.setOnClickListener(this);
         //getActionBar().setDisplayHomeAsUpEnabled(true);
     }
     
@@ -42,24 +51,18 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
     };
 
     private void addAllergensToList() {
-    	Log.d(TAG, "addAllergensToList");
-      ListView list = (ListView)findViewById(R.id.listView1);
       list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);      
       try {
-      	TreeMap<Integer,String> availableAllergens=RemoteDatabase.getAvailableAllergens();
-      	Log.d(TAG, "allergens: "+availableAllergens);
+      	availableAllergens=RemoteDatabase.getAvailableAllergens();
       	if (availableAllergens==null || availableAllergens.isEmpty()){
         	Toast.makeText(getApplicationContext(), R.string.no_allergens_in_database, Toast.LENGTH_LONG).show();
         	createNewAllergen();
         } else {
-
-        	Set<Entry<Integer, String>> entries = availableAllergens.entrySet();
-        	String[] values=new String[entries.size()];
-        	int index=0;
-        	for (Entry<Integer, String> entry: entries)	values[index++]=entry.getValue();
-        	ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice, values);
-          	// Assign adapter to ListView
-         	list.setAdapter(adapter);
+        	List<String> entries = new ArrayList(availableAllergens.values()); // make string list
+        	Collections.sort(entries,String.CASE_INSENSITIVE_ORDER); // sort case insensitive
+        	ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice, entries);
+         	list.setAdapter(adapter);          	// Assign adapter to ListView
+         	
         }
       } catch (IOException e){
       	Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
@@ -95,12 +98,29 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
     }    
 
 		public void onClick(View v) {
-			createNewAllergen();
+			if (v==storeButton){
+				storeAllergenSelection();
+			}
+			if (v==createButton){
+				createNewAllergen();
+			}
 		}
+
+		private void storeAllergenSelection() {	    
+			SparseBooleanArray positions = list.getCheckedItemPositions();
+			list.setItemChecked(1, true);
+		  int size=availableAllergens.size();
+		  TreeSet<String> names=new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		  for (int i=0; i<=size; i++) if (positions.get(i)) names.add(list.getItemAtPosition(i).toString());
+		  TreeMap<Integer,String> selectedAllergens=new TreeMap<Integer, String>();
+		  for (Entry<Integer, String> entry:availableAllergens.entrySet())	if (names.contains(entry.getValue())) selectedAllergens.put(entry.getKey(), entry.getValue());
+		  (new AllergyScanDatabase(getApplicationContext())).setSelectedAllergens(selectedAllergens);
+		  finish();
+    }
+
 
 		private void createNewAllergen() {
 			Intent intent=new Intent(this,CreateAllergenActivity.class);
 			startActivity(intent);			
 		}
-
 }

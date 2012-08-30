@@ -2,7 +2,6 @@ package org.srsoftware.allergyscan;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.TreeMap;
@@ -34,9 +33,11 @@ public class RemoteDatabase {
 	}
 
 
-	public static void storeAllergen(String allergen) {
-		// TODO Auto-generated method stub
-		Log.d(TAG, "here, \""+allergen+"\" should be stored");
+	public static void storeAllergen(String allergen) throws IOException {		
+		URL url=new URL(adress+create+MainActivity.deviceid+"&allergen="+allergen);
+		Log.d(TAG, url.toString());
+		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		reader.close();
 	}
 
 }

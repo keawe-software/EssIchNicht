@@ -133,7 +133,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#id#</dia:string>
+            <dia:string>#pid#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -350,7 +350,7 @@
         <dia:point val="12.9612,11"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="12.9112,10.95;15.0888,12.95"/>
+        <dia:rectangle val="12.9112,10.95;15.0887,12.95"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
         <dia:point val="12.9612,11"/>
@@ -370,7 +370,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#id#</dia:string>
+            <dia:string>#aid#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -440,11 +440,11 @@
         <dia:point val="10.0494,12.5578"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="9.99236,12.0605;12.968,12.6148"/>
+        <dia:rectangle val="9.99234,12.0605;12.968,12.6148"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="10.0494,12.5578"/>
-        <dia:point val="12.911,12.1175"/>
+        <dia:point val="12.9109,12.1175"/>
       </dia:attribute>
       <dia:attribute name="numcp">
         <dia:int val="1"/>
@@ -543,7 +543,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#a_id#</dia:string>
+            <dia:string>#aid#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -588,7 +588,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#p_id#</dia:string>
+            <dia:string>#pid#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -651,7 +651,7 @@
         <dia:point val="14,11.95"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="13.9484,11.443;18.0458,18.0782"/>
+        <dia:rectangle val="13.9483,11.443;18.0457,18.0782"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="14,11.95"/>
@@ -912,7 +912,7 @@
         <dia:point val="26.9537,9"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="26.9037,8.95;29.0963,10.95"/>
+        <dia:rectangle val="26.9037,8.95;29.0962,10.95"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
         <dia:point val="26.9537,9"/>
@@ -992,13 +992,13 @@
     </dia:object>
     <dia:object type="Standard - Line" version="0" id="O27">
       <dia:attribute name="obj_pos">
-        <dia:point val="25.1797,7.94976"/>
+        <dia:point val="25.1796,7.94976"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
         <dia:rectangle val="25.1099,7.88005;26.974,9.24261"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="25.1797,7.94976"/>
+        <dia:point val="25.1796,7.94976"/>
         <dia:point val="26.9043,9.1729"/>
       </dia:attribute>
       <dia:attribute name="numcp">
@@ -1014,7 +1014,7 @@
         <dia:point val="14.0463,23.95"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="13.9755,9.87929;28.2694,24.0207"/>
+        <dia:rectangle val="13.9756,9.87929;28.2694,24.0207"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="14.0463,23.95"/>

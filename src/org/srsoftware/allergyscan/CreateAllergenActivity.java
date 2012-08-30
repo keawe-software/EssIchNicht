@@ -1,7 +1,8 @@
 package org.srsoftware.allergyscan;
 
+import java.io.IOException;
+
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -33,9 +34,12 @@ public class CreateAllergenActivity extends Activity implements OnKeyListener {
 
 		public boolean onKey(View v, int keyCode, KeyEvent event) {
 			if (event.getAction()==KeyEvent.ACTION_UP && keyCode==KeyEvent.KEYCODE_ENTER){
-				RemoteDatabase.storeAllergen(text.getText().toString().trim());
-				Intent intent=new Intent(this,AllergenSelectionActivity.class);
-				startActivity(intent);
+				try {
+	        RemoteDatabase.storeAllergen(text.getText().toString().trim());
+        } catch (IOException e) {
+	        Log.e(TAG, "Failed to store allergen in online database");
+        }
+				finish();
 				return true;
 			}
 			return false;

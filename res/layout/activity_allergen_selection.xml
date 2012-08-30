@@ -27,7 +27,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/storeAllergenSelection"
         android:text="@string/create_allergen" />
+
+    <Button
+        android:id="@+id/storeAllergenSelection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/listView1"
+        android:text="@string/save_value" />
 
 </RelativeLayout>
