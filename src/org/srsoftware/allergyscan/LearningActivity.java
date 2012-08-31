@@ -51,7 +51,6 @@ public class LearningActivity extends Activity implements OnClickListener {
     protected void onResume() {
     	super.onResume();
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    	Log.d(TAG, "LearningActivity.resume(productcode="+productCode+")");
     	if (scannerAvailable()){
     		if (productCode!=null){
     			askForProductName();
@@ -92,7 +91,6 @@ public class LearningActivity extends Activity implements OnClickListener {
 			if (entry==null){
 				
 				// if all allergens have been asked for
-				Log.w(TAG, "done");
 				productCode=null;
 				productName=null;
 				productId=null;
@@ -192,11 +190,12 @@ public class LearningActivity extends Activity implements OnClickListener {
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
       if (requestCode == 0) {
+      		// TODO: remove random code setting and warning message for final version
+      		Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
           if (resultCode == RESULT_OK) {
           		productCode = intent.getStringExtra("SCAN_RESULT_FORMAT")+"~"+intent.getStringExtra("SCAN_RESULT");
           } else if (resultCode == RESULT_CANCELED) {
           	// 	/*
-          	Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
           	productCode = randomCode();
           	/*/
           	Log.d(TAG, "scanning aborted");

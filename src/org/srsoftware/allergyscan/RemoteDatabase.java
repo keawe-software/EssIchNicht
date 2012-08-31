@@ -3,8 +3,10 @@ package org.srsoftware.allergyscan;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Set;
 import java.util.TreeMap;
 
 import android.util.Log;
@@ -15,7 +17,9 @@ public class RemoteDatabase {
 	private static String allergenList="listAllergens.php";
 	private static String create="create.php?device=";
 	private static String check="checkValidation.php?device=";
+	private static String update="update.php?cid=";
 	private static String UNICODE="UTF-8";
+	private static Integer missingCredits=null;
 	
 	public static TreeMap<Integer, String> getAvailableAllergens() throws IOException {
 		Log.d(TAG, "getAvailableAllergens");
@@ -37,7 +41,7 @@ public class RemoteDatabase {
 
 
 	public static void storeAllergen(String allergen) throws IOException {		
-		URL url=new URL(adress+create+MainActivity.deviceid+"&allergen="+URLEncoder.encode(allergen,UNICODE));
+		URL url=new URL(adress+create+MainActivity.deviceid+"&allergen="+encode(allergen));
 		//Log.d(TAG, url.toString());
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		reader.close();
@@ -45,7 +49,7 @@ public class RemoteDatabase {
 
 
 	public static Integer storeProduct(String productCode, String productName) throws IOException {
-		URL url=new URL(adress+create+MainActivity.deviceid+"&code="+productCode+"&product="+URLEncoder.encode(productName,UNICODE));
+		URL url=new URL(adress+create+MainActivity.deviceid+"&code="+productCode+"&product="+encode(productName));
 		//Log.d(TAG, url.toString());
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		String line=null;
@@ -70,11 +74,49 @@ public class RemoteDatabase {
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		
 		boolean result=false;
-		String line=reader.readLine();
-		Log.d(TAG, ""+line);
-		result=line.trim().equals("enabled");
+		String line=reader.readLine().trim();
+		try {
+			missingCredits = 10;
+			missingCredits = Integer.parseInt(line);
+		} catch (NumberFormatException nfe){			
+			return false;
+		}
+		result=line.equals("0");
 		reader.close();
 		return result;
+  }
+	
+	public static int missingCredits(){
+		return missingCredits;
+	}
+
+
+	public static void update(AllergyScanDatabase database) throws IOException {
+		Set<Integer> myAllergens = database.getAllergenList().keySet();
+		updateContent(myAllergens,database);
+		updateProducts(myAllergens,database);
+  }
+
+
+	private static void updateContent(Set<Integer> myAllergens, AllergyScanDatabase database) throws IOException {		
+		int lastCID=database.getLastCID();	  
+		URL url=new URL(adress+update+lastCID+"&allergens="+encode(myAllergens));
+		Log.d(TAG, url.toString());
+		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		String line=null;
+		Integer result=null;
+		if ((line=reader.readLine())!=null) result=Integer.parseInt(line.trim());
+		reader.close();
+  }
+
+
+	private static String encode(Object o) throws UnsupportedEncodingException {
+	  return URLEncoder.encode(o.toString(),UNICODE);
+  }
+
+
+	private static void updateProducts(Set<Integer> myAllergens, AllergyScanDatabase database) {
+		int lastPID=database.getLastPID();	  
   }
 
 }

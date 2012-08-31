@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -32,6 +33,7 @@ public class MainActivity extends Activity implements OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getDeviceId();
+      	database=new AllergyScanDatabase(getApplicationContext());
         setContentView(R.layout.activity_main);
     }
     
@@ -43,8 +45,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		@Override
     protected void onResume() {
     	super.onResume();
-    	AllergyScanDatabase asd=new AllergyScanDatabase(getApplicationContext());
-      if (asd.getAllergenList().isEmpty()) {
+    	Log.d(TAG, "MainActivity.onResume()");
+      if (database.getAllergenList().isEmpty()) {
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show();
       	selectAllergens();
       } else {
@@ -52,10 +54,14 @@ public class MainActivity extends Activity implements OnClickListener {
       		if (!RemoteDatabase.deviceEnabled()){
       			AlertDialog alert=new AlertDialog.Builder(this).create();
       			alert.setTitle(R.string.hint);
-      			alert.setMessage(getString(R.string.not_enabled));
+      			alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+RemoteDatabase.missingCredits()));
       			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this);
       			alert.show();      		
-      		} else if (autoUpdate()) doUpdate();
+      		} else if (autoUpdate()) {
+      			doUpdate();
+      		} else {
+      			Log.w(TAG, "scanning not implemented, yet.");
+      		}
       	} catch (IOException e){
       		Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
       		goHome();
@@ -77,6 +83,12 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		private void doUpdate() {
 	    Toast.makeText(getApplicationContext(), R.string.performing_update, Toast.LENGTH_LONG).show();
+	    
+	    try {
+	      RemoteDatabase.update(database);
+      } catch (IOException e) {
+    		Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
+      }
     }
 
 		private boolean autoUpdate() {
