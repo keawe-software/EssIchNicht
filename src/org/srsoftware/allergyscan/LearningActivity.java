@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -49,10 +50,12 @@ public class LearningActivity extends Activity implements OnClickListener {
     @Override
     protected void onResume() {
     	super.onResume();
+    	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    	Log.d(TAG, "LearningActivity.resume(productcode="+productCode+")");
     	if (scannerAvailable()){
     		if (productCode!=null){
     			askForProductName();
-    		} else startSCanning();
+    		} else startScanning();
     	}
     }
     
@@ -78,7 +81,6 @@ public class LearningActivity extends Activity implements OnClickListener {
 						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG);
 						finish();
 					}
-
 			  }
 			});
 
@@ -94,6 +96,7 @@ public class LearningActivity extends Activity implements OnClickListener {
 				productCode=null;
 				productName=null;
 				productId=null;
+				finish();
 				return;
 			}
 			final String allergen=entry.getValue();
@@ -143,10 +146,10 @@ public class LearningActivity extends Activity implements OnClickListener {
 			return null;
 		}
 
-		private void startSCanning() {
+		private void startScanning() {
 			Intent intent=new Intent(SCANNER+".SCAN");
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-			intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
+			intent.putExtra("SCAN_MODE", "PRODUCT_MODE");			
 			startActivityForResult(intent, 0);
 		}
 
@@ -192,11 +195,24 @@ public class LearningActivity extends Activity implements OnClickListener {
           if (resultCode == RESULT_OK) {
           		productCode = intent.getStringExtra("SCAN_RESULT_FORMAT")+"~"+intent.getStringExtra("SCAN_RESULT");
           } else if (resultCode == RESULT_CANCELED) {
+          	// 	/*
+          	Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
+          	productCode = randomCode();
+          	/*/
           	Log.d(TAG, "scanning aborted");
-          	finish();
+          	finish(); //*/
           }
       }
   }
+
+		private String randomCode() {
+			int number=(int)(100000*Math.random());
+			if (number<10) return "EAN_8~0000"+number; 
+			if (number<100) return "EAN_8~000"+number; 
+			if (number<1000) return "EAN_8~00"+number; 
+			if (number<10000) return "EAN_8~0"+number;
+			return "EAN_8~"+number;
+    }
 
 		public void onClick(DialogInterface dialog, int which) {			
 			goHome();

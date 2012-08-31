@@ -4,52 +4,13 @@
     android:layout_height="match_parent" >
 
     <TextView
-        android:id="@+id/productCode"
+        android:id="@+id/learningMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:text="@string/product_code"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <EditText
-        android:id="@+id/productName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/productCode"
-        android:ems="10"
-        android:hint="@string/product_name" >
-
-        <requestFocus />
-    </EditText>
-
-    <Button
-        android:id="@+id/storeProduct"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:text="@string/save_value" />
-
-    <Button
-        android:id="@+id/cancelProduct"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:text="@string/cancel" />
-
-    <ListView
-        android:id="@+id/listView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/storeProduct"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/productName" >
-
-    </ListView>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="154dp"
+        android:text="@string/learning_mode"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

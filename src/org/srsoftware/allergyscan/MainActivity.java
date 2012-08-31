@@ -1,5 +1,7 @@
 package org.srsoftware.allergyscan;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -46,23 +48,31 @@ public class MainActivity extends Activity implements OnClickListener {
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show();
       	selectAllergens();
       } else {
-      	if (!deviceEnabled()){
-      		AlertDialog alert=new AlertDialog.Builder(this).create();
-      		alert.setTitle(R.string.hint);
-      		alert.setMessage(getString(R.string.not_enabled));
-      		alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this);
-      		alert.show();      		
-      	} else if (autoUpdate()) doUpdate();
+      	try {
+      		if (!RemoteDatabase.deviceEnabled()){
+      			AlertDialog alert=new AlertDialog.Builder(this).create();
+      			alert.setTitle(R.string.hint);
+      			alert.setMessage(getString(R.string.not_enabled));
+      			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this);
+      			alert.show();      		
+      		} else if (autoUpdate()) doUpdate();
+      	} catch (IOException e){
+      		Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
+      		goHome();
+      	}
       }
     }
+		
+		private void goHome() {
+    	Toast.makeText(getApplicationContext(), R.string.will_shut_down, Toast.LENGTH_LONG).show();
+			Intent startMain = new Intent(Intent.ACTION_MAIN);
+			startMain.addCategory(Intent.CATEGORY_HOME);
+			startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(startMain);
+		}
     
     private void learnCode() {
     	startActivity(new Intent(this,LearningActivity.class));    	
-    }
-
-		private boolean deviceEnabled() {
-    	// TODO: implement
-	    return false;
     }
 
 		private void doUpdate() {
