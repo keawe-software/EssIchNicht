@@ -14,7 +14,7 @@ import android.util.Log;
 public class AllergyScanDatabase extends SQLiteOpenHelper {
 	
 	
-	private static final int DB_VERSION=16;
+	private static final int DB_VERSION=22;
 	protected static String TAG="AllergyScan";
 	
 	public static final String ALLERGENS="allergens";
@@ -24,6 +24,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	public static final String ALLERGEN_ID="aid";
 	public static final String CONTENT_ID="cid";
 	public static final String PRODUCT_ID="pid";
+	public static final String CONTAINED="contained";
 	@Override
 	
 	
@@ -37,7 +38,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		Vector<String> queries=new Vector<String>();
 		queries.add("CREATE TABLE IF NOT EXISTS "+PRODUCTS+" ("+PRODUCT_ID+" INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL, barcode TEXT NOT NULL)");
 		queries.add("CREATE TABLE IF NOT EXISTS "+ALLERGENS+" ("+ALLERGEN_ID+" INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL)");
-		queries.add("CREATE TABLE IF NOT EXISTS "+CONTENT+" ("+CONTENT_ID+" INTEGER NOT NULL PRIMARY KEY, "+ALLERGEN_ID+" INTEGER NOT NULL, "+PRODUCT_ID+" INTEGER NOT NULL)");		
+		queries.add("CREATE TABLE IF NOT EXISTS "+CONTENT+" ("+CONTENT_ID+" INTEGER NOT NULL PRIMARY KEY, "+PRODUCT_ID+" INTEGER NOT NULL, "+ALLERGEN_ID+" INTEGER NOT NULL, "+CONTAINED+" BOOL NOT NULL)");		
 		for (String query: queries){
 			Log.d(TAG, query);
 			db.execSQL(query);	
@@ -102,11 +103,17 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	public int getLastCID() {
 		SQLiteDatabase database = getReadableDatabase();
 		String[] fields={CONTENT_ID};
-		Cursor cursor = database.query(CONTENT, fields, null, null, null, null, CONTENT_ID);
+		Cursor cursor = database.query(CONTENT, fields, null, null, null, null, CONTENT_ID+" DESC");
 		cursor.moveToFirst();
 		int result=0;
 		if (!cursor.isAfterLast()) result=cursor.getInt(0); 
 		database.close();
 		return result;
   }
+
+	public void query(String query) {
+		SQLiteDatabase database=getWritableDatabase();
+		database.execSQL(query);
+		database.close();
+	}
 }

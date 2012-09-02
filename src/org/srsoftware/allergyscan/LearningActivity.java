@@ -72,6 +72,10 @@ public class LearningActivity extends Activity implements OnClickListener {
 
 				public void onClick(DialogInterface dialog, int whichButton) {
 					productName=input.getText().toString();
+					if (productName.length()<3){
+						Toast.makeText(getApplicationContext(), "Bezeichnung zu kurz!", Toast.LENGTH_LONG).show();
+						askForProductName();
+					} else
 					try {
 						productId=RemoteDatabase.storeProduct(productCode,productName);
 						if (productId==null) throw new IOException();

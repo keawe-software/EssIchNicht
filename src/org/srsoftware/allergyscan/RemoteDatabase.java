@@ -99,13 +99,25 @@ public class RemoteDatabase {
 
 
 	private static void updateContent(Set<Integer> myAllergens, AllergyScanDatabase database) throws IOException {		
-		int lastCID=database.getLastCID();	  
+		int lastCID=database.getLastCID();		
 		URL url=new URL(adress+update+lastCID+"&allergens="+encode(myAllergens));
 		Log.d(TAG, url.toString());
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		String line=null;
-		Integer result=null;
-		if ((line=reader.readLine())!=null) result=Integer.parseInt(line.trim());
+		String keys=null;
+		
+		// TODO: the following implementation is rather bad.
+		// the values should be read into an ContentValues object and then passed to an insert method instead
+		
+		if ((line=reader.readLine())!=null) {
+			keys=line.trim().replace("\t", ",");
+		}
+		while ((line=reader.readLine())!=null) {
+			line=line.trim().replace("\t", ",");
+			String query="INSERT INTO content ("+keys+") VALUES ("+line+")";
+			Log.d(TAG, query);
+			database.query(query);
+		}
 		reader.close();
   }
 
