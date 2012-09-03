@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
+import android.content.ContentValues;
 import android.util.Log;
 
 public class RemoteDatabase {
@@ -17,7 +20,7 @@ public class RemoteDatabase {
 	private static String allergenList="listAllergens.php";
 	private static String create="create.php?device=";
 	private static String check="checkValidation.php?device=";
-	private static String update="update.php?cid=";
+	private static String update="update.php?";
 	private static String UNICODE="UTF-8";
 	private static Integer missingCredits=null;
 	
@@ -70,11 +73,12 @@ public class RemoteDatabase {
 
 	public static boolean deviceEnabled() throws IOException {
 		URL url=new URL(adress+check+MainActivity.deviceid);
-		Log.d(TAG, url.toString());
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		
 		boolean result=false;
-		String line=reader.readLine().trim();
+		String line=reader.readLine();
+		if (line==null) return result;
+		line=line.trim();
 		try {
 			missingCredits = 10;
 			missingCredits = Integer.parseInt(line);
@@ -98,37 +102,69 @@ public class RemoteDatabase {
   }
 
 
-	private static void updateContent(Set<Integer> myAllergens, AllergyScanDatabase database) throws IOException {		
+	private static void updateContent(Set<Integer> myAllergens, AllergyScanDatabase database) throws IOException {
+		Log.d(TAG, "updateContent");
 		int lastCID=database.getLastCID();		
-		URL url=new URL(adress+update+lastCID+"&allergens="+encode(myAllergens));
-		Log.d(TAG, url.toString());
+		URL url=new URL(adress+update+"cid="+lastCID+"&allergens="+encode(myAllergens));		
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
-		String line=null;
-		String keys=null;
-		
-		// TODO: the following implementation is rather bad.
-		// the values should be read into an ContentValues object and then passed to an insert method instead
-		
+		String line=null;		
 		if ((line=reader.readLine())!=null) {
-			keys=line.trim().replace("\t", ",");
+			String[] keys = line.split("\t");
+			int keyNumber=keys.length;
+			while ((line=reader.readLine())!=null) {
+				String[] dummy = line.split("\t");
+				ContentValues values=new ContentValues();
+				for (int index=0;index<keyNumber; index++){					
+					String key=keys[index];
+					int value=Integer.parseInt(dummy[index]);
+					values.put(key, value);
+				}
+				database.updateContent(values);
+			}
 		}
-		while ((line=reader.readLine())!=null) {
-			line=line.trim().replace("\t", ",");
-			String query="INSERT INTO content ("+keys+") VALUES ("+line+")";
-			Log.d(TAG, query);
-			database.query(query);
-		}
-		reader.close();
+		reader.close();		
   }
 
 
 	private static String encode(Object o) throws UnsupportedEncodingException {
-	  return URLEncoder.encode(o.toString(),UNICODE);
+	  return URLEncoder.encode(o.toString().replace(", ",","),UNICODE);
   }
 
 
-	private static void updateProducts(Set<Integer> myAllergens, AllergyScanDatabase database) {
-		int lastPID=database.getLastPID();	  
+	private static void updateProducts(Set<Integer> myAllergens, AllergyScanDatabase database) throws NumberFormatException, IOException {
+		Log.d(TAG, "updateProducts");
+		TreeSet<Integer> existingPIDs=database.getAllPIDs();
+		TreeSet<Integer> referencedPIDs=database.getReferencedPIDs();
+		Log.d(TAG, "required product ids: "+referencedPIDs);
+		Log.d(TAG, "existing product ids: "+existingPIDs);
+		referencedPIDs.removeAll(existingPIDs);
+		Log.d(TAG, "download product ids: "+referencedPIDs);
+		if (referencedPIDs.isEmpty()) return;
+		URL url=new URL(adress+update+"pids="+encode(referencedPIDs));
+		Log.d(TAG, url.toString());
+		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		String line=null;		
+		if ((line=reader.readLine())!=null) {
+			String[] keys = line.split("\t");
+			int keyNumber=keys.length;
+			while ((line=reader.readLine())!=null) {
+				String[] dummy = line.split("\t");
+				ContentValues values=new ContentValues();
+				for (int index=0;index<keyNumber; index++){					
+					String key=keys[index];
+					String value=dummy[index];
+					try{
+						int intValue=Integer.parseInt(value);
+						values.put(key, intValue);
+					} catch (NumberFormatException nfe){
+						values.put(key, value);
+					}					
+				}
+				database.updateProducts(values);
+			}
+		}
+		reader.close();		
+		
   }
 
 }

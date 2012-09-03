@@ -25,8 +25,8 @@ import com.example.allergyscan.R;
 
 public class LearningActivity extends Activity implements OnClickListener {
 		protected static String TAG="AllergyScan";
-		private static String SCANNER="com.google.zxing.client.android";
-		private String productCode=null;
+		protected static String SCANNER="com.google.zxing.client.android";
+		protected static String productCode=null;
 		private String productName=null;
 		private Integer productId=null;
 		private TreeMap<Integer, String> allergens;
@@ -205,16 +205,23 @@ public class LearningActivity extends Activity implements OnClickListener {
           	Log.d(TAG, "scanning aborted");
           	finish(); //*/
           }
-      }
-  }
+      	}
+    }
 
-		private String randomCode() {
+		static String randomCode() {
+	/*		double dummy = Math.random();
+			if (dummy<0.25) return "EAN_111111";
+			if (dummy<0.5) return "EAN_222222";
+			if (dummy<0.75) return "EAN_333333";
+			if (dummy<2) return "EAN_44444";
+			
+		/*/	
 			int number=(int)(100000*Math.random());
 			if (number<10) return "EAN_8~0000"+number; 
 			if (number<100) return "EAN_8~000"+number; 
 			if (number<1000) return "EAN_8~00"+number; 
 			if (number<10000) return "EAN_8~0"+number;
-			return "EAN_8~"+number;
+			return "EAN_8~"+number; //*/
     }
 
 		public void onClick(DialogInterface dialog, int which) {			

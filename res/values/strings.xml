@@ -36,5 +36,13 @@
     <string name="no">Nein</string>
     <string name="dont_know">keine Ahnung</string>
     <string name="learning_mode">Lernmodus</string>
+    <string name="update">Aktualisierung ausführen</string>
+    <string name="title_activity_scan">ScanActivity</string>
+    <string name="contains">enthält:</string>
+    <string name="not_contained">enthält nicht:</string>
+    <string name="now_enabled">Das Gerät wurde nun freigeschaltet.</string>
+    <string name="scan">Scannen!</string>
+    <string name="unclear">unklar:</string>
+    <string name="unknown_product">Dies ist ein unbekanntes Produkt. Lernmodus wird gestartet...</string>
 
 </resources>

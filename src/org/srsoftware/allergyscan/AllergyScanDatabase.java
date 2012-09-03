@@ -2,6 +2,7 @@ package org.srsoftware.allergyscan;
 
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import android.content.ContentValues;
@@ -14,12 +15,12 @@ import android.util.Log;
 public class AllergyScanDatabase extends SQLiteOpenHelper {
 	
 	
-	private static final int DB_VERSION=22;
+	private static final int DB_VERSION=28;
 	protected static String TAG="AllergyScan";
 	
-	public static final String ALLERGENS="allergens";
-	public static final String CONTENT="content";
-	public static final String PRODUCTS="products";
+	public static final String ALLERGEN_TABLE="allergens";
+	public static final String CONTENT_TABLE="content";
+	public static final String PRODUCT_TABLE="products";
 	
 	public static final String ALLERGEN_ID="aid";
 	public static final String CONTENT_ID="cid";
@@ -36,9 +37,9 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	private void createTables(SQLiteDatabase db) {
 		Log.d(TAG, "AllergyScanDatabase.createTables()");
 		Vector<String> queries=new Vector<String>();
-		queries.add("CREATE TABLE IF NOT EXISTS "+PRODUCTS+" ("+PRODUCT_ID+" INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL, barcode TEXT NOT NULL)");
-		queries.add("CREATE TABLE IF NOT EXISTS "+ALLERGENS+" ("+ALLERGEN_ID+" INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL)");
-		queries.add("CREATE TABLE IF NOT EXISTS "+CONTENT+" ("+CONTENT_ID+" INTEGER NOT NULL PRIMARY KEY, "+PRODUCT_ID+" INTEGER NOT NULL, "+ALLERGEN_ID+" INTEGER NOT NULL, "+CONTAINED+" BOOL NOT NULL)");		
+		queries.add("CREATE TABLE IF NOT EXISTS "+PRODUCT_TABLE+" ("+PRODUCT_ID+" INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL, barcode TEXT NOT NULL)");
+		queries.add("CREATE TABLE IF NOT EXISTS "+ALLERGEN_TABLE+" ("+ALLERGEN_ID+" INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL)");
+		queries.add("CREATE TABLE IF NOT EXISTS "+CONTENT_TABLE+" ("+CONTENT_ID+" INTEGER NOT NULL PRIMARY KEY, "+PRODUCT_ID+" INTEGER NOT NULL, "+ALLERGEN_ID+" INTEGER NOT NULL, "+CONTAINED+" BOOL NOT NULL)");		
 		for (String query: queries){
 			Log.d(TAG, query);
 			db.execSQL(query);	
@@ -54,9 +55,9 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 	private void dropTables(SQLiteDatabase db) {
 		Log.d(TAG, "AllergyScanDatabase.dropTables()");
-		db.execSQL("DROP TABLE IF EXISTS "+PRODUCTS);
-		db.execSQL("DROP TABLE IF EXISTS "+ALLERGENS);
-		db.execSQL("DROP TABLE IF EXISTS "+CONTENT);		
+		db.execSQL("DROP TABLE IF EXISTS "+PRODUCT_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS "+ALLERGEN_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS "+CONTENT_TABLE);		
 	}
 
 	public AllergyScanDatabase(Context context) {
@@ -67,7 +68,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	  TreeMap<Integer, String> result=new TreeMap<Integer, String>();
 	  SQLiteDatabase database = getReadableDatabase();
 		String[] fields={ALLERGEN_ID,"name"};
-		Cursor cursor = database.query(ALLERGENS, fields, null, null, null, null, null);
+		Cursor cursor = database.query(ALLERGEN_TABLE, fields, null, null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()){
 			result.put(cursor.getInt(0), cursor.getString(1));
@@ -79,12 +80,12 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 	public void setSelectedAllergens(TreeMap<Integer, String> selectedAllergens) {
 		SQLiteDatabase database=getWritableDatabase();
-		database.delete(ALLERGENS, null, null);
+		database.delete(ALLERGEN_TABLE, null, null);
 		for (Entry<Integer, String> entry:selectedAllergens.entrySet()){
 			ContentValues values=new ContentValues();
 			values.put(ALLERGEN_ID, entry.getKey());
 			values.put("name", entry.getValue());
-			database.insert(ALLERGENS, null, values);			
+			database.insert(ALLERGEN_TABLE, null, values);			
 		}
 		database.close();
   }
@@ -92,7 +93,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	public int getLastPID() {
 		SQLiteDatabase database = getReadableDatabase();
 		String[] fields={PRODUCT_ID};
-		Cursor cursor = database.query(PRODUCTS, fields, null, null, null, null, PRODUCT_ID);
+		Cursor cursor = database.query(PRODUCT_TABLE, fields, null, null, null, null, PRODUCT_ID);
 		cursor.moveToFirst();
 		int result=0;
 		if (!cursor.isAfterLast()) result=cursor.getInt(0); 
@@ -103,7 +104,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	public int getLastCID() {
 		SQLiteDatabase database = getReadableDatabase();
 		String[] fields={CONTENT_ID};
-		Cursor cursor = database.query(CONTENT, fields, null, null, null, null, CONTENT_ID+" DESC");
+		Cursor cursor = database.query(CONTENT_TABLE, fields, null, null, null, null, CONTENT_ID+" DESC");
 		cursor.moveToFirst();
 		int result=0;
 		if (!cursor.isAfterLast()) result=cursor.getInt(0); 
@@ -111,9 +112,83 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		return result;
   }
 
-	public void query(String query) {
-		SQLiteDatabase database=getWritableDatabase();
-		database.execSQL(query);
+	public void updateContent(ContentValues values) {
+	  SQLiteDatabase database=getWritableDatabase();
+	  database.insert(CONTENT_TABLE, null, values);
+	  database.close();
+  }
+
+	public TreeSet<Integer> getAllPIDs() {
+		SQLiteDatabase database=getReadableDatabase();
+		TreeSet<Integer> result=new TreeSet<Integer>();
+		String[] fields={PRODUCT_ID};
+		Cursor cursor=database.query(PRODUCT_TABLE, fields, null, null, null, null, null);
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()){
+			result.add(cursor.getInt(0));
+			cursor.moveToNext();
+		}
+	  return result;
+  }
+
+	public TreeSet<Integer> getReferencedPIDs() {
+		SQLiteDatabase database=getReadableDatabase();
+		TreeSet<Integer> result=new TreeSet<Integer>();
+		String[] fields={PRODUCT_ID};
+		Cursor cursor=database.query(true, CONTENT_TABLE, fields, null, null, null, null, null, null);
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()){
+			result.add(cursor.getInt(0));
+			cursor.moveToNext();
+		}
+	  return result;
+  }
+
+	public void updateProducts(ContentValues values) {
+	  SQLiteDatabase database=getWritableDatabase();
+	  database.insert(PRODUCT_TABLE, null, values);
+	  database.close();
+  }
+
+	public MyEntry getProduct(String productCode) {
+		SQLiteDatabase database=getReadableDatabase();
+		String[] fields={PRODUCT_ID,"name"};
+		Cursor cursor=database.query(PRODUCT_TABLE, fields, "barcode = '"+productCode+"'", null, null, null, null);
+		cursor.moveToFirst();
+		MyEntry result = null;
+		if (!cursor.isAfterLast()){
+			int pid=cursor.getInt(0);
+			String name=cursor.getString(1);
+			result=new MyEntry(pid, name);
+			cursor.moveToNext();
+		}
 		database.close();
-	}
+	  return result;
+  }
+
+	public TreeSet<Integer> getContainedAllergens(int pid) {
+		SQLiteDatabase db=getReadableDatabase();
+		String[] fields={ALLERGEN_ID,"contained"};
+		Cursor cursor=db.query(CONTENT_TABLE, fields, CONTAINED+"=1 AND "+PRODUCT_ID+"="+pid, null, null, null, null);
+		cursor.moveToFirst();
+		TreeSet<Integer> result=new TreeSet<Integer>();
+		while (!cursor.isAfterLast()){
+			result.add(cursor.getInt(0));
+			cursor.moveToNext();
+		}	  
+		return result;
+  }
+
+	public TreeSet<Integer> getUnContainedAllergens(int pid) {
+		SQLiteDatabase db=getReadableDatabase();
+		String[] fields={ALLERGEN_ID,"contained"};
+		Cursor cursor=db.query(CONTENT_TABLE, fields, CONTAINED+"=0 AND "+PRODUCT_ID+"="+pid, null, null, null, null);
+		cursor.moveToFirst();
+		TreeSet<Integer> result=new TreeSet<Integer>();
+		while (!cursor.isAfterLast()){
+			result.add(cursor.getInt(0));
+			cursor.moveToNext();
+		}	  
+		return result;
+  }
 }
