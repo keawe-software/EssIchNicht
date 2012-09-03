@@ -101,7 +101,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			deviceEnabled=RemoteDatabase.deviceEnabled();
 			if (deviceEnabled) {
 				Toast.makeText(getApplicationContext(), R.string.now_enabled, Toast.LENGTH_LONG).show();
-				settings.edit().putBoolean("deviceEnabled", true);				
+				settings.edit().putBoolean("deviceEnabled", true).commit();
+				
 			}
 			return deviceEnabled;
     }
