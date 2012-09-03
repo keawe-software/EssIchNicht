@@ -22,6 +22,7 @@ public class RemoteDatabase {
 	private static String update="update.php?";
 	private static String UNICODE="UTF-8";
 	private static Integer missingCredits=null;
+	private static String getproductname="getproduct.php?barcode=";
 	
 	public static TreeMap<Integer, String> getAvailableAllergens() throws IOException {
 		Log.d(TAG, "getAvailableAllergens");
@@ -64,7 +65,7 @@ public class RemoteDatabase {
 
 	public static void storeAllergenInfo(int allergenId, Integer productId, boolean b) throws IOException {
 		URL url=new URL(adress+create+MainActivity.deviceid+"&aid="+allergenId+"&pid="+productId+"&contained="+b);
-		//Log.d(TAG, url.toString());
+		Log.d(TAG, url.toString());
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		reader.close();
 	}
@@ -161,5 +162,21 @@ public class RemoteDatabase {
 		reader.close();		
 		
   }
+
+
+	public static String getProductName(String productBarCode) throws IOException {		
+		Log.d(TAG, "getProductName");
+		URL url=new URL(adress+getproductname+productBarCode);
+		Log.d(TAG, url.toString());
+		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		String line=null;
+		TreeMap<Integer, String> result=new TreeMap<Integer, String>();
+		if ((line=reader.readLine())!=null) {
+			line=line.trim();
+			if (line.length()<1) line=null;
+		}
+		reader.close();		
+		return line;
+	}
 
 }

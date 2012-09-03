@@ -26,7 +26,7 @@ import com.example.allergyscan.R;
 public class LearningActivity extends Activity implements OnClickListener {
 		protected static String TAG="AllergyScan";
 		protected static String SCANNER="com.google.zxing.client.android";
-		protected static String productCode=null;
+		protected static String productBarCode=null;
 		private String productName=null;
 		private Integer productId=null;
 		private TreeMap<Integer, String> allergens;
@@ -52,17 +52,25 @@ public class LearningActivity extends Activity implements OnClickListener {
     	super.onResume();
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     	if (scannerAvailable()){
-    		if (productCode!=null){
+    		if (productBarCode!=null){
     			askForProductName();
     		} else startScanning();
     	}
     }
     
-		private void askForProductName() {
+		private void askForProductName() {			
+			try {
+				productName=RemoteDatabase.getProductName(productBarCode);				
+			} catch (IOException e1) {}
+			if (productName!=null) {
+				askForAllergens(0);
+				return;
+			}
+			
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 			alert.setTitle(R.string.product_name);
-			alert.setMessage(getString(R.string.enter_product_name).replace("#product", productCode));
+			alert.setMessage(getString(R.string.enter_product_name).replace("#product", productBarCode));
 
 			// Set an EditText view to get user input 
 			final EditText input = new EditText(this);
@@ -77,7 +85,7 @@ public class LearningActivity extends Activity implements OnClickListener {
 						askForProductName();
 					} else
 					try {
-						productId=RemoteDatabase.storeProduct(productCode,productName);
+						productId=RemoteDatabase.storeProduct(productBarCode,productName);
 						if (productId==null) throw new IOException();
 						askForAllergens(0);
 					} catch (IOException e) {
@@ -91,11 +99,12 @@ public class LearningActivity extends Activity implements OnClickListener {
 		}		
 
 		protected void askForAllergens(final int index) {
+			Log.d(TAG, "AskForAllergens("+index+")");
 			Entry<Integer, String> entry = getAllergen(index);
 			if (entry==null){
 				
 				// if all allergens have been asked for
-				productCode=null;
+				productBarCode=null;
 				productName=null;
 				productId=null;
 				finish();
@@ -197,10 +206,10 @@ public class LearningActivity extends Activity implements OnClickListener {
       		// TODO: remove random code setting and warning message for final version
       		Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
           if (resultCode == RESULT_OK) {
-          		productCode = intent.getStringExtra("SCAN_RESULT_FORMAT")+"~"+intent.getStringExtra("SCAN_RESULT");
+          		productBarCode = intent.getStringExtra("SCAN_RESULT_FORMAT")+"~"+intent.getStringExtra("SCAN_RESULT");
           } else if (resultCode == RESULT_CANCELED) {
           	// 	/*
-          	productCode = randomCode();
+          	productBarCode = randomCode();
           	/*/
           	Log.d(TAG, "scanning aborted");
           	finish(); //*/

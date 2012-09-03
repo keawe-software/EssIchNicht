@@ -23,6 +23,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -31,12 +34,13 @@ import android.widget.Toast;
 
 import com.example.allergyscan.R;
 
-public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener {
+public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener, OnItemClickListener {
 
 	protected static String deviceid = null;
 	protected static String TAG="AllergyScan";
 	AllergyScanDatabase database=null;
 	private String productCode;
+	private ProductData productData;
 	private ListView list;
 	private ArrayList<String> listItems;
 	private ArrayAdapter adapter;
@@ -59,6 +63,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			listItems=new ArrayList<String>();
   			adapter=new ArrayAdapter(this,android.R.layout.simple_list_item_1,listItems);
   			list.setAdapter(adapter);
+  			list.setOnItemClickListener(this);
   					
         Button scanButton=(Button)findViewById(R.id.scanButton);
         scanButton.setOnClickListener(this);
@@ -85,9 +90,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this);
       			alert.show();      		
       		} else {
-      			if (productCode==null){
-      				if (autoUpdate()) doUpdate();
-      			} else scanCode();      			
+      			if (autoUpdate()) doUpdate();
+      			if (productCode!=null) handleResult(); // if a product has been scanned before: handle it      			
       		}
       	} catch (IOException e){
       		Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
@@ -111,29 +115,27 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		private void scanCode() {
 			Log.d(TAG, "Main.scanCode("+productCode+")");
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    	if (productCode!=null){
-    		handleResult();    		
-    	} else if (scannerAvailable()){    		
+    	if (scannerAvailable()){    		
     		startScanning();
     	}
     }
 		
 		private void handleResult() {			
   		AllergyScanDatabase database=new AllergyScanDatabase(this);
-  		MyEntry productData=database.getProduct(productCode);
+  		productData=database.getProduct(productCode);
   		if (productData==null){
-  			LearningActivity.productCode=productCode;
   			Toast.makeText(getApplicationContext(), R.string.unknown_product, Toast.LENGTH_LONG).show();
+  			LearningActivity.productBarCode=productCode;
   			Intent intent=new Intent(this,LearningActivity.class);
   			startActivity(intent); // TODO: hier wird dann der Barcode nochmal gelesen. Besser wäre den gelesenen Code mitzugeben!
-  			
   		} else {
     		Log.d(TAG, productData.toString());
   			TextView productTitle = (TextView)findViewById(R.id.productTitle);
 
-  			productTitle.setText(productData.getValue());
-  			int pid=productData.getKey();
+  			productTitle.setText(productData.name());
+  			int pid=productData.pid();
   			TreeMap<Integer, String> allAllergens = database.getAllergenList();
+  			LearningActivity.productBarCode=productCode;
   			listItems.clear();
 
   			TreeSet<Integer> contained=database.getContainedAllergens(pid,allAllergens.keySet());
@@ -157,10 +159,9 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   				for (int aid:unclear) listItems.add("? "+allAllergens.get(aid));
   			}
   			
-  			adapter.notifyDataSetChanged();
-  		}
+  			adapter.notifyDataSetChanged();    		
+    	}
   		productCode=null;
-
     }
 
 		private void startScanning() {
@@ -224,7 +225,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	      e.printStackTrace();
 	      return;
       } 
-	    Toast.makeText(getApplicationContext(), R.string.performing_update, Toast.LENGTH_LONG).show();
+	    Toast.makeText(getApplicationContext(), R.string.performing_update, Toast.LENGTH_SHORT).show();
   		
 	    try {
 	      RemoteDatabase.update(database);
@@ -254,8 +255,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	switch (item.getItemId()){
     		case R.id.allergen_selection: selectAllergens(); break;
     		case R.id.menu_settings: editPreferences(); break;
-    		case R.id.update: doUpdate();
-    		case R.id.info: showInfoActivity();
+    		case R.id.update: doUpdate(); break;
+    		case R.id.info: showInfoActivity(); break;
     	}
       return dummy;
     }
@@ -272,8 +273,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			learnCode();
     }
 
-		@Override
-    public void onClick(View v) { // for clicks on "scan" button
+		public void onClick(View v) { // for clicks on "scan" button
 			scanCode();	    
     }
 		
@@ -283,4 +283,61 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		  scanCode();
 		  return dummy;
 		}
+
+		public void onItemClick(AdapterView<?> arg0, View view, int arg2, long arg3) {
+			String allergen = ((TextView) view).getText().toString();
+			if (allergen.startsWith("?")||allergen.startsWith("+")||allergen.startsWith("-")){
+				allergen=allergen.substring(1).trim();
+				AllergyScanDatabase asd=new AllergyScanDatabase(getApplicationContext());
+				final Integer allergenId=asd.getAid(allergen);
+				final Integer productId=productData.pid();
+				final String productName=productData.name();
+				
+				AlertDialog.Builder alert = new AlertDialog.Builder(this);
+				
+				alert.setTitle(allergen);
+				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen));
+				
+				alert.setPositiveButton(R.string.yes, new android.content.DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						try {
+							RemoteDatabase.storeAllergenInfo(allergenId,productId,true);
+							if (autoUpdate()){
+								doUpdate();
+								productCode=productData.code();
+								handleResult();
+							}
+						} catch (IOException e) {
+							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG);
+							finish();
+						}
+					}
+				});
+				alert.setNegativeButton(R.string.no, new android.content.DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						try {
+							RemoteDatabase.storeAllergenInfo(allergenId,productId,false);
+							if (autoUpdate()){
+								doUpdate();
+								productCode=productData.code();
+								handleResult();
+							}
+						} catch (IOException e) {
+							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG);
+							finish();
+						}
+					}
+				});
+				alert.setNeutralButton(R.string.dont_know, new android.content.DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						Log.d(TAG, "neutral");
+						productCode=null;
+					}
+				});
+
+				alert.show();
+			}
+		}
+
+		
 }

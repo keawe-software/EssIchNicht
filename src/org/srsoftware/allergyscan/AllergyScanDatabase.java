@@ -16,7 +16,7 @@ import android.util.Log;
 public class AllergyScanDatabase extends SQLiteOpenHelper {
 	
 	
-	private static final int DB_VERSION=28;
+	private static final int DB_VERSION=34;
 	protected static String TAG="AllergyScan";
 	
 	public static final String ALLERGEN_TABLE="allergens";
@@ -88,6 +88,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			values.put("name", entry.getValue());
 			database.insert(ALLERGEN_TABLE, null, values);			
 		}
+		database.delete(CONTENT_TABLE, null, null);
 		database.close();
   }
 
@@ -151,16 +152,16 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	  database.close();
   }
 
-	public MyEntry getProduct(String productCode) {
+	public ProductData getProduct(String productBarcode) {
 		SQLiteDatabase database=getReadableDatabase();
 		String[] fields={PRODUCT_ID,"name"};
-		Cursor cursor=database.query(PRODUCT_TABLE, fields, "barcode = '"+productCode+"'", null, null, null, null);
+		Cursor cursor=database.query(PRODUCT_TABLE, fields, "barcode = '"+productBarcode+"'", null, null, null, null);
 		cursor.moveToFirst();
-		MyEntry result = null;
+		ProductData result = null;
 		if (!cursor.isAfterLast()){
 			int pid=cursor.getInt(0);
 			String name=cursor.getString(1);
-			result=new MyEntry(pid, name);
+			result=new ProductData(pid, productBarcode,name);
 			cursor.moveToNext();
 		}
 		database.close();
@@ -194,4 +195,16 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		}	  
 		return result;
   }
+
+	public int getAid(String allergen) {
+		SQLiteDatabase db=getReadableDatabase();
+		String[] fields={ALLERGEN_ID};
+		Cursor cursor=db.query(ALLERGEN_TABLE, fields, "name='"+allergen+"'", null, null, null, null);
+		cursor.moveToFirst();
+		Integer aid=null;
+		if (!cursor.isAfterLast()){
+			aid=cursor.getInt(0);
+		}	  
+		return aid;
+	}
 }
