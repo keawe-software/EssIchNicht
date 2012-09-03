@@ -10,12 +10,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -30,7 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.allergyscan.R;
-import com.example.allergyscan.ScanActivity;
 
 public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener {
 
@@ -133,13 +132,13 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			TreeSet<Integer> contained=database.getContainedAllergens(pid);
   			if (!contained.isEmpty()){
   				listItems.add(getString(R.string.contains));  			
-  				for (int aid:contained) listItems.add("+ "+allAllergens.get(aid));
+  				for (int aid:contained) if (allAllergens.containsKey(aid)) listItems.add("+ "+allAllergens.get(aid));
   			}
 
   			TreeSet<Integer> uncontained=database.getUnContainedAllergens(pid);
   			if (!uncontained.isEmpty()){
   				listItems.add(getString(R.string.not_contained));  			
-  				for (int aid:uncontained) listItems.add("- "+allAllergens.get(aid));
+  				for (int aid:uncontained) if (allAllergens.containsKey(aid)) listItems.add("- "+allAllergens.get(aid));
   			}
   			
   			Set<Integer> unclear = allAllergens.keySet();
@@ -147,7 +146,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			unclear.removeAll(uncontained);
   			if (!unclear.isEmpty()){
   				listItems.add(getString(R.string.unclear));  			
-  				for (int aid:unclear) listItems.add("? "+allAllergens.get(aid));
+  				for (int aid:unclear) if (allAllergens.containsKey(aid)) listItems.add("? "+allAllergens.get(aid));
   			}
   			
   			adapter.notifyDataSetChanged();
