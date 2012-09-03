@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Set;
@@ -135,13 +134,9 @@ public class RemoteDatabase {
 		Log.d(TAG, "updateProducts");
 		TreeSet<Integer> existingPIDs=database.getAllPIDs();
 		TreeSet<Integer> referencedPIDs=database.getReferencedPIDs();
-		Log.d(TAG, "required product ids: "+referencedPIDs);
-		Log.d(TAG, "existing product ids: "+existingPIDs);
 		referencedPIDs.removeAll(existingPIDs);
-		Log.d(TAG, "download product ids: "+referencedPIDs);
 		if (referencedPIDs.isEmpty()) return;
 		URL url=new URL(adress+update+"pids="+encode(referencedPIDs));
-		Log.d(TAG, url.toString());
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		String line=null;		
 		if ((line=reader.readLine())!=null) {

@@ -45,6 +45,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		private void getDeviceId() {
 			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 			deviceid = telephonyManager.getDeviceId();
+			if (deviceid.equals("000000000000000")) deviceid="356812044161832"; // TODO: this should be removed, later on
 		}
 	
     @Override
@@ -275,4 +276,11 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     public void onClick(View v) { // for clicks on "scan" button
 			scanCode();	    
     }
+		
+		@Override
+		public boolean onSearchRequested() {
+		  boolean dummy = super.onSearchRequested();
+		  scanCode();
+		  return dummy;
+		}
 }
