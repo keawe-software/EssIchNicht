@@ -135,16 +135,17 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			TreeMap<Integer, String> allAllergens = database.getAllergenList();
   			listItems.clear();
 
-  			TreeSet<Integer> contained=database.getContainedAllergens(pid);
+  			TreeSet<Integer> contained=database.getContainedAllergens(pid,allAllergens.keySet());
+  			
   			if (!contained.isEmpty()){
   				listItems.add(getString(R.string.contains));  			
-  				for (int aid:contained) if (allAllergens.containsKey(aid)) listItems.add("+ "+allAllergens.get(aid));
+  				for (int aid:contained) listItems.add("+ "+allAllergens.get(aid));
   			}
 
-  			TreeSet<Integer> uncontained=database.getUnContainedAllergens(pid);
+  			TreeSet<Integer> uncontained=database.getUnContainedAllergens(pid,allAllergens.keySet());
   			if (!uncontained.isEmpty()){
   				listItems.add(getString(R.string.not_contained));  			
-  				for (int aid:uncontained) if (allAllergens.containsKey(aid)) listItems.add("- "+allAllergens.get(aid));
+  				for (int aid:uncontained) listItems.add("- "+allAllergens.get(aid));
   			}
   			
   			Set<Integer> unclear = allAllergens.keySet();
@@ -152,7 +153,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			unclear.removeAll(uncontained);
   			if (!unclear.isEmpty()){
   				listItems.add(getString(R.string.unclear));  			
-  				for (int aid:unclear) if (allAllergens.containsKey(aid)) listItems.add("? "+allAllergens.get(aid));
+  				for (int aid:unclear) listItems.add("? "+allAllergens.get(aid));
   			}
   			
   			adapter.notifyDataSetChanged();

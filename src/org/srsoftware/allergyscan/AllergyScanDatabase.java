@@ -1,6 +1,7 @@
 package org.srsoftware.allergyscan;
 
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -166,27 +167,29 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	  return result;
   }
 
-	public TreeSet<Integer> getContainedAllergens(int pid) {
+	public TreeSet<Integer> getContainedAllergens(int pid, Set<Integer> limitTo) {
 		SQLiteDatabase db=getReadableDatabase();
 		String[] fields={ALLERGEN_ID,"contained"};
 		Cursor cursor=db.query(CONTENT_TABLE, fields, CONTAINED+"=1 AND "+PRODUCT_ID+"="+pid, null, null, null, null);
 		cursor.moveToFirst();
 		TreeSet<Integer> result=new TreeSet<Integer>();
 		while (!cursor.isAfterLast()){
-			result.add(cursor.getInt(0));
+			int aid=cursor.getInt(0);
+			if (limitTo.contains(aid)) result.add(aid);
 			cursor.moveToNext();
 		}	  
 		return result;
   }
 
-	public TreeSet<Integer> getUnContainedAllergens(int pid) {
+	public TreeSet<Integer> getUnContainedAllergens(int pid, Set<Integer> limitTo) {
 		SQLiteDatabase db=getReadableDatabase();
 		String[] fields={ALLERGEN_ID,"contained"};
 		Cursor cursor=db.query(CONTENT_TABLE, fields, CONTAINED+"=0 AND "+PRODUCT_ID+"="+pid, null, null, null, null);
 		cursor.moveToFirst();
 		TreeSet<Integer> result=new TreeSet<Integer>();
 		while (!cursor.isAfterLast()){
-			result.add(cursor.getInt(0));
+			int aid=cursor.getInt(0);
+			if (limitTo.contains(aid)) result.add(aid);
 			cursor.moveToNext();
 		}	  
 		return result;
