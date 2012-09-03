@@ -254,8 +254,13 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     		case R.id.allergen_selection: selectAllergens(); break;
     		case R.id.menu_settings: editPreferences(); break;
     		case R.id.update: doUpdate();
+    		case R.id.info: showInfoActivity();
     	}
       return dummy;
+    }
+
+		private void showInfoActivity() {
+			startActivity(new Intent(this,InfoActivity.class));
     }
 
 		private void editPreferences() {

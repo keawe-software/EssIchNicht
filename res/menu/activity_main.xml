@@ -5,4 +5,5 @@
         android:showAsAction="never" />
     <item android:id="@+id/allergen_selection" android:title="@string/title_activity_allergen_selection"></item>
     <item android:id="@+id/update" android:title="@string/update"></item>
+    <item android:id="@+id/info" android:title="@string/info"></item>
 </menu>
