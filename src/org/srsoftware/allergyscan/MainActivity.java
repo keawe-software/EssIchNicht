@@ -36,11 +36,11 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	protected static String deviceid = null;
 	protected static String TAG="AllergyScan";
 	AllergyScanDatabase database=null;
-	private boolean deviceEnabled=false;
 	private String productCode;
 	private ListView list;
 	private ArrayList<String> listItems;
 	private ArrayAdapter adapter;
+	private SharedPreferences settings;
 	
 		private void getDeviceId() {
 			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -53,6 +53,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
         getDeviceId();
       	database=new AllergyScanDatabase(getApplicationContext());
         setContentView(R.layout.activity_main);
+        settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
   			list=(ListView)findViewById(R.id.containmentList);
   			listItems=new ArrayList<String>();
   			adapter=new ArrayAdapter(this,android.R.layout.simple_list_item_1,listItems);
@@ -95,9 +96,13 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     }
 		
 		private boolean deviceEnabled() throws IOException {
+			boolean deviceEnabled=settings.getBoolean("deviceEnabled", false);
 			if (deviceEnabled) return true;
 			deviceEnabled=RemoteDatabase.deviceEnabled();
-			if (deviceEnabled) Toast.makeText(getApplicationContext(), R.string.now_enabled, Toast.LENGTH_LONG).show(); 
+			if (deviceEnabled) {
+				Toast.makeText(getApplicationContext(), R.string.now_enabled, Toast.LENGTH_LONG).show();
+				settings.edit().putBoolean("deviceEnabled", true);				
+			}
 			return deviceEnabled;
     }
 
