@@ -1,12 +1,10 @@
 package org.srsoftware.allergyscan;
 
-import com.example.allergyscan.R;
-import com.example.allergyscan.R.layout;
-import com.example.allergyscan.R.menu;
-
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.Menu;
+
+import com.example.allergyscan.R;
 
 public class InfoActivity extends Activity {
 

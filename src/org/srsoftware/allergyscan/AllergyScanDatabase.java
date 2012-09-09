@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -27,6 +28,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	public static final String CONTENT_ID="cid";
 	public static final String PRODUCT_ID="pid";
 	public static final String CONTAINED="contained";
+	private SharedPreferences settings;
 	@Override
 	
 	
@@ -58,11 +60,13 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		Log.d(TAG, "AllergyScanDatabase.dropTables()");
 		db.execSQL("DROP TABLE IF EXISTS "+PRODUCT_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS "+ALLERGEN_TABLE);
-		db.execSQL("DROP TABLE IF EXISTS "+CONTENT_TABLE);		
+		db.execSQL("DROP TABLE IF EXISTS "+CONTENT_TABLE);
+		settings.edit().putBoolean("deviceEnabled", true).commit();
 	}
 
-	public AllergyScanDatabase(Context context) {
+	public AllergyScanDatabase(Context context, SharedPreferences settings) {
 		super(context, "allergenDB", null, DB_VERSION);
+		this.settings=settings;
 	}
 
 	public TreeMap<Integer, String> getAllergenList() {	  
@@ -130,6 +134,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.add(cursor.getInt(0));
 			cursor.moveToNext();
 		}
+		database.close();
 	  return result;
   }
 
@@ -143,6 +148,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.add(cursor.getInt(0));
 			cursor.moveToNext();
 		}
+		database.close();
 	  return result;
   }
 
@@ -179,6 +185,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			if (limitTo.contains(aid)) result.add(aid);
 			cursor.moveToNext();
 		}	  
+		db.close();
 		return result;
   }
 
@@ -193,6 +200,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			if (limitTo.contains(aid)) result.add(aid);
 			cursor.moveToNext();
 		}	  
+		db.close();
 		return result;
   }
 
@@ -205,6 +213,13 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		if (!cursor.isAfterLast()){
 			aid=cursor.getInt(0);
 		}	  
+		db.close();
 		return aid;
+	}
+
+	public void removeContent(Integer aid, Integer pid) {
+		SQLiteDatabase db=getWritableDatabase();
+		db.delete(CONTENT_TABLE, "aid="+aid+" AND pid="+pid, null);
+		db.close();
 	}
 }

@@ -9,8 +9,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
@@ -30,13 +30,16 @@ public class LearningActivity extends Activity implements OnClickListener {
 		private String productName=null;
 		private Integer productId=null;
 		private TreeMap<Integer, String> allergens;
+		private SharedPreferences settings;
+		private AllergyScanDatabase localDatabase;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learning);
-	    	AllergyScanDatabase asd=new AllergyScanDatabase(getApplicationContext());
-	      allergens=asd.getAllergenList();
+        settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
+	    	localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
+	      allergens=localDatabase.getAllergenList();
 
 //        getActionBar().setDisplayHomeAsUpEnabled(true);        
     }
@@ -89,7 +92,7 @@ public class LearningActivity extends Activity implements OnClickListener {
 						if (productId==null) throw new IOException();
 						askForAllergens(0);
 					} catch (IOException e) {
-						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG);
+						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
 						finish();
 					}
 			  }
@@ -122,7 +125,7 @@ public class LearningActivity extends Activity implements OnClickListener {
 					try {
 						RemoteDatabase.storeAllergenInfo(allergenId,productId,true);
 					} catch (IOException e) {
-						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG);
+						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
 						finish();
 					}
 					askForAllergens(index+1);
@@ -133,7 +136,7 @@ public class LearningActivity extends Activity implements OnClickListener {
 					try {
 						RemoteDatabase.storeAllergenInfo(allergenId,productId,false);
 					} catch (IOException e) {
-						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG);
+						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
 						finish();
 					}
 					askForAllergens(index+1);
@@ -164,10 +167,11 @@ public class LearningActivity extends Activity implements OnClickListener {
 			startActivityForResult(intent, 0);
 		}
 
+		@SuppressWarnings("deprecation")
 		private boolean scannerAvailable() {
     	PackageManager pm = getPackageManager();
       try {
-         ApplicationInfo appInfo = pm.getApplicationInfo(SCANNER, 0);
+         pm.getApplicationInfo(SCANNER, 0);
          return true;
       } catch (NameNotFoundException e) {
       	AlertDialog dialog = new AlertDialog.Builder(this)

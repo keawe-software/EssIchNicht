@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.SparseBooleanArray;
@@ -30,12 +31,16 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
 		private Button createButton,storeButton;
 		private ListView list;
 		private TreeMap<Integer,String> availableAllergens;
+		private SharedPreferences settings;
+		private AllergyScanDatabase localDatabase;
 		
 		
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_allergen_selection);
+        settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
+        localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
         createButton=(Button)findViewById(R.id.createAllergenButton);
         storeButton=(Button)findViewById(R.id.storeAllergenSelection);
         list = (ListView)findViewById(R.id.listView1);
@@ -65,8 +70,7 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
         	Collections.sort(entries,String.CASE_INSENSITIVE_ORDER); // sort case insensitive
         	ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice, entries);
          	list.setAdapter(adapter);          	// Assign adapter to ListView         	         	
-         	AllergyScanDatabase asd=new AllergyScanDatabase(getApplicationContext());
-         	Collection<String> selectedNames = asd.getAllergenList().values();
+         	Collection<String> selectedNames = localDatabase.getAllergenList().values();
          	int size=entries.size();
          	for (int i=0; i<size; i++){
          		if (selectedNames.contains(list.getItemAtPosition(i).toString())) list.setItemChecked(i, true);
@@ -120,7 +124,7 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
 		  for (int i=0; i<=size; i++) if (positions.get(i)) names.add(list.getItemAtPosition(i).toString());
 		  TreeMap<Integer,String> selectedAllergens=new TreeMap<Integer, String>();
 		  for (Entry<Integer, String> entry:availableAllergens.entrySet())	if (names.contains(entry.getValue())) selectedAllergens.put(entry.getKey(), entry.getValue());
-		  (new AllergyScanDatabase(getApplicationContext())).setSelectedAllergens(selectedAllergens);
+		  localDatabase.setSelectedAllergens(selectedAllergens);
 		  finish();
     }
 

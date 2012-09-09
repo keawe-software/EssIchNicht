@@ -146,16 +146,21 @@ public class RemoteDatabase {
 			while ((line=reader.readLine())!=null) {
 				String[] dummy = line.split("\t");
 				ContentValues values=new ContentValues();
+				Integer aid=null;
+				Integer pid=null;
 				for (int index=0;index<keyNumber; index++){					
 					String key=keys[index];
 					String value=dummy[index];
 					try{
 						int intValue=Integer.parseInt(value);
+						if (key.equals("aid")) aid=intValue;
+						if (key.equals("pid")) pid=intValue;
 						values.put(key, intValue);
 					} catch (NumberFormatException nfe){
 						values.put(key, value);
 					}					
 				}
+				database.removeContent(aid,pid);
 				database.updateProducts(values);
 			}
 		}
@@ -170,7 +175,6 @@ public class RemoteDatabase {
 		Log.d(TAG, url.toString());
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		String line=null;
-		TreeMap<Integer, String> result=new TreeMap<Integer, String>();
 		if ((line=reader.readLine())!=null) {
 			line=line.trim();
 			if (line.length()<1) line=null;
