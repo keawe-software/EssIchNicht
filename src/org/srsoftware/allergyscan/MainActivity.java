@@ -46,48 +46,55 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	private ArrayAdapter adapter;
 	private SharedPreferences settings;
 	
+		/**
+		 * request the internal id of the device might be unique.
+		 */
 		private void getDeviceId() {
 			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 			deviceid = telephonyManager.getDeviceId();
 			if (deviceid.equals("000000000000000")) deviceid="356812044161832"; // TODO: this should be removed, later on
 		}
 	
-    @Override
+    /* (non-Javadoc)
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+		@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getDeviceId();
-      	database=new AllergyScanDatabase(getApplicationContext());
-        setContentView(R.layout.activity_main);
-        settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+        getDeviceId(); // request the id and store in global variable
+      	database=new AllergyScanDatabase(getApplicationContext()); // create database handle
+        setContentView(R.layout.activity_main); 
+        settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
+        
+        /* prepare result list */
   			list=(ListView)findViewById(R.id.containmentList);
-  			listItems=new ArrayList<String>();
+  			listItems=new ArrayList<String>(); 
   			adapter=new ArrayAdapter(this,android.R.layout.simple_list_item_1,listItems);
   			list.setAdapter(adapter);
   			list.setOnItemClickListener(this);
   					
-        Button scanButton=(Button)findViewById(R.id.scanButton);
+        Button scanButton=(Button)findViewById(R.id.scanButton); // start to listen to the scan-button
         scanButton.setOnClickListener(this);
     }
     
-    @Override
-    protected void onStart() {    	
-    	super.onStart();
-    }
-
+		/* (non-Javadoc)
+		 * @see android.app.Activity#onResume()
+		 */
 		@Override
     protected void onResume() {
     	super.onResume();
     	Log.d(TAG, "MainActivity.onResume()");
-      if (database.getAllergenList().isEmpty()) {
-      	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show();
-      	selectAllergens();
+      if (database.getAllergenList().isEmpty()) { // if there are no allergens selected, yet:
+      	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
+      	selectAllergens(); // show allergen selection view
       } else {
       	try {      		
-      		if (!deviceEnabled()){
-      			AlertDialog alert=new AlertDialog.Builder(this).create();
+      		if (!deviceEnabled()){ // if device has not been enabled, yet:
+      			AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
       			alert.setTitle(R.string.hint);
       			alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+RemoteDatabase.missingCredits()));
-      			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this);
+      			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode
       			alert.show();      		
       		} else {
       			if (autoUpdate()) doUpdate();
