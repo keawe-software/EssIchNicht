@@ -2,6 +2,7 @@ package org.srsoftware.allergyscan;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -44,6 +45,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	private ArrayAdapter adapter;
 	private SharedPreferences settings;
 	
+	
 		/**
 		 * request the internal id of the device might be unique.
 		 */
@@ -60,11 +62,15 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getDeviceId(); // request the id and store in global variable
+      	checkExpiration();
+
+      	getDeviceId(); // request the id and store in global variable
         setContentView(R.layout.activity_main); 
         settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
       	localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
         
+      	
+      	
         /* prepare result list */
   			list=(ListView)findViewById(R.id.containmentList);
   			listItems=new ArrayList<String>(); 
@@ -76,6 +82,19 @@ public class MainActivity extends Activity implements OnClickListener, android.c
         scanButton.setOnClickListener(this);
     }
     
+		/**
+		 * for testversions: check, whether expiration date has been reached
+		 */
+		private void checkExpiration() {
+    	Calendar currentDate = Calendar.getInstance();
+    	Calendar expirationDate=Calendar.getInstance();
+    	expirationDate.set(2012, 9, 30);
+    	if (currentDate.after(expirationDate)){
+    		Toast.makeText(getApplicationContext(), R.string.expired, Toast.LENGTH_LONG).show();
+  			goHome();
+    	}
+		}
+
 		/* (non-Javadoc)
 		 * @see android.app.Activity#onResume()
 		 */
@@ -207,7 +226,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
           	productCode = LearningActivity.randomCode();
           	/*/
           	Log.d(TAG, "scanning aborted");
-          	finish(); //*/
+          	//finish(); //*/
           }
       	}
     }
