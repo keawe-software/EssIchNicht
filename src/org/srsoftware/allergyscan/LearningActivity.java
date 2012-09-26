@@ -212,7 +212,7 @@ public class LearningActivity extends Activity implements OnClickListener {
           if (resultCode == RESULT_OK) {
           		productBarCode = intent.getStringExtra("SCAN_RESULT_FORMAT")+"~"+intent.getStringExtra("SCAN_RESULT");
           } else if (resultCode == RESULT_CANCELED) {
-          	// 	/*
+          	/*
           	productBarCode = randomCode();
           	/*/
           	Log.d(TAG, "scanning aborted");

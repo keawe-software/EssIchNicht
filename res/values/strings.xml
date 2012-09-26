@@ -48,5 +48,6 @@
     <string name="dedication">Diese Anwendung ist Dorett Pretsch gewidmet, welche mich im Jahre 2012 dazu inspiriert hat. Ich danke außerdem Kathi und Gerd, sowie allen fleißigen Testern.\n\n--Stephan Richter--\nwww.srsoftware.de</string>
     <string name="info">info</string>
     <string name="expired">Sie nutzen eine Testversion des Programmes. Diese Testversion ist abgelaufen.</string>
+    <string name="welcome">Wilkommen - Allergen-Scanner</string>
 
 </resources>

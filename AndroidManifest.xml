@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.allergyscan"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.10" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -68,11 +68,10 @@
         <activity
             android:name="org.srsoftware.allergyscan.InfoActivity"
             android:label="@string/title_activity_info" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.srsoftware.allergyscan.MainActivity" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

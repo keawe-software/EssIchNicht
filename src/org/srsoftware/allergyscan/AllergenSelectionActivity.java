@@ -13,7 +13,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v4.app.NavUtils;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
@@ -40,8 +39,7 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_allergen_selection);
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+
 
         settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
         localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle

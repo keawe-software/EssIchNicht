@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:text="@string/title_activity_main"
+        android:text="@string/welcome"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ListView
