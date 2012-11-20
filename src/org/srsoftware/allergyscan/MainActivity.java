@@ -66,7 +66,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
         
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-      	checkExpiration();
 
       	getDeviceId(); // request the id and store in global variable
         setContentView(R.layout.activity_main); 
@@ -89,14 +88,16 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		/**
 		 * for testversions: check, whether expiration date has been reached
 		 */
-		private void checkExpiration() {
+		private boolean checkExpiration() {
     	Calendar currentDate = Calendar.getInstance();
     	Calendar expirationDate=Calendar.getInstance();
-    	expirationDate.set(2012, 9, 30);
+    	expirationDate.set(2012, 12, 15);
     	if (currentDate.after(expirationDate)){
     		Toast.makeText(getApplicationContext(), R.string.expired, Toast.LENGTH_LONG).show();
   			goHome();
+  			return true;
     	}
+    	return false;
 		}
 
 		/* (non-Javadoc)
@@ -105,6 +106,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		@Override
     protected void onResume() {
     	super.onResume();
+    	if (checkExpiration()) return;
+
     	Log.d(TAG, "MainActivity.onResume()");
       if (localDatabase.getAllergenList().isEmpty()) { // if there are no allergens selected, yet:
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
