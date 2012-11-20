@@ -46,16 +46,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	private ArrayAdapter adapter;
 	private SharedPreferences settings;
 	
-	
-		/**
-		 * request the internal id of the device might be unique.
-		 */
-		private void getDeviceId() {
-			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-			deviceid = telephonyManager.getDeviceId();
-			if (deviceid.equals("000000000000000")) deviceid="356812044161832"; // TODO: this should be removed, later on
-		}
-	
     /* (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
@@ -71,8 +61,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
         setContentView(R.layout.activity_main); 
         settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
       	localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
-        
-      	
       	
         /* prepare result list */
   			list=(ListView)findViewById(R.id.containmentList);
@@ -85,6 +73,54 @@ public class MainActivity extends Activity implements OnClickListener, android.c
         scanButton.setOnClickListener(this);
     }
     
+		/* (non-Javadoc)
+		 * @see android.app.Activity#onResume()
+		 */
+		@Override
+    protected void onResume() {
+    	super.onResume();
+    	Log.d(TAG, "MainActivity.onResume()");
+    	if (checkExpiration()) return;
+    	LearningActivity.productBarCode=null;
+      if (localDatabase.getAllergenList().isEmpty()) { // if there are no allergens selected, yet:
+      	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
+      	selectAllergens(); // show allergen selection view
+      } else {
+      	try {      		
+      		if (!deviceEnabled()){ // if device has not been enabled, yet:
+      			AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
+      			alert.setTitle(R.string.hint);
+      			alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+RemoteDatabase.missingCredits()));
+      			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode 
+      			alert.show(); // Pressing "OK" calls learnCode()      		
+      		} else {
+      			if (autoUpdate()) doUpdate(); // if automatic updates are allowed, we will do so
+      			if (productCode!=null) handleResult(); // if a product has been scanned before: handle it      			
+      		}
+      	} catch (IOException e){ // if we can not connect to the server at a point, where a connection is needed
+      		Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
+      		goHome(); // warn and then go to the home screen
+      	}
+      }
+    }
+		
+    /**
+     * start the learning activity
+     */
+    private void learnCode() {
+    	Log.d(TAG, "MainActivity.learnCode");
+    	startActivity(new Intent(this,LearningActivity.class));    	
+    }
+      	
+		/**
+		 * request the internal id of the device might be unique.
+		 */
+		private void getDeviceId() {
+			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+			deviceid = telephonyManager.getDeviceId();
+			if (deviceid.equals("000000000000000")) deviceid="356812044161832"; // TODO: this should be removed, later on
+		}
+		
 		/**
 		 * for testversions: check, whether expiration date has been reached
 		 */
@@ -99,37 +135,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	}
     	return false;
 		}
-
-		/* (non-Javadoc)
-		 * @see android.app.Activity#onResume()
-		 */
-		@Override
-    protected void onResume() {
-    	super.onResume();
-    	if (checkExpiration()) return;
-
-    	Log.d(TAG, "MainActivity.onResume()");
-      if (localDatabase.getAllergenList().isEmpty()) { // if there are no allergens selected, yet:
-      	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
-      	selectAllergens(); // show allergen selection view
-      } else {
-      	try {      		
-      		if (!deviceEnabled()){ // if device has not been enabled, yet:
-      			AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
-      			alert.setTitle(R.string.hint);
-      			alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+RemoteDatabase.missingCredits()));
-      			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode 
-      			alert.show(); // "OK" calls learnCode()      		
-      		} else {
-      			if (autoUpdate()) doUpdate(); // if automatic updates are allowed, we will do so
-      			if (productCode!=null) handleResult(); // if a product has been scanned before: handle it      			
-      		}
-      	} catch (IOException e){ // if we can not connect to the server at a point, where a connection is needed
-      		Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-      		goHome(); // warn and then go to the home screen
-      	}
-      }
-    }
 		
 		/**
 		 * check, whether the device is enabled or has been enabled before
@@ -137,9 +142,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * @throws IOException
 		 */
 		private boolean deviceEnabled() throws IOException {
-			boolean test=false;
-			RemoteDatabase.missingCredits=10;
-			if (!test) return false;
 			boolean deviceEnabled=settings.getBoolean("deviceEnabled", false); // if already enabled: skip checking and return true
 			if (deviceEnabled) return true;
 			
@@ -276,13 +278,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			startActivity(startMain);
 		}
     
-    /**
-     * start the learning activity
-     */
-    private void learnCode() {
-    	startActivity(new Intent(this,LearningActivity.class));    	
-    }
-
 		/**
 		 * perform update
 		 */

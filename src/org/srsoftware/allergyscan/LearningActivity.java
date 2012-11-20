@@ -40,69 +40,71 @@ public class LearningActivity extends Activity implements OnClickListener {
         settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
 	    	localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
 	      allergens=localDatabase.getAllergenList();
-
 //        getActionBar().setDisplayHomeAsUpEnabled(true);        
     }
 
-    @Override
+     @Override
+    protected void onResume() {
+    	super.onResume();
+    	Log.d(TAG, "LearningActivity.onResume()");
+    	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    	if (scannerAvailable()){
+    		if (productBarCode!=null){
+    			handleProductBarcode();
+    		} else startScanning();
+    	}
+    }
+     
+     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_learning, menu);
         return true;
     }
     
-    @Override
-    protected void onResume() {
-    	super.onResume();
-    	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    	if (scannerAvailable()){
-    		if (productBarCode!=null){
-    			askForProductName();
-    		} else startScanning();
-    	}
+    private ProductData getProduct(String productBarcode){
+    	ProductData product = localDatabase.getProduct(productBarcode);
+    	if (product==null) try {
+				product=RemoteDatabase.getProduct(productBarCode);
+			} catch (IOException e1) {}
+    	return product;
     }
     
-		private void askForProductName() {
-			ProductData product = localDatabase.getProduct(productBarCode);
+		private void handleProductBarcode() {
+			ProductData product = getProduct(productBarCode);
 			if (product!=null){
 				productName=product.name();
 				productId=product.pid();
-			} else try {
-				productName=RemoteDatabase.getProductName(productBarCode);				
-			} catch (IOException e1) {}
-			if (productName!=null) {
-				askForAllergens(0);
-				return;
 			}
-			
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			if (productName==null) {
+				AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-			alert.setTitle(R.string.product_name);
-			alert.setMessage(getString(R.string.enter_product_name).replace("#product", productBarCode));
+				alert.setTitle(R.string.product_name);
+				alert.setMessage(getString(R.string.enter_product_name).replace("#product", productBarCode));
 
-			// Set an EditText view to get user input 
-			final EditText input = new EditText(this);
-			alert.setView(input);
+				// Set an EditText view to get user input 
+				final EditText input = new EditText(this);
+				alert.setView(input);
 
-			alert.setPositiveButton("Ok", new OnClickListener() {
+				alert.setPositiveButton("Ok", new OnClickListener() {
 
-				public void onClick(DialogInterface dialog, int whichButton) {
-					productName=input.getText().toString();
-					if (productName.length()<3){
-						Toast.makeText(getApplicationContext(), "Bezeichnung zu kurz!", Toast.LENGTH_LONG).show();
-						askForProductName();
-					} else
-					try {
-						productId=RemoteDatabase.storeProduct(productBarCode,productName);
-						if (productId==null) throw new IOException();
-						askForAllergens(0);
-					} catch (IOException e) {
-						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-						finish();
+					public void onClick(DialogInterface dialog, int whichButton) {
+						productName=input.getText().toString();
+						if (productName.length()<3){
+							Toast.makeText(getApplicationContext(), "Bezeichnung zu kurz!", Toast.LENGTH_LONG).show();
+							handleProductBarcode();
+						} else try {
+							productId=RemoteDatabase.storeProduct(productBarCode,productName);
+							if (productId==null) throw new IOException();
+							askForAllergens(0);
+						} catch (IOException e) {
+							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
+							finish();
+						}
 					}
-			  }
-			});
+				});
 
-			alert.show();
+				alert.show();
+			} else askForAllergens(0);
 		}		
 
 		protected void askForAllergens(final int index) {
@@ -119,11 +121,10 @@ public class LearningActivity extends Activity implements OnClickListener {
 			}
 			final String allergen=entry.getValue();
 			final int allergenId=entry.getKey();
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);			
 			alert.setTitle(allergen);
 			alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen));
-			
 			alert.setPositiveButton(R.string.yes, new OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					try {
@@ -155,7 +156,7 @@ public class LearningActivity extends Activity implements OnClickListener {
 				}
 			});
 
-			alert.show();
+			alert.show(); // after execution of onClick-method we return to onResume()
 		}
 
 		private Entry<Integer, String> getAllergen(int index) {
