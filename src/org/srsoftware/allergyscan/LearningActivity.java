@@ -61,8 +61,12 @@ public class LearningActivity extends Activity implements OnClickListener {
     	}
     }
     
-		private void askForProductName() {			
-			try {
+		private void askForProductName() {
+			ProductData product = localDatabase.getProduct(productBarCode);
+			if (product!=null){
+				productName=product.name();
+				productId=product.pid();
+			} else try {
 				productName=RemoteDatabase.getProductName(productBarCode);				
 			} catch (IOException e1) {}
 			if (productName!=null) {
@@ -105,7 +109,7 @@ public class LearningActivity extends Activity implements OnClickListener {
 			Log.d(TAG, "AskForAllergens("+index+")");
 			Entry<Integer, String> entry = getAllergen(index);
 			if (entry==null){
-				
+				Log.d(TAG, "resetting product infos");
 				// if all allergens have been asked for
 				productBarCode=null;
 				productName=null;
@@ -123,6 +127,7 @@ public class LearningActivity extends Activity implements OnClickListener {
 			alert.setPositiveButton(R.string.yes, new OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					try {
+						localDatabase.storeAllergenInfo(allergenId,productId,true);
 						RemoteDatabase.storeAllergenInfo(allergenId,productId,true);
 					} catch (IOException e) {
 						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
@@ -134,6 +139,7 @@ public class LearningActivity extends Activity implements OnClickListener {
 			alert.setNegativeButton(R.string.no, new OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					try {
+						localDatabase.storeAllergenInfo(allergenId,productId,false);
 						RemoteDatabase.storeAllergenInfo(allergenId,productId,false);
 					} catch (IOException e) {
 						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
@@ -161,10 +167,10 @@ public class LearningActivity extends Activity implements OnClickListener {
 		}
 
 		private void startScanning() {
-			Intent intent=new Intent(SCANNER+".SCAN");
+			Intent intent=new Intent(SCANNER+".SCAN"); // start zxing scanne
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 			intent.putExtra("SCAN_MODE", "PRODUCT_MODE");			
-			startActivityForResult(intent, 0);
+			startActivityForResult(intent, 0); // scanner calls onActivityResult
 		}
 
 		@SuppressWarnings("deprecation")
@@ -207,12 +213,13 @@ public class LearningActivity extends Activity implements OnClickListener {
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
       if (requestCode == 0) {
-      		// TODO: remove random code setting and warning message for final version
-      		Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
           if (resultCode == RESULT_OK) {
           		productBarCode = intent.getStringExtra("SCAN_RESULT_FORMAT")+"~"+intent.getStringExtra("SCAN_RESULT");
+          		// here the product code is set; afterwards onResume is called again
           } else if (resultCode == RESULT_CANCELED) {
           	/*
+      		  // TODO: remove random code setting and warning message for final version
+      			Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
           	productBarCode = randomCode();
           	/*/
           	Log.d(TAG, "scanning aborted");

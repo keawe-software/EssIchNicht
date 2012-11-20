@@ -118,8 +118,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       			AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
       			alert.setTitle(R.string.hint);
       			alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+RemoteDatabase.missingCredits()));
-      			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode
-      			alert.show();      		
+      			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode 
+      			alert.show(); // "OK" calls learnCode()      		
       		} else {
       			if (autoUpdate()) doUpdate(); // if automatic updates are allowed, we will do so
       			if (productCode!=null) handleResult(); // if a product has been scanned before: handle it      			
@@ -137,6 +137,9 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * @throws IOException
 		 */
 		private boolean deviceEnabled() throws IOException {
+			boolean test=false;
+			RemoteDatabase.missingCredits=10;
+			if (!test) return false;
 			boolean deviceEnabled=settings.getBoolean("deviceEnabled", false); // if already enabled: skip checking and return true
 			if (deviceEnabled) return true;
 			

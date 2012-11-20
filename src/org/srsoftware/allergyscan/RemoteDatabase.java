@@ -21,7 +21,7 @@ public class RemoteDatabase {
 	private static String check="checkValidation.php?device=";
 	private static String update="update.php?";
 	private static String UNICODE="UTF-8";
-	private static Integer missingCredits=null;
+	static Integer missingCredits=null;
 	private static String getproductname="getproduct.php?barcode=";
 	
 	public static TreeMap<Integer, String> getAvailableAllergens() throws IOException {

@@ -222,4 +222,9 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.delete(CONTENT_TABLE, "aid="+aid+" AND pid="+pid, null);
 		db.close();
 	}
+
+	public void storeAllergenInfo(int allergenId, Integer productId, boolean b) {
+		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo not implemented");
+		
+	}
 }
