@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
@@ -23,7 +24,7 @@ import android.widget.Toast;
 
 import com.example.allergyscan.R;
 
-public class LearningActivity extends Activity implements OnClickListener {
+public class LearningActivity extends Activity {
 		protected static String TAG="AllergyScan";
 		protected static String SCANNER="com.google.zxing.client.android";
 		protected static String productBarCode=null;
@@ -181,14 +182,19 @@ public class LearningActivity extends Activity implements OnClickListener {
          pm.getApplicationInfo(SCANNER, 0);
          return true;
       } catch (NameNotFoundException e) {
-      	AlertDialog dialog = new AlertDialog.Builder(this)
-        .setTitle(R.string.warning)
-        .setMessage(R.string.no_scanner)
-        .setCancelable(false).create();
-      	
-      	dialog.setButton(getString(R.string.ok), this);
-        dialog.show();
-
+      	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+      	dialogBuilder.setTitle(R.string.warning);
+      	dialogBuilder.setMessage(R.string.no_scanner);
+      	dialogBuilder.setCancelable(false);
+      	AlertDialog dialog = dialogBuilder.create();
+      	dialog.setButton(getString(R.string.ok), new OnClickListener() {
+					
+      		public void onClick(DialogInterface dialog, int which) {	
+      			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.scannerUrl)));
+      			startActivity(browserIntent);
+          }
+				});
+      	dialog.show();
       	
       	return false;
       }
@@ -243,9 +249,5 @@ public class LearningActivity extends Activity implements OnClickListener {
 			if (number<1000) return "EAN_8~00"+number; 
 			if (number<10000) return "EAN_8~0"+number;
 			return "EAN_8~"+number; //*/
-    }
-
-		public void onClick(DialogInterface dialog, int which) {			
-			goHome();
     }
 }

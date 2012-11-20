@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.telephony.TelephonyManager;
@@ -254,12 +255,20 @@ public class MainActivity extends Activity implements OnClickListener, android.c
          pm.getApplicationInfo(LearningActivity.SCANNER, 0);
          return true;
       } catch (Exception e) { // if some exception occurs, this will be most likely caused by the missing scanner library
-      	AlertDialog dialog = new AlertDialog.Builder(this)
-        .setTitle(R.string.warning)
-        .setMessage(R.string.no_scanner)
-        .setCancelable(false).create();
+      	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+      	dialogBuilder.setTitle(R.string.warning);
+        dialogBuilder.setMessage(R.string.no_scanner);
+        dialogBuilder.setCancelable(false);
+        AlertDialog dialog = dialogBuilder.create();
       	
-      	dialog.setButton(getString(R.string.ok), this);
+      	dialog.setButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						Log.d(TAG, "should start browser");
+						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.scannerUrl)));
+						startActivity(browserIntent);
+					}
+				});
         dialog.show();
 
       	
@@ -290,7 +299,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       } 
   		
   		// actually perform update
-	    Toast.makeText(getApplicationContext(), R.string.performing_update, Toast.LENGTH_SHORT).show();  		
+	    Toast.makeText(getApplicationContext(), R.string.performing_update, Toast.LENGTH_LONG).show();  		
 	    try {
 	      RemoteDatabase.update(localDatabase);
       } catch (IOException e) {
