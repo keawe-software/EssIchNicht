@@ -117,46 +117,46 @@ public class LearningActivity extends Activity implements OnClickListener {
 				productName=null;
 				productId=null;
 				finish();
-				return;
-			}
-			final String allergen=entry.getValue();
-			final int allergenId=entry.getKey();
+			} else { // entry != null, which means we have another allergen in question
+				final String allergen=entry.getValue();
+				final int allergenId=entry.getKey();
 			
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);			
-			alert.setTitle(allergen);
-			alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen));
-			alert.setPositiveButton(R.string.yes, new OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					try {
-						localDatabase.storeAllergenInfo(allergenId,productId,true);
-						RemoteDatabase.storeAllergenInfo(allergenId,productId,true);
-					} catch (IOException e) {
-						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-						finish();
+				AlertDialog.Builder alert = new AlertDialog.Builder(this);			
+				alert.setTitle(allergen);
+				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen));
+				alert.setPositiveButton(R.string.yes, new OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						try {
+							localDatabase.storeAllergenInfo(allergenId,productId,true);
+							RemoteDatabase.storeAllergenInfo(allergenId,productId,true);
+						} catch (IOException e) {
+							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
+							finish();
+						}
+						askForAllergens(index+1);
 					}
-					askForAllergens(index+1);
-				}
-			});
-			alert.setNegativeButton(R.string.no, new OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					try {
-						localDatabase.storeAllergenInfo(allergenId,productId,false);
-						RemoteDatabase.storeAllergenInfo(allergenId,productId,false);
-					} catch (IOException e) {
-						Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-						finish();
+				});
+				alert.setNegativeButton(R.string.no, new OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						try {
+							localDatabase.storeAllergenInfo(allergenId,productId,false);
+							RemoteDatabase.storeAllergenInfo(allergenId,productId,false);
+						} catch (IOException e) {
+							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
+							finish();
+						}
+						askForAllergens(index+1);
 					}
-					askForAllergens(index+1);
-				}
-			});
-			alert.setNeutralButton(R.string.dont_know, new OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					Log.d(TAG, "don't know, whether "+productName+" contains "+allergen);
-					askForAllergens(index+1);
-				}
-			});
+				});
+				alert.setNeutralButton(R.string.dont_know, new OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						Log.d(TAG, "don't know, whether "+productName+" contains "+allergen);
+						askForAllergens(index+1);
+					}
+				});
 
-			alert.show(); // after execution of onClick-method we return to onResume()
+				alert.show(); // after execution of onClick-method we return to onResume()
+			}
 		}
 
 		private Entry<Integer, String> getAllergen(int index) {
