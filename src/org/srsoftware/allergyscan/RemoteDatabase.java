@@ -1,11 +1,15 @@
 package org.srsoftware.allergyscan;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -15,10 +19,8 @@ import android.util.Log;
 
 public class RemoteDatabase {
 	protected static String TAG="AllergyScan";
-	private static String adress="http://allergy.srsoftware.de/";
-	private static String allergenList="listAllergens.php";
+	private static String adress="http://allergy.srsoftware.de?action=";
 	private static String create="create.php?device=";
-	private static String check="checkValidation.php?device=";
 	private static String update="update.php?";
 	private static String UNICODE="UTF-8";
 	static Integer missingCredits=null;
@@ -26,8 +28,8 @@ public class RemoteDatabase {
 	
 	public static TreeMap<Integer, String> getAvailableAllergens() throws IOException {
 		Log.d(TAG, "getAvailableAllergens");
-		URL url=new URL(adress+allergenList);
-		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		URL url=new URL(adress+"allergenList");
+		BufferedReader reader=postData(url, null);
 		String line;
 		TreeMap<Integer, String> result=new TreeMap<Integer, String>();
 		while ((line=reader.readLine())!=null){
@@ -69,20 +71,50 @@ public class RemoteDatabase {
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		reader.close();
 	}
+	
+	private static BufferedReader postData(URL url, TreeMap<String, String> data) throws IOException{
+		Log.d(TAG, "trying to send POST data to "+url+":");
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("POST");
+		connection.setDoOutput(true);
+    connection.setDoInput(true);
 
+    if (data!=null && !data.isEmpty()){
+      DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+      for (Iterator<Entry<String, String>> it=data.entrySet().iterator(); it.hasNext();){
+    		Entry<String, String> entry = it.next();    	
+    		out.writeBytes(entry.getKey()+"="+entry.getValue());
+    		Log.d(TAG,entry.getKey()+"="+entry.getValue());
+    		if (it.hasNext()){
+    			out.write('&');
+    		}
+    	}    
+    	out.close();
+    }
+    
+    BufferedReader result=new BufferedReader(new InputStreamReader(connection.getInputStream()));
+    return result;
+	}
+	
+	private static BufferedReader postData(URL url,String key,String value) throws IOException{
+		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
+		data.put(key,value);
+		return postData(url, data);
+	}
 
 	public static boolean deviceEnabled() throws IOException {
-		URL url=new URL(adress+check+MainActivity.deviceid);
-		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
-		
+		URL url=new URL(adress+"validate");
+		BufferedReader reader=postData(url, "device", MainActivity.deviceid);		
 		boolean result=false;
-		String line=reader.readLine();
-		if (line==null) return result;
+		String line=null;
+		line=reader.readLine();		
+		if (line==null) return result;		
 		line=line.trim();
+
 		try {
-			missingCredits = 10;
-			missingCredits = Integer.parseInt(line);
-		} catch (NumberFormatException nfe){			
+			missingCredits = 10; // initially, set to 10
+			missingCredits = Integer.parseInt(line); // try to overwrite with parsed value
+		} catch (NumberFormatException nfe){ // if parsing fails, missing credits will remain 10
 			return false;
 		}
 		result=line.equals("0");

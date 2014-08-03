@@ -55,8 +55,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build(); // permit networkOnMain
+        StrictMode.setThreadPolicy(policy);  // instead of allowing network on main, update shoud be carried out by separate thread
 
       	getDeviceId(); // request the id and store in global variable
         setContentView(R.layout.activity_main); 
@@ -82,7 +82,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	super.onResume();
     	Log.d(TAG, "MainActivity.onResume()");
     	if (checkExpiration()) return;
-    	LearningActivity.productBarCode=null;
+    	LearningActivity.productBarCode=null; // reset learning activity
       if (localDatabase.getAllergenList().isEmpty()) { // if there are no allergens selected, yet:
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
       	selectAllergens(); // show allergen selection view
@@ -114,12 +114,11 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     }
       	
 		/**
-		 * request the internal id of the device might be unique.
+		 * request the internal id of the device. this id should be unique.
 		 */
 		private void getDeviceId() {
 			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 			deviceid = telephonyManager.getDeviceId();
-			if (deviceid.equals("000000000000000")) deviceid="356812044161832"; // TODO: this should be removed, later on
 		}
 		
 		/**
@@ -128,7 +127,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		private boolean checkExpiration() {
     	Calendar currentDate = Calendar.getInstance();
     	Calendar expirationDate=Calendar.getInstance();
-    	expirationDate.set(2012, 12, 15);
+    	expirationDate.set(2014, 12, 15);
     	if (currentDate.after(expirationDate)){
     		Toast.makeText(getApplicationContext(), R.string.expired, Toast.LENGTH_LONG).show();
   			goHome();
@@ -248,7 +247,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * check, whether the barcode scanning library is available
 		 * @return
 		 */
-		@SuppressWarnings("deprecation")
 		private boolean scannerAvailable() {
     	PackageManager pm = getPackageManager();
       try {
@@ -261,7 +259,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
         dialogBuilder.setCancelable(false);
         AlertDialog dialog = dialogBuilder.create();
       	
-      	dialog.setButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+      	dialog.setButton(DialogInterface.BUTTON_POSITIVE,getString(R.string.ok), new DialogInterface.OnClickListener() {
 					
 					public void onClick(DialogInterface dialog, int which) {
 						Log.d(TAG, "should start browser");

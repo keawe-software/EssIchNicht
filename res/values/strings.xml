@@ -49,5 +49,6 @@
     <string name="info">info</string>
     <string name="expired">Sie nutzen eine Testversion des Programmes. Diese Testversion ist abgelaufen.</string>
     <string name="welcome">Wilkommen - Allergen-Scanner</string>
+    <string name="scannerUrl">test</string>
 
 </resources>
