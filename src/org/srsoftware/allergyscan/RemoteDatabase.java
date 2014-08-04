@@ -73,9 +73,8 @@ public class RemoteDatabase {
 		data.put("device", MainActivity.deviceid);
 		data.put("aid", ""+allergenId);
 		data.put("pid", ""+productId);
-		data.put("contained", contained?"1":"0");
-		postData(url, data);
-		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		data.put("contained", contained?"1":"0");		
+		BufferedReader reader=postData(url, data);
 		reader.close();
 	}
 	
