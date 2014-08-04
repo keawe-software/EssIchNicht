@@ -20,10 +20,8 @@ import android.util.Log;
 public class RemoteDatabase {
 	protected static String TAG="AllergyScan";
 	private static String adress="http://allergy.srsoftware.de?action=";
-	private static String create="create.php?device=";
 	private static String UNICODE="UTF-8";
 	static Integer missingCredits=null;
-	private static String getproduct="getproduct.php?barcode=";
 	
 	public static TreeMap<Integer, String> getAvailableAllergens() throws IOException {
 		Log.d(TAG, "getAvailableAllergens");
@@ -68,9 +66,15 @@ public class RemoteDatabase {
 	}
 
 
-	public static void storeAllergenInfo(int allergenId, Integer productId, boolean b) throws IOException {
-		URL url=new URL(adress+create+MainActivity.deviceid+"&aid="+allergenId+"&pid="+productId+"&contained="+b);
+	public static void storeAllergenInfo(int allergenId, Integer productId, boolean contained) throws IOException {
+		URL url=new URL(adress+"storeinfo");
 		Log.d(TAG, url.toString());
+		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
+		data.put("device", MainActivity.deviceid);
+		data.put("aid", ""+allergenId);
+		data.put("pid", ""+productId);
+		data.put("contained", contained?"1":"0");
+		postData(url, data);
 		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
 		reader.close();
 	}

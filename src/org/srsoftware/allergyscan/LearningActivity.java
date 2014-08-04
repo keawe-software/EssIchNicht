@@ -200,14 +200,6 @@ public class LearningActivity extends Activity {
       }
     }
     
-		private void goHome() {
-    	Toast.makeText(getApplicationContext(), R.string.will_shut_down, Toast.LENGTH_LONG).show();
-			Intent startMain = new Intent(Intent.ACTION_MAIN);
-			startMain.addCategory(Intent.CATEGORY_HOME);
-			startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(startMain);
-		}
-
 		@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
