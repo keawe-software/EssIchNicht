@@ -218,9 +218,8 @@ public class RemoteDatabase {
 
 	public static ProductData getProduct(String productBarCode) throws IOException {		
 		Log.d(TAG, "getProduct");
-		URL url=new URL(adress+getproduct+productBarCode);
-		Log.d(TAG, url.toString());
-		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		URL url=new URL(adress+"getproduct");		
+		BufferedReader reader=postData(url, "barcode", productBarCode);
 		String name=null;
 		ProductData product=null;
 		if ((name=reader.readLine())!=null) {
