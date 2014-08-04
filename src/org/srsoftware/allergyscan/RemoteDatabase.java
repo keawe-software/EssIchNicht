@@ -43,19 +43,23 @@ public class RemoteDatabase {
 		return result;
 	}
 
-
 	public static void storeAllergen(String allergen) throws IOException {		
-		URL url=new URL(adress+create+MainActivity.deviceid+"&allergen="+encode(allergen));
+		URL url=new URL(adress+"createAllergen");
+		TreeMap<String,String> data=new TreeMap<String, String>(ObjectComparator.get());
+		data.put("allergen", URLEncoder.encode(allergen,UNICODE));
+		data.put("device",MainActivity.deviceid);
 		//Log.d(TAG, url.toString());
-		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		BufferedReader reader=postData(url, data);
 		reader.close();
 	}
 
-
 	public static Integer storeProduct(String productCode, String productName) throws IOException {
-		URL url=new URL(adress+create+MainActivity.deviceid+"&code="+productCode+"&product="+encode(productName));
-		//Log.d(TAG, url.toString());
-		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		URL url=new URL(adress+"createProduct");
+		TreeMap<String,String> data=new TreeMap<String, String>(ObjectComparator.get());
+		data.put("code", productCode);
+		data.put("product", URLEncoder.encode(productName, UNICODE));
+		data.put("device",MainActivity.deviceid);		
+		BufferedReader reader=postData(url, data);
 		String line=null;
 		Integer result=null;
 		if ((line=reader.readLine())!=null) result=Integer.parseInt(line.trim());
@@ -170,12 +174,6 @@ public class RemoteDatabase {
 	private static String encodeArrayString(Set<? extends Object> array) throws UnsupportedEncodingException {
 		return URLEncoder.encode(array.toString().replace(", ",",").replace("[", "").replace("]", ""),UNICODE);
 	}
-
-
-	private static String encode(Object o) throws UnsupportedEncodingException {
-	  return URLEncoder.encode(o.toString().replace(", ",","),UNICODE);
-  }
-
 
 	private static void updateProducts(Set<Integer> myAllergens, AllergyScanDatabase database) throws NumberFormatException, IOException {
 		Log.d(TAG, "updateProducts");
