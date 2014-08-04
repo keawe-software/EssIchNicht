@@ -25,8 +25,7 @@ public class RemoteDatabase {
 	
 	public static TreeMap<Integer, String> getAvailableAllergens() throws IOException {
 		Log.d(TAG, "getAvailableAllergens");
-		URL url=new URL(adress+"allergenList");
-		BufferedReader reader=postData(url, null);
+		BufferedReader reader=postData("allergenList", null);
 		String line;
 		TreeMap<Integer, String> result=new TreeMap<Integer, String>();
 		while ((line=reader.readLine())!=null){
@@ -42,22 +41,20 @@ public class RemoteDatabase {
 	}
 
 	public static void storeAllergen(String allergen) throws IOException {		
-		URL url=new URL(adress+"createAllergen");
 		TreeMap<String,String> data=new TreeMap<String, String>(ObjectComparator.get());
 		data.put("allergen", URLEncoder.encode(allergen,UNICODE));
 		data.put("device",MainActivity.deviceid);
 		//Log.d(TAG, url.toString());
-		BufferedReader reader=postData(url, data);
+		BufferedReader reader=postData("createAllergen", data);
 		reader.close();
 	}
 
 	public static Integer storeProduct(String productCode, String productName) throws IOException {
-		URL url=new URL(adress+"createProduct");
 		TreeMap<String,String> data=new TreeMap<String, String>(ObjectComparator.get());
 		data.put("code", productCode);
 		data.put("product", URLEncoder.encode(productName, UNICODE));
 		data.put("device",MainActivity.deviceid);		
-		BufferedReader reader=postData(url, data);
+		BufferedReader reader=postData("createProduct", data);
 		String line=null;
 		Integer result=null;
 		if ((line=reader.readLine())!=null) result=Integer.parseInt(line.trim());
@@ -67,18 +64,18 @@ public class RemoteDatabase {
 
 
 	public static void storeAllergenInfo(int allergenId, Integer productId, boolean contained) throws IOException {
-		URL url=new URL(adress+"storeinfo");
-		Log.d(TAG, url.toString());
+		Log.d(TAG, "storeAllergenInfo");
 		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
 		data.put("device", MainActivity.deviceid);
 		data.put("aid", ""+allergenId);
 		data.put("pid", ""+productId);
 		data.put("contained", contained?"1":"0");		
-		BufferedReader reader=postData(url, data);
+		BufferedReader reader=postData("storeinfo", data);
 		reader.close();
 	}
 	
-	private static BufferedReader postData(URL url, TreeMap<String, String> data) throws IOException{
+	private static BufferedReader postData(String action, TreeMap<String, String> data) throws IOException{
+		URL url=new URL(adress+action);
 		Log.d(TAG, "trying to send POST data to "+url+":");
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
@@ -102,15 +99,14 @@ public class RemoteDatabase {
     return result;
 	}
 	
-	private static BufferedReader postData(URL url,String key,String value) throws IOException{
+	private static BufferedReader postData(String action,String key,String value) throws IOException{
 		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
 		data.put(key,value);
-		return postData(url, data);
+		return postData(action, data);
 	}
 
 	public static boolean deviceEnabled() throws IOException {
-		URL url=new URL(adress+"validate");
-		BufferedReader reader=postData(url, "device", MainActivity.deviceid);		
+		BufferedReader reader=postData("validate", "device", MainActivity.deviceid);		
 		boolean result=false;
 		String line=null;
 		line=reader.readLine();		
@@ -150,11 +146,10 @@ public class RemoteDatabase {
 	private static void updateContent(Set<Integer> myAllergens, AllergyScanDatabase database) throws IOException {
 		Log.d(TAG, "updateContent");
 		int lastCID=database.getLastCID();		
-		URL url=new URL(adress+"update");
 		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
 		data.put("cid", ""+lastCID);		
 		data.put("allergens", encodeArrayString(myAllergens));		
-		BufferedReader reader=postData(url, data);
+		BufferedReader reader=postData("update", data);
 		String line=null;		
 		if ((line=reader.readLine())!=null) {
 			String[] keys = line.split("\t");
@@ -185,10 +180,9 @@ public class RemoteDatabase {
 		// as the content table may have been updated, there may be references to products that are not yet in the local products table
 		referencedPIDs.removeAll(existingPIDs); // reduce the list of products to those that are unknown, yet
 		if (referencedPIDs.isEmpty()) return;
-		URL url=new URL(adress+"update");
 		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
 		data.put("pids", encodeArrayString(referencedPIDs));		
-		BufferedReader reader=postData(url, data);
+		BufferedReader reader=postData("update", data);
 		String line=null;		
 		if ((line=reader.readLine())!=null) {
 			String[] keys = line.split("\t");
@@ -221,8 +215,7 @@ public class RemoteDatabase {
 
 	public static ProductData getProduct(String productBarCode) throws IOException {		
 		Log.d(TAG, "getProduct");
-		URL url=new URL(adress+"getproduct");		
-		BufferedReader reader=postData(url, "barcode", productBarCode);
+		BufferedReader reader=postData("getproduct", "barcode", productBarCode);
 		String name=null;
 		ProductData product=null;
 		if ((name=reader.readLine())!=null) {
