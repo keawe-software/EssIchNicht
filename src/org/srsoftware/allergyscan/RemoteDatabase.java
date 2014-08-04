@@ -21,7 +21,6 @@ public class RemoteDatabase {
 	protected static String TAG="AllergyScan";
 	private static String adress="http://allergy.srsoftware.de?action=";
 	private static String create="create.php?device=";
-	private static String update="update.php?";
 	private static String UNICODE="UTF-8";
 	static Integer missingCredits=null;
 	private static String getproduct="getproduct.php?barcode=";
@@ -133,12 +132,22 @@ public class RemoteDatabase {
 		updateProducts(myAllergens,database);
   }
 
+	
 
+	/**
+	 * this method retrieves all information on substance-in-products 
+	 * @param myAllergens
+	 * @param database
+	 * @throws IOException
+	 */
 	private static void updateContent(Set<Integer> myAllergens, AllergyScanDatabase database) throws IOException {
 		Log.d(TAG, "updateContent");
 		int lastCID=database.getLastCID();		
-		URL url=new URL(adress+update+"cid="+lastCID+"&allergens="+encode(myAllergens));		
-		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		URL url=new URL(adress+"update");
+		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
+		data.put("cid", ""+lastCID);		
+		data.put("allergens", encodeArrayString(myAllergens));		
+		BufferedReader reader=postData(url, data);
 		String line=null;		
 		if ((line=reader.readLine())!=null) {
 			String[] keys = line.split("\t");
@@ -158,6 +167,11 @@ public class RemoteDatabase {
   }
 
 
+	private static String encodeArrayString(Set<? extends Object> array) throws UnsupportedEncodingException {
+		return URLEncoder.encode(array.toString().replace(", ",",").replace("[", "").replace("]", ""),UNICODE);
+	}
+
+
 	private static String encode(Object o) throws UnsupportedEncodingException {
 	  return URLEncoder.encode(o.toString().replace(", ",","),UNICODE);
   }
@@ -165,12 +179,15 @@ public class RemoteDatabase {
 
 	private static void updateProducts(Set<Integer> myAllergens, AllergyScanDatabase database) throws NumberFormatException, IOException {
 		Log.d(TAG, "updateProducts");
-		TreeSet<Integer> existingPIDs=database.getAllPIDs();
-		TreeSet<Integer> referencedPIDs=database.getReferencedPIDs();
-		referencedPIDs.removeAll(existingPIDs);
+		TreeSet<Integer> existingPIDs=database.getAllPIDs(); // obtain the list of all pids known to the local database
+		TreeSet<Integer> referencedPIDs=database.getReferencedPIDs(); // obtain the list of all pids referenced in the content table of the local database
+		// as the content table may have been updated, there may be references to products that are not yet in the local products table
+		referencedPIDs.removeAll(existingPIDs); // reduce the list of products to those that are unknown, yet
 		if (referencedPIDs.isEmpty()) return;
-		URL url=new URL(adress+update+"pids="+encode(referencedPIDs));
-		BufferedReader reader=new BufferedReader(new InputStreamReader(url.openStream()));
+		URL url=new URL(adress+"update");
+		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
+		data.put("pids", encodeArrayString(referencedPIDs));		
+		BufferedReader reader=postData(url, data);
 		String line=null;		
 		if ((line=reader.readLine())!=null) {
 			String[] keys = line.split("\t");
