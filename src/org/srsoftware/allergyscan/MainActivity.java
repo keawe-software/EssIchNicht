@@ -86,9 +86,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	}
     	LearningActivity.productBarCode=null; // reset learning activity
     	AllergenList chosenAllergens = localDatabase.getActiveAllergens();
-    	for (Allergen allergen:chosenAllergens.values()){
-    		System.out.println(allergen);
-    	}
       if (chosenAllergens.isEmpty()) { // if there are no allergens selected, yet:
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
       	selectAllergens(); // show allergen selection view
