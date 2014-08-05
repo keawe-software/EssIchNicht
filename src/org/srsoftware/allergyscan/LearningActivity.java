@@ -2,7 +2,6 @@ package org.srsoftware.allergyscan;
 
 import java.io.IOException;
 import java.util.Stack;
-import java.util.Map.Entry;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,18 +27,15 @@ public class LearningActivity extends Activity {
 		protected static String TAG="AllergyScan";
 		protected static String SCANNER="com.google.zxing.client.android";
 		protected static Long productBarCode=null;
-		private AllergenList allergens;
 		private SharedPreferences settings;
 		private AllergyScanDatabase localDatabase;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_learning);
-        settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
-	    	localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
-	      allergens=localDatabase.getAllAllergens();
-//        getActionBar().setDisplayHomeAsUpEnabled(true);        
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.activity_learning);
+      settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
+    	localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
     }
 
      @Override
@@ -130,14 +126,6 @@ public class LearningActivity extends Activity {
 
 				alert.show(); // after execution of onClick-method we return to onResume()
 			}
-		}
-
-		private Entry<Integer, Allergen> getAllergen(int index) {
-			int i=0;
-			for (Entry<Integer, Allergen> entry:allergens.entrySet()){
-				if (index==i++) return entry;
-			}
-			return null;
 		}
 
 		private void startScanning() {
