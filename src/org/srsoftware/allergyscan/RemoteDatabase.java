@@ -224,7 +224,7 @@ public class RemoteDatabase {
   }
 
 
-	private static ProductData getProduct(String productBarCode) throws IOException {		
+	private static ProductData getProduct(Long productBarCode) throws IOException {		
 		Log.d(TAG, "getProduct");
 		BufferedReader reader=postData("getproduct", "barcode", productBarCode);
 		String name=null;

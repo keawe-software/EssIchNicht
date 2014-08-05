@@ -1,26 +1,20 @@
 package org.srsoftware.allergyscan;
 
 final class ProductData {
-    private final Integer pid;
     private String name;
-    private String code;
+    private Long barcode;
 
-    public ProductData(Integer pid,String code, String name) {
-        this.pid = pid;
-        this.code=code;
+    public ProductData(Long barcode, String name) {
+        this.barcode=barcode;
         this.name = name;
-    }
-
-    public Integer pid() {
-        return pid;
     }
 
     public String name() {
         return name;
     }
     
-    public String code(){
-    	return code;
+    public Long barcode(){
+    	return barcode;
     }
 
     public String setName(String name) {
@@ -31,6 +25,6 @@ final class ProductData {
     
     @Override
     public String toString() {
-    	return pid+" / "+code+" / "+name;
+    	return barcode+" / "+name;
     }
 }

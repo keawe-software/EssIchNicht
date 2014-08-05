@@ -1,8 +1,5 @@
 package org.srsoftware.allergyscan;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -14,7 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,36 +57,26 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
     };
 
     private void createListOfAllAllergens() {
-      	availableAllergens=localDatabase.getAllAllergens();
-      	if (availableAllergens==null || availableAllergens.isEmpty()){
-        	Toast.makeText(getApplicationContext(), R.string.no_allergens_in_database, Toast.LENGTH_LONG).show();
-        	createNewAllergen();
-        } else {
-          list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);      
-        	@SuppressWarnings({ "unchecked", "rawtypes" })
-        	List<Allergen> allergens = availableAllergens.values(); // make string list
-        	ArrayAdapter<Allergen> adapter = new ArrayAdapter<Allergen>(this, android.R.layout.simple_list_item_multiple_choice,allergens);
-         	list.setAdapter(adapter);          	// Assign adapter to ListView
-         	int pos=0;
-         	for (Allergen allergen:allergens){
-         		Object dummy = list.getItemAtPosition(pos++);
-         		Log.d(TAG, dummy+" is of class "+dummy.getClass().getSimpleName());
+      availableAllergens=localDatabase.getAllAllergens();
+      if (availableAllergens==null || availableAllergens.isEmpty()){
+       	Toast.makeText(getApplicationContext(), R.string.no_allergens_in_database, Toast.LENGTH_LONG).show();
+       	createNewAllergen();
+      } else {
+        list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);      
+       	List<Allergen> allergens = availableAllergens.values(); // make string list
+       	ArrayAdapter<Allergen> adapter = new ArrayAdapter<Allergen>(this, android.R.layout.simple_list_item_multiple_choice,allergens);
+       	list.setAdapter(adapter);          	// Assign adapter to ListView
+       	int size=allergens.size();
+       	for (int i=0; i<size; i++){
+       		Object object = list.getItemAtPosition(i);
+       		if (object instanceof Allergen){
+       			if (((Allergen)object).active){
+       				list.setItemChecked(i, true);
+       			}
          	}
-//         	int size=entries.size();
-//         	for (int i=0; i<size; i++){
-//         		if (selectedNames.contains(list.getItemAtPosition(i).toString())) list.setItemChecked(i, true);
-//         	}
         }
+      }
 		}
-
-		private void goHome() {
-    	Toast.makeText(getApplicationContext(), R.string.will_shut_down, Toast.LENGTH_LONG).show();
-			Intent startMain = new Intent(Intent.ACTION_MAIN);
-			startMain.addCategory(Intent.CATEGORY_HOME);
-			startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(startMain);
-		}
-
 
 		@Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -118,20 +104,18 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
 			}
 		}
 
-		private void storeAllergenSelection() {	    
-			SparseBooleanArray positions = list.getCheckedItemPositions();
-		  int size=availableAllergens.size();
-		  TreeSet<String> names=new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		  for (int i=0; i<=size; i++) {
-		  	if (positions.get(i)) names.add(list.getItemAtPosition(i).toString());
-		  }
-		  TreeMap<Integer,String> selectedAllergens=new TreeMap<Integer, String>();
-		  for (Entry<Integer, Allergen> entry:availableAllergens.entrySet()){
-		  	if (names.contains(entry.getValue())) {
-		  		//selectedAllergens.put(entry.getKey(), entry.getValue());
-		  	}
-		  }
-		  localDatabase.setSelectedAllergens(selectedAllergens);
+		private void storeAllergenSelection() {
+     	int size=list.getCount();
+     	Vector<Allergen> enabledAllergens=new Vector<Allergen>();
+     	for (int i=0; i<size; i++){
+     		Object object = list.getItemAtPosition(i);
+     		if (object instanceof Allergen){
+     			if (list.isItemChecked(i)){
+     				enabledAllergens.add((Allergen) object);
+     			}
+       	}
+      }
+     	localDatabase.setEnabled(enabledAllergens);
 		  finish();
     }
 

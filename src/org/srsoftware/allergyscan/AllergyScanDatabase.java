@@ -107,7 +107,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		Cursor cursor = database.query(ALLERGEN_TABLE, fields, null, null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()){
-			result.put(cursor.getInt(0), new Allergen(cursor.getInt(1),cursor.getString(2),cursor.getInt(3)));
+			result.put(cursor.getInt(0), new Allergen(cursor.getInt(0),cursor.getInt(1),cursor.getString(2),cursor.getInt(3)));
 			cursor.moveToNext();
 		}
 		database.close();
@@ -158,7 +158,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	public TreeSet<Integer> getAllPIDs() {
 		SQLiteDatabase database=getReadableDatabase();
 		TreeSet<Integer> result=new TreeSet<Integer>();
-		String[] fields={"pid"};
+		String[] fields={"barcode"};
 		Cursor cursor=database.query(PRODUCT_TABLE, fields, null, null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()){
@@ -189,26 +189,24 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	  database.close();
   }
 
-	public ProductData getProduct(String productBarcode) {
+	public ProductData getProduct(Long barcode) {
 		SQLiteDatabase database=getReadableDatabase();
-		String[] fields={"pid","name"};
-		Cursor cursor=database.query(PRODUCT_TABLE, fields, "barcode = '"+productBarcode+"'", null, null, null, null);
+		String[] fields={"name"};
+		Cursor cursor=database.query(PRODUCT_TABLE, fields, "barcode = "+barcode, null, null, null, null);
 		cursor.moveToFirst();
 		ProductData result = null;
 		if (!cursor.isAfterLast()){
-			int pid=cursor.getInt(0);
-			String name=cursor.getString(1);
-			result=new ProductData(pid, productBarcode,name);
-			cursor.moveToNext();
+			String name=cursor.getString(0);
+			result=new ProductData(barcode,name);
 		}
 		database.close();
 	  return result;
   }
 
-	public TreeSet<Integer> getContainedAllergens(int pid, Set<Integer> limitTo) {
+	public TreeSet<Integer> getContainedAllergens(Long barcode, Set<Integer> limitTo) {
 		SQLiteDatabase db=getReadableDatabase();
 		String[] fields={"aid","contained"};
-		Cursor cursor=db.query(CONTENT_TABLE, fields, "contained=1 AND "+"pid="+pid, null, null, null, null);
+		Cursor cursor=db.query(CONTENT_TABLE, fields, "contained=1 AND "+"pid="+barcode, null, null, null, null);
 		cursor.moveToFirst();
 		TreeSet<Integer> result=new TreeSet<Integer>();
 		while (!cursor.isAfterLast()){
@@ -220,10 +218,10 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		return result;
   }
 
-	public TreeSet<Integer> getUnContainedAllergens(int pid, Set<Integer> limitTo) {
+	public TreeSet<Integer> getUnContainedAllergens(Long barcode, Set<Integer> limitTo) {
 		SQLiteDatabase db=getReadableDatabase();
 		String[] fields={"aid","contained"};
-		Cursor cursor=db.query(CONTENT_TABLE, fields, "contained=0 AND "+"pid="+pid, null, null, null, null);
+		Cursor cursor=db.query(CONTENT_TABLE, fields, "contained=0 AND "+"barcode="+barcode, null, null, null, null);
 		cursor.moveToFirst();
 		TreeSet<Integer> result=new TreeSet<Integer>();
 		while (!cursor.isAfterLast()){
@@ -237,7 +235,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 	public int getAid(String allergen) {
 		SQLiteDatabase db=getReadableDatabase();
-		String[] fields={"pid"};
+		String[] fields={"barcode"};
 		Cursor cursor=db.query(ALLERGEN_TABLE, fields, "name='"+allergen+"'", null, null, null, null);
 		cursor.moveToFirst();
 		Integer aid=null;
@@ -254,7 +252,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public void storeAllergenInfo(int allergenId, Integer productId, boolean b) {
+	public void storeAllergenInfo(int allergenId, Long barcode, boolean b) {
 		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo not implemented");
 		// TODO Auto-generated method stub
 
@@ -271,8 +269,20 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		database.close();  
 	}
 
-	public Integer storeProduct(String productBarCode, String productName) {
+	public boolean storeProduct(Long productBarCode, String productName) {
 		// TODO Auto-generated method stub
-		return null;
+		return false;
+	}
+
+	public void setEnabled(Vector<Allergen> enabledAllergens) {
+		SQLiteDatabase db=getWritableDatabase();
+		ContentValues values=new ContentValues();
+		values.put("active", 0);
+		db.update(ALLERGEN_TABLE, values, null, null);
+		for (Allergen allergen:enabledAllergens){
+			values=new ContentValues();
+			values.put("active", 1);
+			db.update(ALLERGEN_TABLE, values, "laid="+allergen.local_id, null);
+		}
 	}
 }

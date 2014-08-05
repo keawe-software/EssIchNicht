@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import android.app.Activity;
@@ -40,8 +39,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	private static SharedPreferences settings = null;
 	private static AllergyScanDatabase localDatabase=null;
 	private static String TAG="AllergyScan";
-	private String productCode;
-	private ProductData productData;
+	private Long productCode;
+	private ProductData product;
 	private ListView list;
 	private ArrayList<String> listItems;
 	@SuppressWarnings("rawtypes")
@@ -158,36 +157,35 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		
 		/**
 		 * handle a barcode aquired before
-		 * @param code 
+		 * @param productCode2 
 		 */
-		private void handleProductCode(String code) {			
+		private void handleProductCode(Long productCode2) {			
 //  		AllergyScanDatabase database=new AllergyScanDatabase(this);
-  		productData=localDatabase.getProduct(code); // check, if there already is information about the corrosponding product in the local db
-			LearningActivity.productBarCode=code; // hand the product code to the learning activity
+  		product=localDatabase.getProduct(productCode2); // check, if there already is information about the corrosponding product in the local db
+			LearningActivity.productBarCode=productCode2; // hand the product code to the learning activity
 			// this is for the case, that the product is unknown, or data for a unclassified allergen shall be added
 			
 			
-  		if (productData==null){ // product not known, yet. this means, that no information for this product in the context of the current allergens is available
+  		if (product==null){ // product not known, yet. this means, that no information for this product in the context of the current allergens is available
   			Toast.makeText(getApplicationContext(), R.string.unknown_product, Toast.LENGTH_LONG).show();
   			Intent intent=new Intent(this,LearningActivity.class); // start the learning activity
   			startActivity(intent);
   		} else { // we already have information about this product
-    		Log.d(TAG, productData.toString());
+    		Log.d(TAG, product.toString());
   			TextView productTitle = (TextView)findViewById(R.id.productTitle); // display the product title
 
-  			productTitle.setText(productData.name());
-  			int pid=productData.pid(); // get the product id
+  			productTitle.setText(product.name());
   			AllergenList allAllergens = localDatabase.getAllAllergens(); // get the list of activated allergens
   			listItems.clear(); // clear the display list
 
-  			TreeSet<Integer> contained=localDatabase.getContainedAllergens(pid,allAllergens.keySet()); // get the list of contained allergens
+  			TreeSet<Integer> contained=localDatabase.getContainedAllergens(product.barcode(),allAllergens.keySet()); // get the list of contained allergens
   			
   			if (!contained.isEmpty()){ // add the contained allergens to the list dispayed
   				listItems.add(getString(R.string.contains));  			
   				for (int aid:contained) listItems.add("+ "+allAllergens.get(aid));
   			}
 
-  			TreeSet<Integer> uncontained=localDatabase.getUnContainedAllergens(pid,allAllergens.keySet()); // get the list of allergens, which are not contained
+  			TreeSet<Integer> uncontained=localDatabase.getUnContainedAllergens(product.barcode(),allAllergens.keySet()); // get the list of allergens, which are not contained
   			if (!uncontained.isEmpty()){ // add the set of allergens, which are not contained ti the displayed list
   				listItems.add(getString(R.string.not_contained));  			
   				for (int aid:uncontained) listItems.add("- "+allAllergens.get(aid));
@@ -217,7 +215,17 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			startActivityForResult(intent, 0);
 		}
 		
-		private Integer formatBytes(String format){
+		static Long getBarCode(Intent intent){
+    	Integer fb=formatBytes(intent.getStringExtra("SCAN_RESULT_FORMAT"));
+    	if (fb==null){
+      	Log.d(TAG, "unknown SCAN_RESULT_FORMAT: "+intent.getStringExtra("SCAN_RESULT_FORMAT"));
+      	return null;
+    	}
+   		String code = fb+intent.getStringExtra("SCAN_RESULT");
+   		return Long.parseLong(code);
+		}
+		
+		private static Integer formatBytes(String format){
 			format=format.toUpperCase(Locale.getDefault());
 			if (format.equals("UPC_A")) return 10;
 			if (format.equals("UPC_E")) return 11;
@@ -240,12 +248,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       if (requestCode == 0) {
       		Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
           if (resultCode == RESULT_OK) {
-          	Integer fb=formatBytes(intent.getStringExtra("SCAN_RESULT_FORMAT"));
-          	if (fb==null){
-            	Log.d(TAG, "unknown SCAN_RESULT_FORMAT: "+intent.getStringExtra("SCAN_RESULT_FORMAT"));
-          	} else {
-          		productCode = formatBytes(intent.getStringExtra("SCAN_RESULT_FORMAT"))+intent.getStringExtra("SCAN_RESULT");
-          	}
+          	productCode=getBarCode(intent);
           } else if (resultCode == RESULT_CANCELED) {
           	Log.d(TAG, "scanning aborted");
           }
@@ -379,8 +382,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			if (allergen.startsWith("?")||allergen.startsWith("+")||allergen.startsWith("-")){ // respond only to clicks on actual allergens
 				allergen=allergen.substring(1).trim(); // get the name of the allergen, should be unique
 				final Integer allergenId=localDatabase.getAid(allergen); // get the allergen id
-				final Integer productId=productData.pid(); // get the product id
-				final String productName=productData.name(); // get the product name
+				final Long barcode=product.barcode(); // get the product id
+				final String productName=product.name(); // get the product name
 				
 				/* here a dialog is built, which asks, whether the selected allergen is contained in the current product */
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);				
@@ -388,19 +391,19 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen));				
 				alert.setPositiveButton(R.string.yes, new android.content.DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) { // if "contained" clicked: store
-						localDatabase.storeAllergenInfo(allergenId,productId,true);
+						localDatabase.storeAllergenInfo(allergenId,barcode,true);
 						if (autoSyncEnabled()){
 							localDatabase.syncWithRemote(true);
-							handleProductCode(productData.code());
+							handleProductCode(barcode);
 						}
 					}
 				});
 				alert.setNegativeButton(R.string.no, new android.content.DialogInterface.OnClickListener() { // if "not contained" clicked: store
 					public void onClick(DialogInterface dialog, int whichButton) {
-						localDatabase.storeAllergenInfo(allergenId,productId,false);
+						localDatabase.storeAllergenInfo(allergenId,barcode,false);
 						if (autoSyncEnabled()){
 							localDatabase.syncWithRemote(true);
-							handleProductCode(productData.code());
+							handleProductCode(barcode);
 						}
 					}
 				});

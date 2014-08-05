@@ -2,7 +2,6 @@ package org.srsoftware.allergyscan;
 
 import java.io.IOException;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -27,9 +26,7 @@ import com.example.allergyscan.R;
 public class LearningActivity extends Activity {
 		protected static String TAG="AllergyScan";
 		protected static String SCANNER="com.google.zxing.client.android";
-		protected static String productBarCode=null;
-		private String productName=null;
-		private Integer productId=null;
+		protected static Long productBarCode=null;
 		private AllergenList allergens;
 		private SharedPreferences settings;
 		private AllergyScanDatabase localDatabase;
@@ -49,10 +46,10 @@ public class LearningActivity extends Activity {
     	super.onResume();
     	Log.d(TAG, "LearningActivity.onResume()");
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    	if (scannerAvailable()){
-    		if (productBarCode!=null){
-    			handleProductBarcode();
-    		} else startScanning();
+  		if (productBarCode!=null){
+  			handleProductBarcode();
+  		} else if (scannerAvailable()){
+  			startScanning();
     	}
     }
      
@@ -62,21 +59,17 @@ public class LearningActivity extends Activity {
         return true;
     }
     
-    private ProductData getProduct(String productBarcode){
-    	return localDatabase.getProduct(productBarcode);
-    }
-    
-		private void handleProductBarcode() {
-			ProductData product = getProduct(productBarCode);
-			if (product!=null){
-				productName=product.name();
-				productId=product.pid();
+ 		private void handleProductBarcode() {
+			Log.d(TAG, "handleProductBarcode("+productBarCode+")");
+			final ProductData product = localDatabase.getProduct(productBarCode);
+			if (product==null){
+				return;
 			}
-			if (productName==null) {
+			if (product.name()==null) {
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 				alert.setTitle(R.string.product_name);
-				alert.setMessage(getString(R.string.enter_product_name).replace("#product", productBarCode));
+				alert.setMessage(getString(R.string.enter_product_name).replace("#product", ""+productBarCode));
 
 				// Set an EditText view to get user input 
 				final EditText input = new EditText(this);
@@ -85,14 +78,15 @@ public class LearningActivity extends Activity {
 				alert.setPositiveButton("Ok", new OnClickListener() {
 
 					public void onClick(DialogInterface dialog, int whichButton) {
-						productName=input.getText().toString();
+						String productName=input.getText().toString();
 						if (productName.length()<3){
 							Toast.makeText(getApplicationContext(), "Bezeichnung zu kurz!", Toast.LENGTH_LONG).show();
 							handleProductBarcode();
 						} else try {
-							productId=localDatabase.storeProduct(productBarCode,productName);
-							if (productId==null) throw new IOException();
-							askForAllergens(0);
+							if (!localDatabase.storeProduct(productBarCode,productName)){
+								throw new IOException();
+							}
+							askForAllergens(0,product);
 						} catch (IOException e) {
 							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
 							finish();
@@ -101,18 +95,16 @@ public class LearningActivity extends Activity {
 				});
 
 				alert.show();
-			} else askForAllergens(0);
+			} else askForAllergens(0,product);
 		}		
 
-		protected void askForAllergens(final int index) {
+		protected void askForAllergens(final int index, final ProductData product) {
 			Log.d(TAG, "AskForAllergens("+index+")");
 			Entry<Integer, Allergen> entry = getAllergen(index);
 			if (entry==null){
 				Log.d(TAG, "resetting product infos");
 				// if all allergens have been asked for
 				productBarCode=null;
-				productName=null;
-				productId=null;
 				finish();
 			} else { // entry != null, which means we have another allergen in question
 				final Allergen allergen=entry.getValue();
@@ -120,23 +112,23 @@ public class LearningActivity extends Activity {
 			
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);			
 				alert.setTitle(allergen.name);
-				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen.name));
+				alert.setMessage(getString(R.string.contains_question).replace("#product", product.name()).replace("#allergen", allergen.name));
 				alert.setPositiveButton(R.string.yes, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						localDatabase.storeAllergenInfo(allergenId,productId,true);
-						askForAllergens(index+1);
+						localDatabase.storeAllergenInfo(allergenId,product.barcode(),true);
+						askForAllergens(index+1, product);
 					}
 				});
 				alert.setNegativeButton(R.string.no, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						localDatabase.storeAllergenInfo(allergenId,productId,false);
-						askForAllergens(index+1);
+						localDatabase.storeAllergenInfo(allergenId,product.barcode(),false);
+						askForAllergens(index+1, product);
 					}
 				});
 				alert.setNeutralButton(R.string.dont_know, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						Log.d(TAG, "don't know, whether "+productName+" contains "+allergen);
-						askForAllergens(index+1);
+						Log.d(TAG, "don't know, whether "+product.name()+" contains "+allergen);
+						askForAllergens(index+1, product);
 					}
 				});
 
@@ -153,14 +145,20 @@ public class LearningActivity extends Activity {
 		}
 
 		private void startScanning() {
-			Intent intent=new Intent(SCANNER+".SCAN"); // start zxing scanne
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-			intent.putExtra("SCAN_MODE", "PRODUCT_MODE");			
-			startActivityForResult(intent, 0); // scanner calls onActivityResult
+			if (MainActivity.deviceid.equals("000000000000000")){
+				productBarCode=randomCode();
+				handleProductBarcode();
+			} else {
+				Intent intent=new Intent(SCANNER+".SCAN"); // start zxing scanne
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+				intent.putExtra("SCAN_MODE", "PRODUCT_MODE");			
+				startActivityForResult(intent, 0); // scanner calls onActivityResult
+			}
 		}
 
 		@SuppressWarnings("deprecation")
 		private boolean scannerAvailable() {
+			if (MainActivity.deviceid.equals("000000000000000")) return true;
     	PackageManager pm = getPackageManager();
       try {
          pm.getApplicationInfo(SCANNER, 0);
@@ -197,7 +195,7 @@ public class LearningActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
       if (requestCode == 0) {
           if (resultCode == RESULT_OK) {
-          		productBarCode = intent.getStringExtra("SCAN_RESULT_FORMAT")+"~"+intent.getStringExtra("SCAN_RESULT");
+          		productBarCode = MainActivity.getBarCode(intent);
           		// here the product code is set; afterwards onResume is called again
           } else if (resultCode == RESULT_CANCELED) {
           	/*
@@ -211,19 +209,12 @@ public class LearningActivity extends Activity {
       	}
     }
 
-		static String randomCode() {
-	/*		double dummy = Math.random();
-			if (dummy<0.25) return "EAN_111111";
-			if (dummy<0.5) return "EAN_222222";
-			if (dummy<0.75) return "EAN_333333";
-			if (dummy<2) return "EAN_44444";
-			
-		/*/	
+		static Long randomCode() {
 			int number=(int)(100000*Math.random());
-			if (number<10) return "EAN_8~0000"+number; 
-			if (number<100) return "EAN_8~000"+number; 
-			if (number<1000) return "EAN_8~00"+number; 
-			if (number<10000) return "EAN_8~0"+number;
-			return "EAN_8~"+number; //*/
+			if (number<10) return Long.parseLong("180000"+number); 
+			if (number<100) return Long.parseLong("18000"+number); 
+			if (number<1000) return Long.parseLong("1800"+number); 
+			if (number<10000) return Long.parseLong("180"+number);
+			return Long.parseLong("18"+number);
     }
 }
