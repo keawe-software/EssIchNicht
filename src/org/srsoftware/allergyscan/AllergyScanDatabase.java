@@ -82,6 +82,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		TreeSet<Long> result=new TreeSet<Long>();
 		while (!cursor.isAfterLast()){
 			result.add(cursor.getLong(0));
+			cursor.moveToNext();
 		}
 		return result;
 	}
