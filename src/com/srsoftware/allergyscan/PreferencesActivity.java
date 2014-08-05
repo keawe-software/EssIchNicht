@@ -1,4 +1,4 @@
-package de.srsoftware.allergyscan;
+package com.srsoftware.allergyscan;
 
 import android.app.Activity;
 import android.content.SharedPreferences;

@@ -1,4 +1,4 @@
-package de.srsoftware.allergyscan;
+package com.srsoftware.allergyscan;
 
 import java.util.Collection;
 import java.util.List;

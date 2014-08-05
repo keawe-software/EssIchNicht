@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="de.srsoftware.allergyscan.MainActivity"
+            android:name="com.srsoftware.allergyscan.MainActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,14 +24,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="de.srsoftware.allergyscan.CreateAllergenActivity"
+            android:name="com.srsoftware.allergyscan.CreateAllergenActivity"
             android:label="@string/title_activity_create_allergen" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.srsoftware.allergyscan.MainActivity" />
         </activity>
         <activity
-            android:name="de.srsoftware.allergyscan.AllergenSelectionActivity"
+            android:name="com.srsoftware.allergyscan.AllergenSelectionActivity"
             android:label="@string/title_activity_allergen_selection" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -45,14 +45,14 @@
                 android:value="org.srsoftware.allergyscan.MainActivity" />
         </activity>
         <activity
-            android:name="de.srsoftware.allergyscan.PreferencesActivity"
+            android:name="com.srsoftware.allergyscan.PreferencesActivity"
             android:label="@string/title_activity_prefernces" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.srsoftware.allergyscan.MainActivity" />
         </activity>
         <activity
-            android:name="de.srsoftware.allergyscan.LearningActivity"
+            android:name="com.srsoftware.allergyscan.LearningActivity"
             android:label="@string/title_activity_learning" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -66,7 +66,7 @@
                 android:value="org.srsoftware.allergyscan.MainActivity" />
         </activity>
         <activity
-            android:name="de.srsoftware.allergyscan.InfoActivity"
+            android:name="com.srsoftware.allergyscan.InfoActivity"
             android:label="@string/title_activity_info" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

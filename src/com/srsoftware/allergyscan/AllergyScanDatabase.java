@@ -1,4 +1,4 @@
-package de.srsoftware.allergyscan;
+package com.srsoftware.allergyscan;
 
 import java.io.IOException;
 import java.util.Map.Entry;

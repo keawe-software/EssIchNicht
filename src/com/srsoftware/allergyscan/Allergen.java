@@ -1,4 +1,4 @@
-package de.srsoftware.allergyscan;
+package com.srsoftware.allergyscan;
 
 public class Allergen {
 	public Integer local_id;
