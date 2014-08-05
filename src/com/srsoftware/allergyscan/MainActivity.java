@@ -298,7 +298,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		/**
 		 * go back to the system desktop
 		 */
-		private void goHome() {
+		void goHome() {
     	Toast.makeText(getApplicationContext(), R.string.will_shut_down, Toast.LENGTH_LONG).show();
 			Intent startMain = new Intent(Intent.ACTION_MAIN);
 			startMain.addCategory(Intent.CATEGORY_HOME);
