@@ -74,11 +74,11 @@ public class RemoteDatabase {
 	}
 
 	private static String createJsonArray(TreeSet<?> value) {
-		return value.toString().replace('{', '[').replace(']', '}');
+		return value.toString().replace('{', '[').replace('}',']');
 	}
 
 	public static JSONArray getNewProducts(TreeSet<Long> allBarCodes) throws IOException, JSONException {
-		Log.d(TAG,"getNewProducts");
+		Log.d(TAG,"RemoteDatabase.getNewProducts(...)");
 		BufferedReader reader=postData("getNewProducts","barcodes",allBarCodes);		
 		JSONArray array=new JSONArray(reader.readLine());
 		reader.close();
