@@ -63,11 +63,7 @@ public class LearningActivity extends Activity {
     }
     
     private ProductData getProduct(String productBarcode){
-    	ProductData product = localDatabase.getProduct(productBarcode);
-    	if (product==null) try {
-				product=RemoteDatabase.getProduct(productBarCode);
-			} catch (IOException e1) {}
-    	return product;
+    	return localDatabase.getProduct(productBarcode);
     }
     
 		private void handleProductBarcode() {
@@ -94,7 +90,7 @@ public class LearningActivity extends Activity {
 							Toast.makeText(getApplicationContext(), "Bezeichnung zu kurz!", Toast.LENGTH_LONG).show();
 							handleProductBarcode();
 						} else try {
-							productId=RemoteDatabase.storeProduct(productBarCode,productName);
+							productId=localDatabase.storeProduct(productBarCode,productName);
 							if (productId==null) throw new IOException();
 							askForAllergens(0);
 						} catch (IOException e) {
@@ -127,25 +123,13 @@ public class LearningActivity extends Activity {
 				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen));
 				alert.setPositiveButton(R.string.yes, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						try {
-							localDatabase.storeAllergenInfo(allergenId,productId,true);
-							RemoteDatabase.storeAllergenInfo(allergenId,productId,true);
-						} catch (IOException e) {
-							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-							finish();
-						}
+						localDatabase.storeAllergenInfo(allergenId,productId,true);
 						askForAllergens(index+1);
 					}
 				});
 				alert.setNegativeButton(R.string.no, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						try {
-							localDatabase.storeAllergenInfo(allergenId,productId,false);
-							RemoteDatabase.storeAllergenInfo(allergenId,productId,false);
-						} catch (IOException e) {
-							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-							finish();
-						}
+						localDatabase.storeAllergenInfo(allergenId,productId,false);
 						askForAllergens(index+1);
 					}
 				});

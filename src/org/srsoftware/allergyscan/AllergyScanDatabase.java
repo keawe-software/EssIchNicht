@@ -263,4 +263,9 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public Integer storeProduct(String productBarCode, String productName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
