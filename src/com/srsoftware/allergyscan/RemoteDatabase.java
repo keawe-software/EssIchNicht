@@ -4,14 +4,15 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,6 +38,10 @@ public class RemoteDatabase {
 		}
 		reader.close();		
 		return result;
+	}
+	
+	private static BufferedReader postData(String action) throws IOException {
+		return postData(action, null);
 	}
 	
 	private static BufferedReader postData(String action, TreeMap<String, String> data) throws IOException{
@@ -77,36 +82,49 @@ public class RemoteDatabase {
 	}
 
 	private static String createJsonArray(TreeSet<?> value) {
-		return value.toString().replace('{', '[').replace('}',']');
+		return value.toString();//.replace('[', '{').replace(']','}');
 	}
 	
-	private static String createJsonArray(TreeMap<?,?> value) {
+	private static String createJsonArray(TreeMap<?,?> value) throws UnsupportedEncodingException {
 		StringBuffer result=new StringBuffer();
+		if (value==null || value.isEmpty()){
+			return "{}";
+		}
 		result.append('{');
 		for (Entry<?, ?> entry:value.entrySet()){
-			// TODO: das muss noch kodiert werden, sonst kann man sachen einschleußen
-			result.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\",");			
+			result.append("\""+encode(entry.getKey())+"\":\""+encode(entry.getValue())+"\",");			
 		}
 		result.deleteCharAt(result.length()-1);
 		result.append('}');
 		return result.toString();		
 	}	
 
-	public static JSONObject getNewProducts(TreeSet<Long> allBarCodes) throws IOException, JSONException {
-		Log.d(TAG,"RemoteDatabase.getNewProducts(...)");
-		BufferedReader reader=postData("getNewProducts","barcodes",allBarCodes);		
-		JSONObject array=new JSONObject(reader.readLine());
-		reader.close();
-		return array;
+	private static String encode(Object text) throws UnsupportedEncodingException {
+		// TODO Auto-generated method stub
+		return URLEncoder.encode(text.toString(),"UTF-8");
+	}
+
+	public static JSONObject getNewProducts() throws IOException, JSONException {
+		try {
+			Log.d(TAG,"RemoteDatabase.getNewProducts(...)");
+			BufferedReader reader=postData("getNewProducts");		
+			JSONObject array=new JSONObject(reader.readLine());
+			reader.close();
+			return array;
+		} catch (JSONException e){ // usually happens with empty reply
+			Log.e(TAG, e.getMessage());
+			return null;
+		}
 	}
 
 	public static void storeNewProducts(TreeMap<Long, String> products) throws IOException {
 		Log.d(TAG, "RemoteDatabase.storeNewProducts(...)");
+		if (products==null || products.isEmpty()){
+			return;
+		}
 		BufferedReader reader=postData("storeNewProducts", "products", products);
 		System.out.println(reader.readLine());
 		reader.close();
-		// TODO Auto-generated method stub
-		
 	}
 
 }

@@ -474,12 +474,12 @@
         <dia:point val="39.5,11.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="32.1737,10.3275;46.8263,12.6725"/>
+        <dia:rectangle val="33.8813,10.2996;45.1374,12.7004"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#index.php?action=getNewProducts(barcode*)
+            <dia:string>#index.php?action=getNewProducts
 
 #</dia:string>
           </dia:attribute>
@@ -490,7 +490,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="39.5,10.9225"/>
+            <dia:point val="39.5,10.9132"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -536,12 +536,12 @@
         <dia:point val="39.5,14.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="35.2188,13.2996;43.7999,15.7004"/>
+        <dia:rectangle val="36.7775,13.2996;42.2411,15.7004"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#(barcode:name)*,barcode*
+            <dia:string>#(barcode:name)*
 
 #</dia:string>
           </dia:attribute>
@@ -598,13 +598,13 @@
         <dia:point val="55,10"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="55,9.405;62.8675,10.95"/>
+        <dia:rectangle val="55,9.38637;60.9986,10.9872"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#Client sendet codes der
-ihm bekannten Produkte#</dia:string>
+            <dia:string>#Client sendet fragt
+Produkte ab#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -632,14 +632,13 @@ ihm bekannten Produkte#</dia:string>
         <dia:point val="55,13"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="55,12.3864;68.6361,14.7873"/>
+        <dia:rectangle val="55,12.3864;65.2436,13.9872"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
             <dia:string>#Server antwortet mit den Daten
-der Produkte, die der Client noch nicht hat
-sowie den unbekannten barcodes#</dia:string>
+aller Produkte#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
