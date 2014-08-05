@@ -43,7 +43,7 @@ public class RemoteDatabase {
 		return result;
 	}
 
-	public static void storeAllergen(String allergen) throws IOException {		
+	private static void storeAllergen(String allergen) throws IOException {		
 		TreeMap<String,String> data=new TreeMap<String, String>(ObjectComparator.get());
 		data.put("allergen", URLEncoder.encode(allergen,UNICODE));
 		data.put("device",MainActivity.deviceid);
@@ -52,7 +52,7 @@ public class RemoteDatabase {
 		reader.close();
 	}
 
-	public static Integer storeProduct(String productCode, String productName) throws IOException {
+	private static Integer storeProduct(String productCode, String productName) throws IOException {
 		TreeMap<String,String> data=new TreeMap<String, String>(ObjectComparator.get());
 		data.put("code", productCode);
 		data.put("product", URLEncoder.encode(productName, UNICODE));
@@ -66,7 +66,7 @@ public class RemoteDatabase {
 	}
 
 
-	public static void storeAllergenInfo(int allergenId, Integer productId, boolean contained) throws IOException {
+	private static void storeAllergenInfo(int allergenId, Integer productId, boolean contained) throws IOException {
 		Log.d(TAG, "storeAllergenInfo");
 		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
 		data.put("device", MainActivity.deviceid);
@@ -116,7 +116,7 @@ public class RemoteDatabase {
 		return value.toString().replace('{', '[').replace(']', '}');
 	}
 
-	public static boolean deviceEnabled() throws IOException {
+	private static boolean deviceEnabled() throws IOException {
 		BufferedReader reader=postData("validate", "device", MainActivity.deviceid);		
 		boolean result=false;
 		String line=null;
@@ -135,12 +135,12 @@ public class RemoteDatabase {
 		return result;
   }
 	
-	public static int missingCredits(){
+	private static int missingCredits(){
 		return missingCredits;
 	}
 
 
-	public static void update(AllergyScanDatabase database) throws IOException {
+	private static void update(AllergyScanDatabase database) throws IOException {
 		Set<Integer> myAllergens = database.getAllAllergens().keySet();
 		updateContent(myAllergens,database);
 		updateProducts(myAllergens,database);
@@ -224,7 +224,7 @@ public class RemoteDatabase {
   }
 
 
-	public static ProductData getProduct(String productBarCode) throws IOException {		
+	private static ProductData getProduct(String productBarCode) throws IOException {		
 		Log.d(TAG, "getProduct");
 		BufferedReader reader=postData("getproduct", "barcode", productBarCode);
 		String name=null;

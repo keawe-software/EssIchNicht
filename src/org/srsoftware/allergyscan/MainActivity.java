@@ -390,29 +390,19 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen));				
 				alert.setPositiveButton(R.string.yes, new android.content.DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) { // if "contained" clicked: store
-						try {
-							RemoteDatabase.storeAllergenInfo(allergenId,productId,true);
-							if (autoSyncEnabled()){
-								localDatabase.syncWithRemote(true);
-								handleProductCode(productData.code());
-							}
-						} catch (IOException e) {
-							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-							finish();
+						localDatabase.storeAllergenInfo(allergenId,productId,true);
+						if (autoSyncEnabled()){
+							localDatabase.syncWithRemote(true);
+							handleProductCode(productData.code());
 						}
 					}
 				});
 				alert.setNegativeButton(R.string.no, new android.content.DialogInterface.OnClickListener() { // if "not contained" clicked: store
 					public void onClick(DialogInterface dialog, int whichButton) {
-						try {
-							RemoteDatabase.storeAllergenInfo(allergenId,productId,false);
-							if (autoSyncEnabled()){
-								localDatabase.syncWithRemote(true);
-								handleProductCode(productData.code());
-							}
-						} catch (IOException e) {
-							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-							finish();
+						localDatabase.storeAllergenInfo(allergenId,productId,false);
+						if (autoSyncEnabled()){
+							localDatabase.syncWithRemote(true);
+							handleProductCode(productData.code());
 						}
 					}
 				});
