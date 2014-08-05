@@ -7,8 +7,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -61,7 +61,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		if (!autosync){
 			// TODO: ask user
 		}
-		JSONArray array;
+		JSONObject array;
 		try {
 			array = RemoteDatabase.getNewProducts(getAllBarCodes());
 			System.out.println(array);

@@ -13,6 +13,7 @@ import java.util.TreeSet;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.util.Log;
 
@@ -77,10 +78,10 @@ public class RemoteDatabase {
 		return value.toString().replace('{', '[').replace('}',']');
 	}
 
-	public static JSONArray getNewProducts(TreeSet<Long> allBarCodes) throws IOException, JSONException {
+	public static JSONObject getNewProducts(TreeSet<Long> allBarCodes) throws IOException, JSONException {
 		Log.d(TAG,"RemoteDatabase.getNewProducts(...)");
 		BufferedReader reader=postData("getNewProducts","barcodes",allBarCodes);		
-		JSONArray array=new JSONArray(reader.readLine());
+		JSONObject array=new JSONObject(reader.readLine());
 		reader.close();
 		return array;
 	}
