@@ -1,4 +1,4 @@
-package org.srsoftware.allergyscan;
+package de.srsoftware.allergyscan;
 
 import java.io.IOException;
 import java.util.Stack;
@@ -21,7 +21,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.allergyscan.R;
+import com.srsoftware.allergyscan.R;
 
 public class LearningActivity extends Activity {
 		protected static String TAG="AllergyScan";

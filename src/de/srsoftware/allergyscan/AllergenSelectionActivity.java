@@ -1,4 +1,4 @@
-package org.srsoftware.allergyscan;
+package de.srsoftware.allergyscan;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -21,7 +21,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.allergyscan.R;
+import com.srsoftware.allergyscan.R;
 
 public class AllergenSelectionActivity extends Activity implements OnClickListener {
 		protected static String TAG="AllergyScan";

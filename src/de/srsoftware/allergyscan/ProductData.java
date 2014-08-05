@@ -1,4 +1,4 @@
-package org.srsoftware.allergyscan;
+package de.srsoftware.allergyscan;
 
 final class ProductData {
     private String name;

@@ -1,4 +1,4 @@
-package org.srsoftware.allergyscan;
+package de.srsoftware.allergyscan;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 
-import com.example.allergyscan.R;
+import com.srsoftware.allergyscan.R;
 
 public class PreferencesActivity extends Activity implements OnClickListener {
 	

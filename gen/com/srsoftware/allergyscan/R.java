@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.example.allergyscan;
+package com.srsoftware.allergyscan;
 
 public final class R {
     public static final class attr {
@@ -52,6 +52,7 @@ public final class R {
         public static final int activity_scan=0x7f060007;
     }
     public static final class string {
+        public static final int action_settings=0x7f040033;
         public static final int app_name=0x7f040000;
         public static final int auto_update=0x7f040012;
         public static final int automatic_database_updates=0x7f040011;
@@ -60,6 +61,7 @@ public final class R {
         public static final int contains_question=0x7f04001f;
         public static final int create_allergen=0x7f04000a;
         public static final int dedication=0x7f04002d;
+        public static final int dont_autosync=0x7f040036;
         public static final int dont_know=0x7f040022;
         public static final int enter_allergen=0x7f040005;
         public static final int enter_product_name=0x7f04001d;
@@ -78,6 +80,7 @@ public final class R {
         public static final int not_enabled=0x7f040015;
         public static final int now_enabled=0x7f040028;
         public static final int ok=0x7f040016;
+        public static final int ok_always_sync=0x7f040035;
         public static final int performing_update=0x7f040013;
         public static final int product_code=0x7f04001a;
         public static final int product_name=0x7f04001b;
@@ -87,6 +90,8 @@ public final class R {
         public static final int select_allergens=0x7f040009;
         public static final int select_contained_allergens=0x7f04001e;
         public static final int server_not_available=0x7f04000d;
+        public static final int sync_once=0x7f040037;
+        public static final int sync_warning=0x7f040034;
         public static final int title_activity_allergen_selection=0x7f040008;
         public static final int title_activity_create_allergen=0x7f040004;
         public static final int title_activity_info=0x7f04002c;
@@ -95,6 +100,7 @@ public final class R {
         public static final int title_activity_preferences=0x7f04000f;
         public static final int title_activity_prefernces=0x7f040010;
         public static final int title_activity_scan=0x7f040025;
+        public static final int title_activity_synchronize=0x7f040032;
         public static final int unclear=0x7f04002a;
         public static final int unknown_product=0x7f04002b;
         public static final int update=0x7f040024;

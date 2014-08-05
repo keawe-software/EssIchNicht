@@ -1,4 +1,4 @@
-package org.srsoftware.allergyscan;
+package de.srsoftware.allergyscan;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.allergyscan.R;
+import com.srsoftware.allergyscan.R;
 
 public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener, OnItemClickListener {
 
@@ -101,8 +101,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     }
 		
     private void startSynchronizeActivity() {
-			Intent intent=new Intent(this,SynchronizeActivity.class); // start the learning activity
-			startActivity(intent);
+			//Intent intent=new Intent(this,SynchronizeActivity.class); // start the learning activity
+			//startActivity(intent);
 		}
 
 		private int missingCredits() {
