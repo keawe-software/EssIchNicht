@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <struktogramm fontfamily="83;101;114;105;102;" fontstyle="0" fontsize="15">
-  <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
+  <strelem typ="0" zx="0" zy="0" textcolor="-1" bgcolor="-16777216">
     <text>60;111;110;67;114;101;97;116;101;62;</text>
   </strelem>
   <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
@@ -24,12 +24,15 @@
   <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
     <text>-1;</text>
   </strelem>
-  <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
+  <strelem typ="0" zx="0" zy="0" textcolor="-1" bgcolor="-16777216">
     <text>60;111;110;82;101;115;117;109;101;62;</text>
   </strelem>
   <strelem typ="1" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
     <text>101;120;112;105;114;101;100;40;41;32;63;</text>
     <fall fallname="74;97;">
+      <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-256">
+        <text>87;97;114;110;</text>
+      </strelem>
       <strelem typ="7" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
         <text>103;111;72;111;109;101;40;41;</text>
       </strelem>
@@ -42,14 +45,12 @@
   </strelem>
   <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
     <text>76;101;97;114;110;105;110;103;65;99;116;105;118;105;116;121;46;112;114;111;100;117;99;116;66;97;114;99;111;100;101;32;61;32;110;117;108;108;</text>
-  </strelem>
-  <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
     <text>97;108;108;65;108;108;101;114;103;101;110;115;32;61;32;108;111;99;97;108;68;97;116;97;98;97;115;101;46;103;101;116;65;108;108;65;108;108;101;114;103;101;110;115;40;41;</text>
   </strelem>
   <strelem typ="1" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
     <text>97;108;108;65;108;108;101;114;103;101;110;115;46;105;115;69;109;112;116;121;32;63;</text>
     <fall fallname="74;97;">
-      <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
+      <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-256">
         <text>87;97;114;110;</text>
       </strelem>
       <strelem typ="7" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
@@ -75,8 +76,8 @@
           </strelem>
         </fall>
         <fall fallname="78;101;105;110;">
-          <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-1">
-            <text>105;110;102;111;114;109;</text>
+          <strelem typ="0" zx="0" zy="0" textcolor="-16777216" bgcolor="-256">
+            <text>87;97;114;110;</text>
           </strelem>
         </fall>
       </strelem>

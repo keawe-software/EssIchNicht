@@ -90,21 +90,14 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       if (allAllergens.isEmpty()) { // if there are no allergens selected, yet:
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
       	selectAllergens(); // show allergen selection view
-      } else {
-      	try {      		
-      		if (!deviceEnabled()){ // if device has not been enabled, yet:
-      			AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
-      			alert.setTitle(R.string.hint);
-      			alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+missingCredits()));
-      			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode 
-      			alert.show(); // Pressing "OK" calls learnCode()      		
-      		} else {
-      			if (productCode!=null) handleProductCode(productCode); // if a product has been scanned before: handle it      			
-      		}
-      	} catch (IOException e){ // if we can not connect to the server at a point, where a connection is needed
-      		Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-      		goHome(); // warn and then go to the home screen
-      	}
+      } else if (!deviceEnabled()){ // if device has not been enabled, yet:
+      	AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
+      	alert.setTitle(R.string.hint);
+      	alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+missingCredits()));
+      	alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode 
+      	alert.show(); // Pressing "OK" calls learnCode()      		
+     	} else {
+     		if (productCode!=null) handleProductCode(productCode); // if a product has been scanned before: handle it      			
       }
     }
 		
@@ -148,16 +141,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * @return true, only if the device has been enabled by the server once in the past
 		 * @throws IOException
 		 */
-		private boolean deviceEnabled() throws IOException {
-			boolean deviceEnabled=settings.getBoolean("deviceEnabled", false); // if already enabled: skip checking and return true
-			if (deviceEnabled) return true;
-			
-			deviceEnabled=RemoteDatabase.deviceEnabled(); // if not enabled up to now: ask the server
-			if (deviceEnabled) { // if newly enabled: inform the user and store state
-				Toast.makeText(getApplicationContext(), R.string.now_enabled, Toast.LENGTH_LONG).show();
-				settings.edit().putBoolean("deviceEnabled", true).commit();				
-			}
-			return deviceEnabled;
+		private boolean deviceEnabled() {
+			return settings.getBoolean("deviceEnabled", false); // if already enabled: skip checking and return true
     }
 
 		/**
