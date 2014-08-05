@@ -37,7 +37,7 @@ import com.example.allergyscan.R;
 
 public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener, OnItemClickListener {
 
-	private static String deviceid = null;
+	protected static String deviceid = null;
 	private static SharedPreferences settings = null;
 	private static AllergyScanDatabase localDatabase=null;
 	private static String TAG="AllergyScan";
@@ -301,7 +301,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * @return true, if automatic updates are not deactivated
 		 */
 		private boolean autoSyncEnabled() {    	
-    	return settings.getBoolean(getString(R.string.auto_update), true);
+    	return settings.getBoolean(getString(R.string.auto_update), false);
     }
 
 		/**

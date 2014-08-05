@@ -60,7 +60,6 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
     };
 
     private void createListOfAllAllergens() {
-      try {
       	availableAllergens=localDatabase.getAllAllergens();
       	if (availableAllergens==null || availableAllergens.isEmpty()){
         	Toast.makeText(getApplicationContext(), R.string.no_allergens_in_database, Toast.LENGTH_LONG).show();
@@ -78,10 +77,6 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
          		if (selectedNames.contains(list.getItemAtPosition(i).toString())) list.setItemChecked(i, true);
          	}
         }
-      } catch (IOException e){
-      	Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-      	goHome();
-      }
 		}
 
 		private void goHome() {
