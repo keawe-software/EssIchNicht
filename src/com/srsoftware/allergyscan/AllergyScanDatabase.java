@@ -15,6 +15,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -67,16 +68,22 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		try {
 			array = RemoteDatabase.getNewProducts(getAllBarCodes());
 		  SQLiteDatabase database=getWritableDatabase();
-			for (@SuppressWarnings("unchecked")
-			Iterator<String> it=array.keys(); it.hasNext();){
-				String barcode=it.next();
-				String name=array.getString(barcode);
+		  TreeSet<Long> remoteBarcodes=new TreeSet<Long>();
+			for (Iterator<String> it=array.keys(); it.hasNext();){
+				String barcodeString=it.next();
+				String name=array.getString(barcodeString);
+				Long barcode=Long.parseLong(barcodeString);
+				remoteBarcodes.add(barcode);
 				ContentValues values=new ContentValues();
-				values.put("barcode", barcode);
+				values.put("barcode", barcode);				
 				values.put("name", name);
-			  database.insert(PRODUCT_TABLE, null, values);
+				try {
+					database.insertOrThrow(PRODUCT_TABLE, null, values);
+				} catch (SQLiteConstraintException sqlce){} // Ignore duplicates 
 			}
-		  database.close();		  
+		  database.close();
+		  
+		  RemoteDatabase.storeNewProducts(getNewProducts(remoteBarcodes));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,6 +91,25 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private TreeMap<Long, String> getNewProducts(TreeSet<Long> remoteBarcodes) {
+		SQLiteDatabase db = getReadableDatabase();
+		String[] fields={"barcode","name"};
+		Cursor cursor = db.query(PRODUCT_TABLE, fields, null, null, null, null, null);
+		cursor.moveToFirst();
+		TreeMap<Long,String> newProducts=new TreeMap<Long,String>();
+		while (!cursor.isAfterLast()){
+			Long barcode=cursor.getLong(0);
+			if (!remoteBarcodes.contains(barcode)){
+				String name=cursor.getString(1);
+				newProducts.put(barcode, name);
+			}
+			cursor.moveToNext();
+		}
+		newProducts.put(56123456l, "Affenscheiße");
+		newProducts.put(6123456l, "Asffenscheiße");
+		return newProducts;
 	}
 
 	private TreeSet<Long> getAllBarCodes() {

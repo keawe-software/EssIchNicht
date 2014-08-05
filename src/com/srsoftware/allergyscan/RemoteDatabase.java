@@ -68,6 +68,8 @@ public class RemoteDatabase {
 		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
 		if (value instanceof TreeSet){
 			data.put(key,createJsonArray((TreeSet<?>) value));
+		} else if (value instanceof TreeMap){
+			data.put(key, createJsonArray((TreeMap<?,?>) value));
 		} else {
 			data.put(key,value.toString());
 		}
@@ -77,6 +79,18 @@ public class RemoteDatabase {
 	private static String createJsonArray(TreeSet<?> value) {
 		return value.toString().replace('{', '[').replace('}',']');
 	}
+	
+	private static String createJsonArray(TreeMap<?,?> value) {
+		StringBuffer result=new StringBuffer();
+		result.append('{');
+		for (Entry<?, ?> entry:value.entrySet()){
+			// TODO: das muss noch kodiert werden, sonst kann man sachen einschleußen
+			result.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\",");			
+		}
+		result.deleteCharAt(result.length()-1);
+		result.append('}');
+		return result.toString();		
+	}	
 
 	public static JSONObject getNewProducts(TreeSet<Long> allBarCodes) throws IOException, JSONException {
 		Log.d(TAG,"RemoteDatabase.getNewProducts(...)");
@@ -84,6 +98,15 @@ public class RemoteDatabase {
 		JSONObject array=new JSONObject(reader.readLine());
 		reader.close();
 		return array;
+	}
+
+	public static void storeNewProducts(TreeMap<Long, String> products) throws IOException {
+		Log.d(TAG, "RemoteDatabase.storeNewProducts(...)");
+		BufferedReader reader=postData("storeNewProducts", "products", products);
+		System.out.println(reader.readLine());
+		reader.close();
+		// TODO Auto-generated method stub
+		
 	}
 
 }
