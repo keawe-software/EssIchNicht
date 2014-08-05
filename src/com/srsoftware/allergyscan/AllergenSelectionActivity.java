@@ -115,6 +115,7 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
       }
      	localDatabase.setEnabled(enabledAllergens);
 		  finish();
+		  startSynchronizeActivity();
     }
 
 

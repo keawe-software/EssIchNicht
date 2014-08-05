@@ -51,11 +51,11 @@
     <string name="expired">Sie nutzen eine Testversion des Programmes. Diese Testversion ist abgelaufen.</string>
     <string name="welcome">Wilkommen - Allergen-Scanner</string>
     <string name="scannerUrl">test</string>
-    <string name="title_activity_synchronize">SynchronizeActivity</string>
+    <string name="title_activity_synchronize">Aktualisierung</string>
     <string name="action_settings">Settings</string>
-    <string name="sync_warning">Diese Aktion erfordert das aktualisieren der lokalen Datenbank. Dabei können unter Umständen große Datenmengen heruntergeladen werden. Fortfahren?</string>
+    <string name="sync_warning">Diese Aktion erfordert das Aktualisieren der lokalen Datenbank. Dabei können unter Umständen große Datenmengen heruntergeladen werden. Fortfahren?</string>
     <string name="ok_always_sync">Ja, bei Bedarf stets aktualisieren</string>
-    <string name="dont_autosync">Nein. Abbrechen.</string>
+    <string name="dont_autosync">Nein. Programm beenden.</string>
     <string name="sync_once">Nur jetzt aktualisieren</string>
 
 </resources>
