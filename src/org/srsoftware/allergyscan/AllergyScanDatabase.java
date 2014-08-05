@@ -258,4 +258,9 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo not implemented");
 		
 	}
+
+	public void storeAllergen(String trim) {
+		// TODO Auto-generated method stub
+		
+	}
 }

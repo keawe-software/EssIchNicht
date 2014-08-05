@@ -1,8 +1,7 @@
 package org.srsoftware.allergyscan;
 
-import java.io.IOException;
-
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -16,12 +15,14 @@ import com.example.allergyscan.R;
 public class CreateAllergenActivity extends Activity implements OnKeyListener {
 	protected static String TAG="AllergyScan";
 	private AutoCompleteTextView text;
+	private AllergyScanDatabase localDatabase;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "CreateAllergenActivity.onCreate");
         setContentView(R.layout.activity_create_allergen);
-        
+        SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
+        localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
         text=(AutoCompleteTextView)findViewById(R.id.autoCompleteTextView1);
 				text.setOnKeyListener(this);
     }
@@ -34,11 +35,7 @@ public class CreateAllergenActivity extends Activity implements OnKeyListener {
 
 		public boolean onKey(View v, int keyCode, KeyEvent event) {
 			if (event.getAction()==KeyEvent.ACTION_UP && keyCode==KeyEvent.KEYCODE_ENTER){
-				try {
-	        RemoteDatabase.storeAllergen(text.getText().toString().trim());
-        } catch (IOException e) {
-	        Log.e(TAG, "Failed to store allergen in online database");
-        }
+	      localDatabase.storeAllergen(text.getText().toString().trim());
 				finish();
 				return true;
 			}
