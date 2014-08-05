@@ -88,7 +88,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	AllergenList chosenAllergens = localDatabase.getActiveAllergens();
       if (chosenAllergens.isEmpty()) { // if there are no allergens selected, yet:
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
-      	startSynchronizeActivity();
+      	selectAllergens();
       } else if (!deviceEnabled()){ // if device has not been enabled, yet:
       	AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
       	alert.setTitle(R.string.hint);
@@ -100,11 +100,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       }
     }
 		
-    private void startSynchronizeActivity() {
-			Intent intent=new Intent(this,SynchronizeActivity.class); // start the learning activity
-			startActivity(intent);
-		}
-
 		private int missingCredits() {
 			return settings.getInt("missingCredits", 10);
 		}

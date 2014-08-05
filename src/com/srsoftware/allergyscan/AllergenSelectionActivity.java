@@ -55,12 +55,17 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
       createListOfAllAllergens();
 
     };
+    
+    private void startSynchronizeActivity() {
+			Intent intent=new Intent(this,SynchronizeActivity.class); // start the learning activity
+			startActivity(intent);
+		}
 
     private void createListOfAllAllergens() {
       availableAllergens=localDatabase.getAllAllergens();
       if (availableAllergens==null || availableAllergens.isEmpty()){
        	Toast.makeText(getApplicationContext(), R.string.no_allergens_in_database, Toast.LENGTH_LONG).show();
-       	createNewAllergen();
+       	startSynchronizeActivity();
       } else {
         list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);      
        	List<Allergen> allergens = availableAllergens.values(); // make string list
