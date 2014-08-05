@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -37,16 +39,16 @@ import com.example.allergyscan.R;
 
 public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener, OnItemClickListener {
 
-	protected static String deviceid = null;
-	protected static String TAG="AllergyScan";
-	AllergyScanDatabase localDatabase=null;
+	private static String deviceid = null;
+	private static SharedPreferences settings = null;
+	private static AllergyScanDatabase localDatabase=null;
+	private static String TAG="AllergyScan";
 	private String productCode;
 	private ProductData productData;
 	private ListView list;
 	private ArrayList<String> listItems;
 	@SuppressWarnings("rawtypes")
 	private ArrayAdapter adapter;
-	private SharedPreferences settings;
 	
     /* (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -56,10 +58,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build(); // permit networkOnMain
-        StrictMode.setThreadPolicy(policy);  // instead of allowing network on main, update shoud be carried out by separate thread
-
-      	getDeviceId(); // request the id and store in global variable
+        deviceid = getDeviceId(); // request the id and store in global variable
         setContentView(R.layout.activity_main); 
         settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
       	localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
@@ -73,6 +72,15 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   					
         Button scanButton=(Button)findViewById(R.id.scanButton); // start to listen to the scan-button
         scanButton.setOnClickListener(this);
+  			if (autoSyncEnabled()) try { // if automatic updates are allowed, we will do so
+					localDatabase.sync();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
     }
     
 		/* (non-Javadoc)
@@ -82,9 +90,13 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     protected void onResume() {
     	super.onResume();
     	Log.d(TAG, "MainActivity.onResume()");
-    	if (checkExpiration()) return;
+    	if (expired()) {
+    		goHome();
+    		return;
+    	}
     	LearningActivity.productBarCode=null; // reset learning activity
-      if (localDatabase.getAllergenList().isEmpty()) { // if there are no allergens selected, yet:
+    	TreeMap<Integer, String> allAllergens = localDatabase.getAllAllergens();
+      if (allAllergens.isEmpty()) { // if there are no allergens selected, yet:
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
       	selectAllergens(); // show allergen selection view
       } else {
@@ -96,7 +108,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode 
       			alert.show(); // Pressing "OK" calls learnCode()      		
       		} else {
-      			if (autoUpdate()) doUpdate(); // if automatic updates are allowed, we will do so
       			if (productCode!=null) handleResult(); // if a product has been scanned before: handle it      			
       		}
       	} catch (IOException e){ // if we can not connect to the server at a point, where a connection is needed
@@ -116,22 +127,22 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       	
 		/**
 		 * request the internal id of the device. this id should be unique.
+		 * @return 
 		 */
-		private void getDeviceId() {
+		private String getDeviceId() {
 			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-			deviceid = telephonyManager.getDeviceId();
+			return telephonyManager.getDeviceId();
 		}
 		
 		/**
 		 * for testversions: check, whether expiration date has been reached
 		 */
-		private boolean checkExpiration() {
+		private boolean expired() {
     	Calendar currentDate = Calendar.getInstance();
     	Calendar expirationDate=Calendar.getInstance();
     	expirationDate.set(2014, 12, 15);
     	if (currentDate.after(expirationDate)){
     		Toast.makeText(getApplicationContext(), R.string.expired, Toast.LENGTH_LONG).show();
-  			goHome();
   			return true;
     	}
     	return false;
@@ -185,7 +196,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 
   			productTitle.setText(productData.name());
   			int pid=productData.pid(); // get the product id
-  			TreeMap<Integer, String> allAllergens = localDatabase.getAllergenList(); // get the list of activated allergens
+  			TreeMap<Integer, String> allAllergens = localDatabase.getAllAllergens(); // get the list of activated allergens
   			listItems.clear(); // clear the display list
 
   			TreeSet<Integer> contained=localDatabase.getContainedAllergens(pid,allAllergens.keySet()); // get the list of contained allergens
@@ -303,30 +314,10 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		}
     
 		/**
-		 * perform update
-		 */
-		private void doUpdate() {  		
-  		try {
-	      if (!deviceEnabled()) return; // if this method is for some reason called without the device beeing enabled: cancel
-      } catch (IOException e) {
-	      e.printStackTrace();
-	      return;
-      } 
-  		
-  		// actually perform update
-	    Toast.makeText(getApplicationContext(), R.string.performing_update, Toast.LENGTH_LONG).show();  		
-	    try {
-	      RemoteDatabase.update(localDatabase);
-      } catch (IOException e) {
-    		Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
-      }
-    }
-
-		/**
 		 * check, whether automatic updates are enabled on this device
 		 * @return true, if automatic updates are not deactivated
 		 */
-		private boolean autoUpdate() {
+		private boolean autoSyncEnabled() {
     	SharedPreferences prefs=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
     	return prefs.getBoolean(getString(R.string.auto_update), true);
     }
@@ -356,7 +347,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	switch (item.getItemId()){
     		case R.id.allergen_selection: selectAllergens(); break;
     		case R.id.menu_settings: editPreferences(); break;
-    		case R.id.update: doUpdate(); break;
+    		case R.id.update: localDatabase.sync()(); break;
     		case R.id.info: showInfoActivity(); break;
     	}
       return dummy;
@@ -419,8 +410,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 					public void onClick(DialogInterface dialog, int whichButton) { // if "contained" clicked: store
 						try {
 							RemoteDatabase.storeAllergenInfo(allergenId,productId,true);
-							if (autoUpdate()){
-								doUpdate();
+							if (autoSyncEnabled()){
+								localDatabase.sync()();
 								productCode=productData.code();
 								handleResult();
 							}
@@ -434,8 +425,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 					public void onClick(DialogInterface dialog, int whichButton) {
 						try {
 							RemoteDatabase.storeAllergenInfo(allergenId,productId,false);
-							if (autoUpdate()){
-								doUpdate();
+							if (autoSyncEnabled()){
+								localDatabase.sync()();
 								productCode=productData.code();
 								handleResult();
 							}

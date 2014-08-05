@@ -14,6 +14,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.content.ContentValues;
 import android.util.Log;
 
@@ -99,10 +102,18 @@ public class RemoteDatabase {
     return result;
 	}
 	
-	private static BufferedReader postData(String action,String key,String value) throws IOException{
+	private static BufferedReader postData(String action,String key,Object value) throws IOException{
 		TreeMap<String, String> data=new TreeMap<String, String>(ObjectComparator.get());
-		data.put(key,value);
+		if (value instanceof TreeSet){
+			data.put(key,createJsonArray((TreeSet<?>) value));
+		} else {
+			data.put(key,value.toString());
+		}
 		return postData(action, data);
+	}
+
+	private static String createJsonArray(TreeSet<?> value) {
+		return value.toString().replace('{', '[').replace(']', '}');
 	}
 
 	public static boolean deviceEnabled() throws IOException {
@@ -130,7 +141,7 @@ public class RemoteDatabase {
 
 
 	public static void update(AllergyScanDatabase database) throws IOException {
-		Set<Integer> myAllergens = database.getAllergenList().keySet();
+		Set<Integer> myAllergens = database.getAllAllergens().keySet();
 		updateContent(myAllergens,database);
 		updateProducts(myAllergens,database);
   }
@@ -231,6 +242,14 @@ public class RemoteDatabase {
 		}
 		reader.close();		
 		return product;
+	}
+
+	public static JSONArray getNewProducts(TreeSet<Long> allBarCodes) throws IOException, JSONException {
+		Log.d(TAG,"getNewProducts");
+		BufferedReader reader=postData("getNewProducts","barcodes",allBarCodes);		
+		JSONArray array=new JSONArray(reader.readLine());
+		reader.close();
+		return array;
 	}
 
 }

@@ -61,7 +61,7 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
 
     private void createListOfAllAllergens() {
       try {
-      	availableAllergens=RemoteDatabase.getAvailableAllergens();
+      	availableAllergens=localDatabase.getAllAllergens();
       	if (availableAllergens==null || availableAllergens.isEmpty()){
         	Toast.makeText(getApplicationContext(), R.string.no_allergens_in_database, Toast.LENGTH_LONG).show();
         	createNewAllergen();
@@ -72,7 +72,7 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
         	Collections.sort(entries,String.CASE_INSENSITIVE_ORDER); // sort case insensitive
         	ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice, entries);
          	list.setAdapter(adapter);          	// Assign adapter to ListView         	         	
-         	Collection<String> selectedNames = localDatabase.getAllergenList().values();
+         	Collection<String> selectedNames = localDatabase.getAllAllergens().values();
          	int size=entries.size();
          	for (int i=0; i<size; i++){
          		if (selectedNames.contains(list.getItemAtPosition(i).toString())) list.setItemChecked(i, true);

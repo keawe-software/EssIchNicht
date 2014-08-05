@@ -40,7 +40,7 @@ public class LearningActivity extends Activity {
         setContentView(R.layout.activity_learning);
         settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
 	    	localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
-	      allergens=localDatabase.getAllergenList();
+	      allergens=localDatabase.getAllAllergens();
 //        getActionBar().setDisplayHomeAsUpEnabled(true);        
     }
 
