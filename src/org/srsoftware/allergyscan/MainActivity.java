@@ -73,7 +73,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
         Button scanButton=(Button)findViewById(R.id.scanButton); // start to listen to the scan-button
         scanButton.setOnClickListener(this);
   			if (autoSyncEnabled()) try { // if automatic updates are allowed, we will do so
-					localDatabase.sync();
+					localDatabase.syncWithRemote();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

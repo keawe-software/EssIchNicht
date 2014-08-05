@@ -57,6 +57,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 	
 	public void syncWithRemote() throws IOException, JSONException{
+		// TODO: this should be done in separate thread
 		JSONArray array = RemoteDatabase.getNewProducts(getAllBarCodes());
 		System.out.println(array);
 	}
