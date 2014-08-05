@@ -8,8 +8,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.json.JSONException;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -20,7 +18,6 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
@@ -72,14 +69,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   					
         Button scanButton=(Button)findViewById(R.id.scanButton); // start to listen to the scan-button
         scanButton.setOnClickListener(this);
-  			if (autoSyncEnabled()) try { // if automatic updates are allowed, we will do so
-					localDatabase.syncWithRemote();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+  			if (autoSyncEnabled()){ // if automatic updates are allowed, we will do so
+					localDatabase.syncWithRemote(true);
 				}
     }
     
@@ -104,11 +95,11 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       		if (!deviceEnabled()){ // if device has not been enabled, yet:
       			AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
       			alert.setTitle(R.string.hint);
-      			alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+RemoteDatabase.missingCredits()));
+      			alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+missingCredits()));
       			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode 
       			alert.show(); // Pressing "OK" calls learnCode()      		
       		} else {
-      			if (productCode!=null) handleResult(); // if a product has been scanned before: handle it      			
+      			if (productCode!=null) handleProductCode(productCode); // if a product has been scanned before: handle it      			
       		}
       	} catch (IOException e){ // if we can not connect to the server at a point, where a connection is needed
       		Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
@@ -117,7 +108,11 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       }
     }
 		
-    /**
+    private int missingCredits() {
+			return settings.getInt("missingCredits", 10);
+		}
+
+		/**
      * start the learning activity
      */
     private void learnCode() {
@@ -178,11 +173,12 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		
 		/**
 		 * handle a barcode aquired before
+		 * @param code 
 		 */
-		private void handleResult() {			
+		private void handleProductCode(String code) {			
 //  		AllergyScanDatabase database=new AllergyScanDatabase(this);
-  		productData=localDatabase.getProduct(productCode); // check, if there already is information about the corrosponding product in the local db
-			LearningActivity.productBarCode=productCode; // hand the product code to the learning activity
+  		productData=localDatabase.getProduct(code); // check, if there already is information about the corrosponding product in the local db
+			LearningActivity.productBarCode=code; // hand the product code to the learning activity
 			// this is for the case, that the product is unknown, or data for a unclassified allergen shall be added
 			
 			
@@ -347,7 +343,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	switch (item.getItemId()){
     		case R.id.allergen_selection: selectAllergens(); break;
     		case R.id.menu_settings: editPreferences(); break;
-    		case R.id.update: localDatabase.sync()(); break;
+    		case R.id.update: localDatabase.syncWithRemote(true); break;
     		case R.id.info: showInfoActivity(); break;
     	}
       return dummy;
@@ -411,9 +407,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 						try {
 							RemoteDatabase.storeAllergenInfo(allergenId,productId,true);
 							if (autoSyncEnabled()){
-								localDatabase.sync()();
-								productCode=productData.code();
-								handleResult();
+								localDatabase.syncWithRemote(true);
+								handleProductCode(productData.code());
 							}
 						} catch (IOException e) {
 							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
@@ -426,9 +421,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 						try {
 							RemoteDatabase.storeAllergenInfo(allergenId,productId,false);
 							if (autoSyncEnabled()){
-								localDatabase.sync()();
-								productCode=productData.code();
-								handleResult();
+								localDatabase.syncWithRemote(true);
+								handleProductCode(productData.code());
 							}
 						} catch (IOException e) {
 							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();

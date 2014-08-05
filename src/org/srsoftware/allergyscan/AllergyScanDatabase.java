@@ -56,10 +56,22 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		createTables(db);
 	}
 	
-	public void syncWithRemote() throws IOException, JSONException{
+	public void syncWithRemote(boolean autosync){
 		// TODO: this should be done in separate thread
-		JSONArray array = RemoteDatabase.getNewProducts(getAllBarCodes());
-		System.out.println(array);
+		if (!autosync){
+			// TODO: ask user
+		}
+		JSONArray array;
+		try {
+			array = RemoteDatabase.getNewProducts(getAllBarCodes());
+			System.out.println(array);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private TreeSet<Long> getAllBarCodes() {
