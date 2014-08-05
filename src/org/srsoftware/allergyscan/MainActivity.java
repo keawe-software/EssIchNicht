@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -217,6 +218,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			startActivityForResult(intent, 0);
 		}
 		
+		@SuppressLint("DefaultLocale")
 		private Integer formatBytes(String format){
 			format=format.toUpperCase(Locale.getDefault());
 			if (format.equals("UPC_A")) return 10;
@@ -298,9 +300,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * check, whether automatic updates are enabled on this device
 		 * @return true, if automatic updates are not deactivated
 		 */
-		private boolean autoSyncEnabled() {
-    	SharedPreferences prefs=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
-    	return prefs.getBoolean(getString(R.string.auto_update), true);
+		private boolean autoSyncEnabled() {    	
+    	return settings.getBoolean(getString(R.string.auto_update), true);
     }
 
 		/**
