@@ -1,9 +1,6 @@
 package com.srsoftware.allergyscan;
 
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.Vector;
 
 import android.app.Activity;
@@ -11,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,8 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import com.srsoftware.allergyscan.R;
 
 public class AllergenSelectionActivity extends Activity implements OnClickListener {
 		protected static String TAG="AllergyScan";

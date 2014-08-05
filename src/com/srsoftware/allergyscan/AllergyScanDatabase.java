@@ -76,7 +76,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 					ContentValues values = new ContentValues();
 					values.put("barcode", barcode);
 					values.put("name", name);
-					System.out.println(barcode+"=>"+name);
+					System.out.println(barcode + "=>" + name);
 					try {
 						database.insertOrThrow(PRODUCT_TABLE, null, values);
 					} catch (SQLiteConstraintException sqlce) {} // Ignore duplicates
@@ -85,8 +85,8 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			}
 
 			RemoteDatabase.storeNewProducts(getNewProducts(remoteBarcodes));
-						
-			array=RemoteDatabase.getNewAllergens(getAllAllergens());
+
+			array = RemoteDatabase.getNewAllergens(getAllAllergens());
 			if (array != null) {
 				SQLiteDatabase database = getWritableDatabase();
 				for (Iterator<String> it = array.keys(); it.hasNext();) {
@@ -97,13 +97,17 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 					values.put("aid", remoteAid);
 					values.put("name", name);
 					values.put("active", false);
-					System.out.println(remoteAid+"=>"+name);
+					System.out.println(remoteAid + "=>" + name);
 					try {
 						database.insert(ALLERGEN_TABLE, null, values);
 					} catch (SQLiteConstraintException sqlce) {} // Ignore duplicates
 				}
 				database.close();
-			}		} catch (IOException e) {
+			}
+			
+			// TODO: implement getInfo
+			// TODO: implement setInfo
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (JSONException e) {
