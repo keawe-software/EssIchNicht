@@ -38,13 +38,6 @@
                 android:value="org.srsoftware.allergyscan.MainActivity" />
         </activity>
         <activity
-            android:name=".PreferencesActivity"
-            android:label="@string/title_activity_preferences" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.srsoftware.allergyscan.MainActivity" />
-        </activity>
-        <activity
             android:name="com.srsoftware.allergyscan.PreferencesActivity"
             android:label="@string/title_activity_prefernces" >
             <meta-data
@@ -73,6 +66,14 @@
                 android:value="org.srsoftware.allergyscan.MainActivity" />
 
         </activity>
-    </application>
+        <activity
+            android:name="com.srsoftware.allergyscan.SynchronizeActivity"
+            android:label="@string/title_activity_synchronize" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.srsoftware.allergyscan.MainActivity" />
+
+        </activity>
+        </application>
 
 </manifest>

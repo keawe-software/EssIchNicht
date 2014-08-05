@@ -101,8 +101,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     }
 		
     private void startSynchronizeActivity() {
-			//Intent intent=new Intent(this,SynchronizeActivity.class); // start the learning activity
-			//startActivity(intent);
+			Intent intent=new Intent(this,SynchronizeActivity.class); // start the learning activity
+			startActivity(intent);
 		}
 
 		private int missingCredits() {
