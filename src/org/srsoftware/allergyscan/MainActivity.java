@@ -3,6 +3,7 @@ package org.srsoftware.allergyscan;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -224,21 +225,37 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			startActivityForResult(intent, 0);
 		}
 		
+		private Integer formatBytes(String format){
+			format=format.toUpperCase(Locale.getDefault());
+			if (format.equals("UPC_A")) return 10;
+			if (format.equals("UPC_E")) return 11;
+			if (format.equals("ITF")) return 12; 
+			if (format.equals("EAN_13")) return 13;
+			if (format.equals("RSS_14")) return 14; 
+			if (format.equals("RSS_EXPANDED")) return 15; 
+			if (format.equals("CODABAR")) return 16; 
+			if (format.equals("EAN_8")) return 18;
+			if (format.equals("CODE_39")) return 39;
+			if (format.equals("CODE_93")) return 93;
+			if (format.equals("CODE_128")) return 28;
+			return null;
+		}
+		
     /* (non-Javadoc)
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
      */
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
       if (requestCode == 0) {
-      		// TODO: remove random code setting and warning message for final version
       		Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
           if (resultCode == RESULT_OK) {
-          		productCode = intent.getStringExtra("SCAN_RESULT_FORMAT")+"~"+intent.getStringExtra("SCAN_RESULT");
+          	Integer fb=formatBytes(intent.getStringExtra("SCAN_RESULT_FORMAT"));
+          	if (fb==null){
+            	Log.d(TAG, "unknown SCAN_RESULT_FORMAT: "+intent.getStringExtra("SCAN_RESULT_FORMAT"));
+          	} else {
+          		productCode = formatBytes(intent.getStringExtra("SCAN_RESULT_FORMAT"))+intent.getStringExtra("SCAN_RESULT");
+          	}
           } else if (resultCode == RESULT_CANCELED) {
-          	/*
-          	productCode = LearningActivity.randomCode();
-          	/*/
           	Log.d(TAG, "scanning aborted");
-          	//finish(); //*/
           }
       	}
     }
