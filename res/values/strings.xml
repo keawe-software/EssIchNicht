@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">Allergie-Scanner</string>
@@ -50,5 +51,11 @@
     <string name="expired">Sie nutzen eine Testversion des Programmes. Diese Testversion ist abgelaufen.</string>
     <string name="welcome">Wilkommen - Allergen-Scanner</string>
     <string name="scannerUrl">test</string>
+    <string name="title_activity_synchronize">SynchronizeActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="sync_warning">Diese Aktion erfordert das aktualisieren der lokalen Datenbank. Dabei können unter Umständen große Datenmenge heruntergeladen werden. Fortfahren?</string>
+    <string name="ok_always_sync">Ja, bei Bedarf stets aktualisieren</string>
+    <string name="dont_autosync">Niemals automatisch aktualisieren</string>
+    <string name="sync_once">Nur jetzt aktualisieren</string>
 
 </resources>

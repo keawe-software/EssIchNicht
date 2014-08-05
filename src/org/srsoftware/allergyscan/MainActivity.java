@@ -88,7 +88,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	AllergenList chosenAllergens = localDatabase.getActiveAllergens();
       if (chosenAllergens.isEmpty()) { // if there are no allergens selected, yet:
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
-      	selectAllergens(); // show allergen selection view
+      	startSynchronizeActivity();
       } else if (!deviceEnabled()){ // if device has not been enabled, yet:
       	AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
       	alert.setTitle(R.string.hint);
@@ -100,7 +100,12 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       }
     }
 		
-    private int missingCredits() {
+    private void startSynchronizeActivity() {
+			Intent intent=new Intent(this,SynchronizeActivity.class); // start the learning activity
+			startActivity(intent);
+		}
+
+		private int missingCredits() {
 			return settings.getInt("missingCredits", 10);
 		}
 
@@ -168,8 +173,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			
   		if (product==null){ // product not known, yet. this means, that no information for this product in the context of the current allergens is available
   			Toast.makeText(getApplicationContext(), R.string.unknown_product, Toast.LENGTH_LONG).show();
-  			Intent intent=new Intent(this,LearningActivity.class); // start the learning activity
-  			startActivity(intent);
+  			startLearningActivity();
   		} else { // we already have information about this product
     		Log.d(TAG, product.toString());
   			TextView productTitle = (TextView)findViewById(R.id.productTitle); // display the product title
@@ -204,6 +208,11 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	}
   		productCode=null;
     }
+
+		private void startLearningActivity() {
+			Intent intent=new Intent(this,LearningActivity.class); // start the learning activity
+			startActivity(intent);
+		}
 
 		/**
 		 * start the scanning activity
