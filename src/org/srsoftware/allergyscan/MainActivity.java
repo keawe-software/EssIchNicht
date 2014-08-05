@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -87,7 +86,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     		return;
     	}
     	LearningActivity.productBarCode=null; // reset learning activity
-    	TreeMap<Integer, String> allAllergens = localDatabase.getAllAllergens();
+    	AllergenList allAllergens = localDatabase.getAllAllergens();
       if (allAllergens.isEmpty()) { // if there are no allergens selected, yet:
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
       	selectAllergens(); // show allergen selection view
@@ -178,7 +177,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 
   			productTitle.setText(productData.name());
   			int pid=productData.pid(); // get the product id
-  			TreeMap<Integer, String> allAllergens = localDatabase.getAllAllergens(); // get the list of activated allergens
+  			AllergenList allAllergens = localDatabase.getAllAllergens(); // get the list of activated allergens
   			listItems.clear(); // clear the display list
 
   			TreeSet<Integer> contained=localDatabase.getContainedAllergens(pid,allAllergens.keySet()); // get the list of contained allergens
@@ -218,7 +217,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			startActivityForResult(intent, 0);
 		}
 		
-		@SuppressLint("DefaultLocale")
 		private Integer formatBytes(String format){
 			format=format.toUpperCase(Locale.getDefault());
 			if (format.equals("UPC_A")) return 10;

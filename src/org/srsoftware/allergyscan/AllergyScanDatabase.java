@@ -100,14 +100,14 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		this.settings=settings;
 	}
 
-	public TreeMap<Integer, String> getAllAllergens() {	  
-	  TreeMap<Integer, String> result=new TreeMap<Integer, String>();
+	public AllergenList getAllAllergens() {	  
+		AllergenList result=new AllergenList();
 	  SQLiteDatabase database = getReadableDatabase();
-		String[] fields={"aid","name"};
+		String[] fields={"laid","aid","name","active"};
 		Cursor cursor = database.query(ALLERGEN_TABLE, fields, null, null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()){
-			result.put(cursor.getInt(0), cursor.getString(1));
+			result.put(cursor.getInt(0), new Allergen(cursor.getInt(1),cursor.getString(2),cursor.getInt(3)));
 			cursor.moveToNext();
 		}
 		database.close();
@@ -256,12 +256,19 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 	public void storeAllergenInfo(int allergenId, Integer productId, boolean b) {
 		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo not implemented");
-		
+		// TODO Auto-generated method stub
+
 	}
 
-	public void storeAllergen(String trim) {
-		// TODO Auto-generated method stub
-		
+	public void storeAllergen(String name) {
+		Log.d(TAG,"AllergyScanDatabse.storeAllergen("+name+")");
+		SQLiteDatabase database=getWritableDatabase();
+		ContentValues values=new ContentValues();
+		values.put("aid", 0);
+		values.put("name", name);
+		values.put("active", 0);
+		database.insert(ALLERGEN_TABLE, null, values);			
+		database.close();  
 	}
 
 	public Integer storeProduct(String productBarCode, String productName) {

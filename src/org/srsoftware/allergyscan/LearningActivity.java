@@ -30,7 +30,7 @@ public class LearningActivity extends Activity {
 		protected static String productBarCode=null;
 		private String productName=null;
 		private Integer productId=null;
-		private TreeMap<Integer, String> allergens;
+		private AllergenList allergens;
 		private SharedPreferences settings;
 		private AllergyScanDatabase localDatabase;
 
@@ -106,7 +106,7 @@ public class LearningActivity extends Activity {
 
 		protected void askForAllergens(final int index) {
 			Log.d(TAG, "AskForAllergens("+index+")");
-			Entry<Integer, String> entry = getAllergen(index);
+			Entry<Integer, Allergen> entry = getAllergen(index);
 			if (entry==null){
 				Log.d(TAG, "resetting product infos");
 				// if all allergens have been asked for
@@ -115,12 +115,12 @@ public class LearningActivity extends Activity {
 				productId=null;
 				finish();
 			} else { // entry != null, which means we have another allergen in question
-				final String allergen=entry.getValue();
+				final Allergen allergen=entry.getValue();
 				final int allergenId=entry.getKey();
 			
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);			
-				alert.setTitle(allergen);
-				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen));
+				alert.setTitle(allergen.name);
+				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen.name));
 				alert.setPositiveButton(R.string.yes, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						localDatabase.storeAllergenInfo(allergenId,productId,true);
@@ -144,9 +144,9 @@ public class LearningActivity extends Activity {
 			}
 		}
 
-		private Entry<Integer, String> getAllergen(int index) {
+		private Entry<Integer, Allergen> getAllergen(int index) {
 			int i=0;
-			for (Entry<Integer, String> entry:allergens.entrySet()){
+			for (Entry<Integer, Allergen> entry:allergens.entrySet()){
 				if (index==i++) return entry;
 			}
 			return null;
