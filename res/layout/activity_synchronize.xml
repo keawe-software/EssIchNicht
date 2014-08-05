@@ -12,11 +12,34 @@
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/sync_warning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Large Text"
+            android:text="@string/sync_warning"
             android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <ProgressBar
+            android:id="@+id/progressBar1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/alway_ok"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ok_always_sync" />
+
+        <Button
+            android:id="@+id/once_ok"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sync_once" />
+
+        <Button
+            android:id="@+id/dont_sync"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dont_autosync" />
 
     </LinearLayout>
 
