@@ -51,8 +51,7 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
     };
     
     private void startSynchronizeActivity() {
-			Intent intent=new Intent(this,SynchronizeActivity.class); // start the learning activity
-			startActivity(intent);
+			startActivity(new Intent(this,SynchronizeActivity.class)); // start the learning activity
 		}
 
     private void createListOfAllAllergens() {

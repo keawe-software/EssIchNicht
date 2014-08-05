@@ -105,6 +105,9 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 				database.close();
 			}
 			
+			AllergenList allergens = getActiveAllergens();
+			array=RemoteDatabase.getInfo(allergens);
+			System.out.println(array);
 			// TODO: implement getInfo
 			// TODO: implement setInfo
 		} catch (IOException e) {

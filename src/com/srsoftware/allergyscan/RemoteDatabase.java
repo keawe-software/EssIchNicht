@@ -121,8 +121,7 @@ public class RemoteDatabase {
 	}
 
 	public static JSONObject getNewAllergens(AllergenList allergens) throws IOException {
-		// TODO Auto-generated method stub
-		Log.d(TAG, "RemoteDatabase.getNewAllergens");
+		Log.d(TAG, "RemoteDatabase.getNewAllergens(...)");
 		TreeSet<Integer> remoteIds = new TreeSet<Integer>();
 		TreeSet<String> newNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 		for (Allergen allergen : allergens.values()) {
@@ -146,6 +145,24 @@ public class RemoteDatabase {
 			return null;
 		}
 
+	}
+
+	public static JSONObject getInfo(AllergenList allergens) throws IOException {
+		Log.d(TAG, "RemoteDatabase.getInfo(...)");
+		if (allergens==null || allergens.isEmpty()) return null;
+		TreeSet<Integer> remoteAids = new TreeSet<Integer>();
+		for (Allergen allergen : allergens.values()) {
+			remoteAids.add(allergen.aid);
+		}
+		try {
+			BufferedReader reader = postData("getInfo", "aids", remoteAids);
+			JSONObject array = new JSONObject(reader.readLine());
+			reader.close();
+			return array;
+		} catch (JSONException e) { // usually happens with empty reply
+			Log.e(TAG, e.getMessage());
+			return null;
+		}
 	}
 
 }

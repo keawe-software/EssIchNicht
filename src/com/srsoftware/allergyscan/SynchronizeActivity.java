@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,12 +17,15 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 	private Button onceOkButton;
 	private Button noButton;
 	private View progressBar;
-
+	private SharedPreferences settings;
+	private static String TAG="AllergyScan";
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_synchronize);
-
+    settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
+    
 		alwaysOkButton = (Button) findViewById(R.id.alway_ok);
 		alwaysOkButton.setOnClickListener(this);
 
@@ -30,18 +34,22 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 
 		noButton = (Button) findViewById(R.id.dont_sync);
 		noButton.setOnClickListener(this);
-
+		
 		progressBar = findViewById(R.id.progressBar1);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		alwaysOkButton.setEnabled(true);
-		onceOkButton.setEnabled(true);
-		noButton.setEnabled(true);
-		progressBar.setVisibility(View.INVISIBLE);
-
+		Log.d(TAG, "SynchronizeActivity.onResume()");
+    if (autoSyncEnabled()){
+    	sync();
+    } else {
+  		alwaysOkButton.setEnabled(true);
+  		onceOkButton.setEnabled(true);
+  		noButton.setEnabled(true);
+  		progressBar.setVisibility(View.INVISIBLE);
+    }
 	}
 
 	@Override
@@ -52,9 +60,11 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 
 	public void onClick(View v) {
 		if (v == alwaysOkButton) {
+			settings.edit().putBoolean("autoUpdate", true).commit();
 			sync();
 		}
 		if (v == onceOkButton) {
+			settings.edit().putBoolean("autoUpdate", false).commit();
 			sync();
 		}
 		if (v == noButton) {
@@ -79,6 +89,16 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 			synchronizeActivity.finish();
 		}
 	}
+	
+	/**
+	 * check, whether automatic updates are enabled on this device
+	 * @return true, if automatic updates are not deactivated
+	 */
+	private boolean autoSyncEnabled() {    	
+		boolean result=settings.getBoolean("autoUpdate", false);
+		System.out.println(result);
+  	return result;
+  }
 
 	private void sync() {
 		alwaysOkButton.setEnabled(false);

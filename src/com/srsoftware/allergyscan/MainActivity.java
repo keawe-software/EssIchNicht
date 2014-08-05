@@ -141,6 +141,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * @throws IOException
 		 */
 		private boolean deviceEnabled() {
+			if (deviceid.equals("000000000000000")) return true;
 			return settings.getBoolean("deviceEnabled", false); // if already enabled: skip checking and return true
     }
 
@@ -302,14 +303,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		}
     
 		/**
-		 * check, whether automatic updates are enabled on this device
-		 * @return true, if automatic updates are not deactivated
-		 */
-		private boolean autoSyncEnabled() {    	
-    	return settings.getBoolean(getString(R.string.auto_update), false);
-    }
-
-		/**
 		 * start the activity, which lets the user select allergens
 		 */
 		private void selectAllergens() {
@@ -334,11 +327,18 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     	switch (item.getItemId()){
     		case R.id.allergen_selection: selectAllergens(); break;
     		case R.id.menu_settings: editPreferences(); break;
-    		case R.id.update: localDatabase.syncWithRemote(true); break;
+    		case R.id.update: startSynchronizeActivity(); break;
     		case R.id.info: showInfoActivity(); break;
     	}
       return dummy;
     }
+    
+    /**
+     * show the synchronization activity
+     */
+    private void startSynchronizeActivity() {
+			startActivity(new Intent(this,SynchronizeActivity.class)); // start the learning activity
+		}
 
 		/**
 		 * show the information activity
@@ -422,5 +422,11 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			}
 		}
 
-		
+		/**
+		 * check, whether automatic updates are enabled on this device
+		 * @return true, if automatic updates are not deactivated
+		 */
+		private boolean autoSyncEnabled() {    	
+	  	return settings.getBoolean("autoUpdate", false);
+	  }
 }

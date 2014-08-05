@@ -27,7 +27,7 @@ public class PreferencesActivity extends Activity implements OnClickListener {
     private void preapareCheckBox() {
       autoUpdateCheckbox=(CheckBox)findViewById(R.id.autoUpdateCheckbox);        
     	settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
-    	autoUpdateCheckbox.setChecked(settings.getBoolean(getString(R.string.auto_update), true));
+    	autoUpdateCheckbox.setChecked(settings.getBoolean("autoUpdate", true));
       autoUpdateCheckbox.setOnClickListener(this);      
     }
 
@@ -49,7 +49,7 @@ public class PreferencesActivity extends Activity implements OnClickListener {
     }
 
 		public void onClick(View v) {
-			settings.edit().putBoolean(getString(R.string.auto_update), autoUpdateCheckbox.isChecked()).commit();
+			settings.edit().putBoolean("autoUpdate", autoUpdateCheckbox.isChecked()).commit();
     }
 
 }
