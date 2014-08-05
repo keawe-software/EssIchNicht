@@ -1,6 +1,7 @@
 package com.srsoftware.allergyscan;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -61,10 +62,21 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		if (!autosync){
 			// TODO: ask user
 		}
+		
 		JSONObject array;
 		try {
 			array = RemoteDatabase.getNewProducts(getAllBarCodes());
-			System.out.println(array);
+		  SQLiteDatabase database=getWritableDatabase();
+			for (@SuppressWarnings("unchecked")
+			Iterator<String> it=array.keys(); it.hasNext();){
+				String barcode=it.next();
+				String name=array.getString(barcode);
+				ContentValues values=new ContentValues();
+				values.put("barcode", barcode);
+				values.put("name", name);
+			  database.insert(PRODUCT_TABLE, null, values);
+			}
+		  database.close();		  
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
