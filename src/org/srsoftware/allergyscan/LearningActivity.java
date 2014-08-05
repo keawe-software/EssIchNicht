@@ -1,6 +1,7 @@
 package org.srsoftware.allergyscan;
 
 import java.io.IOException;
+import java.util.Stack;
 import java.util.Map.Entry;
 
 import android.app.Activity;
@@ -47,7 +48,7 @@ public class LearningActivity extends Activity {
     	Log.d(TAG, "LearningActivity.onResume()");
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
   		if (productBarCode!=null){
-  			handleProductBarcode();
+  			handleProductBarcode(allergenStack());
   		} else if (scannerAvailable()){
   			startScanning();
     	}
@@ -59,13 +60,10 @@ public class LearningActivity extends Activity {
         return true;
     }
     
- 		private void handleProductBarcode() {
-			Log.d(TAG, "handleProductBarcode("+productBarCode+")");
-			final ProductData product = localDatabase.getProduct(productBarCode);
+ 		private void handleProductBarcode(final Stack<Allergen> allergenStack) {
+			Log.d(TAG, "LearningActivity.handleProductBarcode("+productBarCode+")");
+			ProductData product = localDatabase.getProduct(productBarCode);
 			if (product==null){
-				return;
-			}
-			if (product.name()==null) {
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 				alert.setTitle(R.string.product_name);
@@ -81,12 +79,13 @@ public class LearningActivity extends Activity {
 						String productName=input.getText().toString();
 						if (productName.length()<3){
 							Toast.makeText(getApplicationContext(), "Bezeichnung zu kurz!", Toast.LENGTH_LONG).show();
-							handleProductBarcode();
+							handleProductBarcode(allergenStack);
 						} else try {
-							if (!localDatabase.storeProduct(productBarCode,productName)){
+							ProductData newProduct = localDatabase.storeProduct(productBarCode,productName);
+							if (newProduct==null){
 								throw new IOException();
 							}
-							askForAllergens(0,product);
+							askForAllergens(allergenStack,newProduct);
 						} catch (IOException e) {
 							Toast.makeText(getApplicationContext(), R.string.server_not_available, Toast.LENGTH_LONG).show();
 							finish();
@@ -95,40 +94,37 @@ public class LearningActivity extends Activity {
 				});
 
 				alert.show();
-			} else askForAllergens(0,product);
+			} else askForAllergens(allergenStack,product);
 		}		
 
-		protected void askForAllergens(final int index, final ProductData product) {
-			Log.d(TAG, "AskForAllergens("+index+")");
-			Entry<Integer, Allergen> entry = getAllergen(index);
-			if (entry==null){
-				Log.d(TAG, "resetting product infos");
-				// if all allergens have been asked for
+		protected void askForAllergens(final Stack<Allergen> allergens, final ProductData product) {
+			Log.d(TAG, "AskForAllergens("+allergens+","+product+")");			
+			if (allergens.isEmpty()){// if all allergens have been asked for
+				Log.d(TAG, "asking done, resetting product infos");
 				productBarCode=null;
 				finish();
 			} else { // entry != null, which means we have another allergen in question
-				final Allergen allergen=entry.getValue();
-				final int allergenId=entry.getKey();
+				final Allergen allergen=allergens.pop();
 			
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);			
 				alert.setTitle(allergen.name);
 				alert.setMessage(getString(R.string.contains_question).replace("#product", product.name()).replace("#allergen", allergen.name));
 				alert.setPositiveButton(R.string.yes, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						localDatabase.storeAllergenInfo(allergenId,product.barcode(),true);
-						askForAllergens(index+1, product);
+						localDatabase.storeAllergenInfo(allergen.local_id,product.barcode(),true);
+						askForAllergens(allergens, product);
 					}
 				});
 				alert.setNegativeButton(R.string.no, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						localDatabase.storeAllergenInfo(allergenId,product.barcode(),false);
-						askForAllergens(index+1, product);
+						localDatabase.storeAllergenInfo(allergen.local_id,product.barcode(),false);
+						askForAllergens(allergens, product);
 					}
 				});
 				alert.setNeutralButton(R.string.dont_know, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						Log.d(TAG, "don't know, whether "+product.name()+" contains "+allergen);
-						askForAllergens(index+1, product);
+						askForAllergens(allergens, product);
 					}
 				});
 
@@ -147,13 +143,19 @@ public class LearningActivity extends Activity {
 		private void startScanning() {
 			if (MainActivity.deviceid.equals("000000000000000")){
 				productBarCode=randomCode();
-				handleProductBarcode();
+				handleProductBarcode(allergenStack());
 			} else {
 				Intent intent=new Intent(SCANNER+".SCAN"); // start zxing scanne
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 				intent.putExtra("SCAN_MODE", "PRODUCT_MODE");			
 				startActivityForResult(intent, 0); // scanner calls onActivityResult
 			}
+		}
+
+		private Stack<Allergen> allergenStack() {
+			Stack<Allergen> allergenStack=new Stack<Allergen>();
+			allergenStack.addAll(localDatabase.getActiveAllergens().values());
+			return allergenStack;
 		}
 
 		@SuppressWarnings("deprecation")

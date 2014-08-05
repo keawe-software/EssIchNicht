@@ -236,7 +236,7 @@ public class RemoteDatabase {
 				if ((pidString=reader.readLine())!=null){
 					pidString=pidString.trim();
 					int pid=Integer.parseInt(pidString);
-					product=new ProductData(pid, productBarCode, name);
+					product=new ProductData(productBarCode, name);
 				}
 			}
 		}

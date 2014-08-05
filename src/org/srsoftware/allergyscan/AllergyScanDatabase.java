@@ -269,9 +269,16 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		database.close();  
 	}
 
-	public boolean storeProduct(Long productBarCode, String productName) {
-		// TODO Auto-generated method stub
-		return false;
+	public ProductData storeProduct(Long barcode, String name) {
+		Log.d(TAG,"AllergyScanDatabse.storeProduct("+barcode+","+name+")");
+		SQLiteDatabase database=getWritableDatabase();
+		ContentValues values=new ContentValues();
+		values.put("barcode", barcode);
+		values.put("name", name);
+		long rowid = database.insert(PRODUCT_TABLE, null, values);			
+		database.close();  
+		if (rowid<0) return null;
+		return new ProductData(barcode, name);
 	}
 
 	public void setEnabled(Vector<Allergen> enabledAllergens) {
@@ -285,4 +292,18 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			db.update(ALLERGEN_TABLE, values, "laid="+allergen.local_id, null);
 		}
 	}
+
+	public AllergenList getActiveAllergens() {	  
+		AllergenList result=new AllergenList();
+	  SQLiteDatabase database = getReadableDatabase();
+		String[] fields={"laid","aid","name","active"};
+		Cursor cursor = database.query(ALLERGEN_TABLE, fields, "active=1", null, null, null, null);
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()){
+			result.put(cursor.getInt(0), new Allergen(cursor.getInt(0),cursor.getInt(1),cursor.getString(2),cursor.getInt(3)));
+			cursor.moveToNext();
+		}
+		database.close();
+		return result;
+  }
 }
