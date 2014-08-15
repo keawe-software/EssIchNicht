@@ -98,10 +98,15 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 					values.put("name", name);
 					values.put("active", false);
 					System.out.println(remoteAid + "=>" + name);
-					try {
+					try { /* TODO: hierbei werden Duplikate in der Datenbank angelegt
+						Reproduktion:
+						Neues Allergen in lokaler Datenbank anlegen, dann Synchronisieren
+						*/
 						database.insert(ALLERGEN_TABLE, null, values);
-					} catch (SQLiteConstraintException sqlce) {} // Ignore duplicates
+					} catch (SQLiteConstraintException sqlce) {						
+					} // Ignore duplicates
 				}
+				
 				database.close();
 			}
 			
