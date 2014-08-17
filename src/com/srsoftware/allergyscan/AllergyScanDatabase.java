@@ -117,11 +117,16 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 				
 			}
 			
-			AllergenList allergens = getActiveAllergens();
-			array=RemoteDatabase.getInfo(allergens);
+			AllergenList activeAllergens = getActiveAllergens();
+			
+			TreeMap<Integer,TreeMap<Long,Integer>> containments=getAllContainments();
+			
+			array=RemoteDatabase.getInfo(activeAllergens);
 			System.out.println(array);
 			// TODO: implement getInfo
 			// TODO: implement setInfo
+			
+			RemoteDatabase.setInfo(MainActivity.deviceid,containments);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -129,6 +134,29 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private TreeMap<Integer, TreeMap<Long, Integer>> getAllContainments() {
+		TreeMap<Integer, TreeMap<Long, Integer>> result=new TreeMap<Integer, TreeMap<Long,Integer>>();
+		AllergenList allergens = getAllAllergens();
+		SQLiteDatabase db=getReadableDatabase();
+		
+		for (Allergen allergen:allergens.values()){
+			String[] columns = { "barcode", "contained" };
+			Cursor cursor=db.query(CONTENT_TABLE, columns, "laid="+allergen.local_id, null, null, null, null);
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()){
+				TreeMap<Long, Integer> map = result.get(allergen.aid);
+				if (map==null){
+					map=new TreeMap<Long, Integer>();
+					result.put(allergen.aid, map);
+				}
+				map.put(cursor.getLong(0), cursor.getInt(1));
+				cursor.moveToNext();
+			}
+		}
+		db.close();
+		return result;
 	}
 
 	private TreeMap<Long, String> getNewProducts(TreeSet<Long> remoteBarcodes) {
@@ -182,7 +210,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		Cursor cursor = database.query(ALLERGEN_TABLE, fields, null, null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
-			result.put(cursor.getInt(0), new Allergen(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getInt(3)));
+			result.put(new Allergen(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getInt(3)));
 			cursor.moveToNext();
 		}
 		database.close();
@@ -326,6 +354,13 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.delete(CONTENT_TABLE, "aid=" + aid + " AND pid=" + pid, null);
 		db.close();
 	}
+	
+	public void resetAllergenInfo(int localAllergenId, Barcode barcode) {
+		Log.d(TAG, "AllergyScanDatabase.resetAllergenInfo("+localAllergenId+", "+barcode+")");
+		SQLiteDatabase database=getWritableDatabase();
+		database.delete(CONTENT_TABLE, "laid="+localAllergenId+" AND barcode="+barcode.get(), null);
+		database.close();
+	}
 
 	public void storeAllergenInfo(int localAllergenId, Barcode barcode, boolean contained) {
 		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo("+localAllergenId+", "+barcode+", "+contained+")");
@@ -334,7 +369,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		values.put("laid", localAllergenId);
 		values.put("barcode", barcode.get());
 		values.put("contained", contained);
-		database.insert(CONTENT_TABLE, null, values);
+		database.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 		database.close();
 	}
 
@@ -385,7 +420,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		Cursor cursor = database.query(ALLERGEN_TABLE, fields, "active=1", null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
-			result.put(cursor.getInt(0), new Allergen(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getInt(3)));
+			result.put(new Allergen(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getInt(3)));
 			cursor.moveToNext();
 		}
 		database.close();

@@ -371,8 +371,11 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 				});
 				alert.setNeutralButton(R.string.dont_know, new android.content.DialogInterface.OnClickListener() { // if "don't know" clicked: ignore
 					public void onClick(DialogInterface dialog, int whichButton) {
-						Log.d(TAG, "neutral");
-						productCode=null;
+						localDatabase.resetAllergenInfo(localAllergenId,barcode);
+						if (autoSyncEnabled()){
+							localDatabase.syncWithRemote(true);
+						}
+						handleProductBarcode(barcode);
 					}
 				});
 
