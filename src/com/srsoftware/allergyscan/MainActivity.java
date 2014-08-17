@@ -13,6 +13,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -201,13 +203,43 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			if (MainActivity.deviceid.equals("000000000000000")){
 				productCode=Barcode.random();
 				handleProductBarcode(productCode);
-			} else {
+			} else if (scannerAvailable(this)){
 				Intent intent=new Intent(LearningActivity.SCANNER+".SCAN");
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 				intent.putExtra("SCAN_MODE", "PRODUCT_MODE");			
 				startActivityForResult(intent, 0);
 			}
 		}
+		
+ 		/**
+ 		 * check, whether the barcode scanning library is available
+ 		 * @return
+ 		 */
+ 		static boolean scannerAvailable(final Context c) {
+ 			if (deviceid.equals("000000000000000")) return true;
+     	PackageManager pm = c.getPackageManager();
+       try {
+          pm.getApplicationInfo(LearningActivity.SCANNER, 0);
+          return true;
+       } catch (Exception e) { // if some exception occurs, this will be most likely caused by the missing scanner library
+       	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(c);
+       	dialogBuilder.setTitle(R.string.warning);
+         dialogBuilder.setMessage(R.string.no_scanner);
+         dialogBuilder.setCancelable(false);
+         AlertDialog dialog = dialogBuilder.create();
+       	dialog.setButton(DialogInterface.BUTTON_POSITIVE,c.getString(R.string.ok), new DialogInterface.OnClickListener() {
+ 					
+ 					public void onClick(DialogInterface dialog, int which) {
+ 						Log.d(TAG, "should start browser");
+ 						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(c.getString(R.string.scannerUrl)));
+ 						c.startActivity(browserIntent);
+ 					}
+ 				});
+         dialog.show();
+       	
+       	return false;
+       }
+     }
 		
 		static Barcode getBarCode(Intent intent){
     	Integer fb=formatBytes(intent.getStringExtra("SCAN_RESULT_FORMAT"));
