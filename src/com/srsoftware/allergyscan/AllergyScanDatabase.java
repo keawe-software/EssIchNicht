@@ -117,15 +117,17 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 				
 			}
 			
-			AllergenList activeAllergens = getActiveAllergens();
-			
 			TreeMap<Integer,TreeMap<Long,Integer>> containments=getAllContainments();
 			
-			array=RemoteDatabase.getInfo(activeAllergens);
-			System.out.println(array);
+			AllergenList activeAllergens = getActiveAllergens();
+			if (activeAllergens!=null && !activeAllergens.isEmpty()){			
+				array=RemoteDatabase.getInfo(activeAllergens);
+				System.out.println("Response: "+array);
 			// TODO: implement getInfo
-			// TODO: implement setInfo
+			}
 			
+			// TODO: implement setInfo			
+			if (containments!=null && !containments.isEmpty())
 			RemoteDatabase.setInfo(MainActivity.deviceid,containments);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
