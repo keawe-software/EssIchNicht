@@ -69,7 +69,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 			if (array != null) {
 				SQLiteDatabase database = getWritableDatabase();
-				for (Iterator<String> it = array.keys(); it.hasNext();) {
+				for (@SuppressWarnings("unchecked")	Iterator<String> it = array.keys(); it.hasNext();) {
 					String barcodeString = it.next();
 					String name = array.getString(barcodeString);
 					Long barcode = Long.parseLong(barcodeString);
@@ -90,7 +90,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			array = RemoteDatabase.getNewAllergens(getAllAllergens());
 			if (array != null) {
 				SQLiteDatabase database = getWritableDatabase();
-				for (Iterator<String> it = array.keys(); it.hasNext();) {
+				for (@SuppressWarnings("unchecked")	Iterator<String> it = array.keys(); it.hasNext();) {
 					String remoteAidString = it.next();
 					String name = array.getString(remoteAidString);
 					Integer remoteAid = Integer.parseInt(remoteAidString);
