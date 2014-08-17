@@ -10,10 +10,10 @@ public class AllergenList {
 	private TreeMap<Integer, Allergen> allergens=new TreeMap<Integer, Allergen>();
 	private TreeSet<Integer> enabledAllergens=new TreeSet<Integer>();
 
-	public void put(int local_aid, Allergen allergen) {
-		allergens.put(local_aid, allergen);
+	public void put(Allergen allergen) {
+		allergens.put(allergen.local_id, allergen);
 		if (allergen.active){
-			enabledAllergens.add(local_aid);
+			enabledAllergens.add(allergen.local_id);
 		}
 	}
 

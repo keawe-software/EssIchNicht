@@ -69,14 +69,21 @@ public class RemoteDatabase {
 		return result;
 	}
 
-	private static BufferedReader postData(String action, String key, Object value) throws IOException {
+	private static BufferedReader postData(String action, String key, Object value,String deviceid) throws IOException {
 		TreeMap<String, String> data = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 		if (value instanceof TreeMap) {
 			data.put(key, createJsonArray((TreeMap<?, ?>) value));
 		} else {
 			data.put(key, value.toString());
 		}
+		if (deviceid!=null){
+			data.put("device", deviceid);
+		}
 		return postData(action, data);
+	}
+	
+	private static BufferedReader postData(String action, String key, Object value) throws IOException {
+		return postData(action, key, value, null);
 	}
 
 	private static String createJsonArray(TreeMap<?, ?> value) throws UnsupportedEncodingException {
@@ -86,7 +93,14 @@ public class RemoteDatabase {
 		}
 		result.append('{');
 		for (Entry<?, ?> entry : value.entrySet()) {
-			result.append(encode(entry.getKey()) + ':' + encode(entry.getValue()) + ',');
+			Object entryValue = entry.getValue();
+			if (entryValue instanceof TreeMap) {
+				TreeMap<?,?> map = (TreeMap<?,?>) entryValue;
+				entryValue=createJsonArray(map); // recursive!
+			} else {
+				entryValue=encode(entryValue);
+			}
+			result.append(encode(entry.getKey()) + ':' + entryValue + ',');		
 		}
 		result.deleteCharAt(result.length() - 1);
 		result.append('}');
@@ -163,6 +177,20 @@ public class RemoteDatabase {
 			Log.e(TAG, e.getMessage());
 			return null;
 		}
+	}
+
+	public static void setInfo(String deviceid, TreeMap<Integer, TreeMap<Long, Integer>> containments) throws IOException {
+		Log.d(TAG, "RemoteDatabase.setInfo(...)");
+		if (deviceid == null || deviceid.isEmpty()) {
+			return;
+		}
+		if (containments == null || containments.isEmpty()) {
+			return;
+		}
+		BufferedReader reader = postData("setInfo", "content", containments, deviceid);
+		System.out.println(reader.readLine());
+		reader.close();
+	
 	}
 
 }
