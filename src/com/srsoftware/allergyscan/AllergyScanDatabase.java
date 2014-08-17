@@ -134,8 +134,11 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 							values.put("contained", contained);
 							db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 							
-							if (containtmentsForCurrentAid.get(barcode).equals(contained)){
-								containtmentsForCurrentAid.remove(barcode); // remove information already known to the server
+							if (containtmentsForCurrentAid!=null){
+								Integer dummy = containtmentsForCurrentAid.get(barcode);
+								if (dummy!=null && dummy.equals(contained)){
+									containtmentsForCurrentAid.remove(barcode); // remove information already known to the server
+								}
 							}
 						}
 						if (containtmentsForCurrentAid.isEmpty()){
