@@ -336,7 +336,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		values.put("contained", contained);
 		database.insert(CONTENT_TABLE, null, values);
 		database.close();
-
 	}
 
 	public void storeAllergen(String name) {

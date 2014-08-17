@@ -356,8 +356,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 						localDatabase.storeAllergenInfo(localAllergenId,barcode,true);
 						if (autoSyncEnabled()){
 							localDatabase.syncWithRemote(true);
-							handleProductBarcode(barcode);
 						}
+						handleProductBarcode(barcode);
 					}
 				});
 				alert.setNegativeButton(R.string.no, new android.content.DialogInterface.OnClickListener() { // if "not contained" clicked: store
@@ -365,8 +365,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 						localDatabase.storeAllergenInfo(localAllergenId,barcode,false);
 						if (autoSyncEnabled()){
 							localDatabase.syncWithRemote(true);
-							handleProductBarcode(barcode);
 						}
+						handleProductBarcode(barcode);
 					}
 				});
 				alert.setNeutralButton(R.string.dont_know, new android.content.DialogInterface.OnClickListener() { // if "don't know" clicked: ignore
