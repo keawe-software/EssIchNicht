@@ -186,7 +186,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			
   			adapter.notifyDataSetChanged(); // actually change the display    		
     	}
-  		productCode=null;
+  		//productCode=null;
     }
 
 		private void startLearningActivity() {

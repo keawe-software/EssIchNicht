@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -120,15 +121,36 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			TreeMap<Integer,TreeMap<Long,Integer>> containments=getAllContainments();
 			
 			AllergenList activeAllergens = getActiveAllergens();
-			if (activeAllergens!=null && !activeAllergens.isEmpty()){			
-				array=RemoteDatabase.getInfo(activeAllergens);
+			if (activeAllergens!=null && !activeAllergens.isEmpty()){
+				array=RemoteDatabase.getInfo(activeAllergens);				
 				System.out.println("Response: "+array);
+				for (Iterator it = array.keys(); it.hasNext();){
+					Integer aid = Integer.parseInt(it.next().toString());
+					Integer laid=getLocalAllergenId(aid);
+					try {
+						JSONObject inner=array.getJSONObject(aid.toString());
+						SQLiteDatabase db=getWritableDatabase();
+						for (Iterator it2=inner.keys(); it2.hasNext();){
+							Long barcode = Long.parseLong(it2.next().toString());
+							Integer contained=Integer.parseInt(inner.get(barcode.toString()).toString());
+							ContentValues values=new ContentValues();
+							values.put("laid", laid);
+							values.put("barcode", barcode);
+							values.put("contained", contained);
+							db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+						}
+						db.close();
+					} catch (JSONException je){
+						// exceptions will be thrown at empty results and can be ignored
+						System.err.println(je.getMessage());
+					}
+				}
 			// TODO: implement getInfo
 			}
 			
-			// TODO: implement setInfo			
-			if (containments!=null && !containments.isEmpty())
-			RemoteDatabase.setInfo(MainActivity.deviceid,containments);
+			if (containments!=null && !containments.isEmpty()){
+				RemoteDatabase.setInfo(MainActivity.deviceid,containments);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -343,12 +365,25 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		String[] fields = { "laid" };
 		Cursor cursor = db.query(ALLERGEN_TABLE, fields, "name='" + allergen + "'", null, null, null, null);
 		cursor.moveToFirst();
-		Integer aid = null;
+		Integer laid = null;
 		if (!cursor.isAfterLast()) {
-			aid = cursor.getInt(0);
+			laid = cursor.getInt(0);
 		}
 		db.close();
-		return aid;
+		return laid;
+	}
+	
+	private Integer getLocalAllergenId(int aid) {
+		SQLiteDatabase db = getReadableDatabase();
+		String[] fields = { "laid" };
+		Cursor cursor = db.query(ALLERGEN_TABLE, fields, "aid='" + aid + "'", null, null, null, null);
+		cursor.moveToFirst();
+		Integer laid = null;
+		if (!cursor.isAfterLast()) {
+			laid = cursor.getInt(0);
+		}
+		db.close();
+		return laid;
 	}
 
 	public void removeContent(Integer aid, Integer pid) {
