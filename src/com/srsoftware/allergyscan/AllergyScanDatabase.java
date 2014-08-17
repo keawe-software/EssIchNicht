@@ -76,7 +76,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 					ContentValues values = new ContentValues();
 					values.put("barcode", barcode);
 					values.put("name", name);
-					System.out.println(barcode + "=>" + name);
 					try {
 						database.insertOrThrow(PRODUCT_TABLE, null, values);
 					} catch (SQLiteConstraintException sqlce) {} // Ignore duplicates
@@ -95,7 +94,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 						String name = array.getString(remoteAidString);
 						Integer localAllergenId = getLocalAllergenId(name);
 						Integer remoteAid = Integer.parseInt(remoteAidString);
-						System.out.println(remoteAid + "=>" + name);
 						ContentValues values = new ContentValues();
 						values.put("aid", remoteAid);
 						SQLiteDatabase database = getWritableDatabase();
@@ -118,7 +116,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			AllergenList activeAllergens = getActiveAllergens();
 			if (activeAllergens != null && !activeAllergens.isEmpty()) {
 				array = RemoteDatabase.getInfo(activeAllergens);
-				System.out.println("Response: " + array);
 				for (Iterator it = array.keys(); it.hasNext();) {
 					Integer aid = Integer.parseInt(it.next().toString());
 					Integer laid = getLocalAllergenId(aid);
@@ -147,7 +144,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 						db.close();
 					} catch (JSONException je) {
 						// exceptions will be thrown at empty results and can be ignored
-						System.err.println(je.getMessage());
 					}
 				}
 			}
@@ -155,7 +151,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			if (containments != null && !containments.isEmpty()) {
 				if (RemoteDatabase.setInfo(MainActivity.deviceid, containments)){
 					settings.edit().putBoolean("deviceEnabled", true).commit();
-					System.out.println("Device enabled!");
 				}
 			}
 		} catch (IOException e) {
