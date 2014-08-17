@@ -31,8 +31,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.srsoftware.allergyscan.R;
-
 public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener, OnItemClickListener {
 
 	protected static String deviceid = null;
@@ -147,11 +145,12 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 
 		/**
 		 * check, whether the scanning library is available. if so: start the scanning activity
+		 * @param c 
 		 */
-		private void scanCode() {
+		private void scanCode(Context c) {
 			Log.d(TAG, "Main.scanCode("+productCode+")");
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    	if (scannerAvailable()){     		
+    	if (scannerAvailable(c)){     		
     		startScanning();
     	}
     }
@@ -264,28 +263,27 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * check, whether the barcode scanning library is available
 		 * @return
 		 */
-		private boolean scannerAvailable() {
-    	PackageManager pm = getPackageManager();
+		static boolean scannerAvailable(final Context c) {
+			if (deviceid.equals("000000000000000")) return true;
+    	PackageManager pm = c.getPackageManager();
       try {
          pm.getApplicationInfo(LearningActivity.SCANNER, 0);
          return true;
       } catch (Exception e) { // if some exception occurs, this will be most likely caused by the missing scanner library
-      	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+      	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(c);
       	dialogBuilder.setTitle(R.string.warning);
         dialogBuilder.setMessage(R.string.no_scanner);
         dialogBuilder.setCancelable(false);
         AlertDialog dialog = dialogBuilder.create();
-      	
-      	dialog.setButton(DialogInterface.BUTTON_POSITIVE,getString(R.string.ok), new DialogInterface.OnClickListener() {
+      	dialog.setButton(DialogInterface.BUTTON_POSITIVE,c.getString(R.string.ok), new DialogInterface.OnClickListener() {
 					
 					public void onClick(DialogInterface dialog, int which) {
 						Log.d(TAG, "should start browser");
-						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.scannerUrl)));
-						startActivity(browserIntent);
+						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(c.getString(R.string.scannerUrl)));
+						c.startActivity(browserIntent);
 					}
 				});
         dialog.show();
-
       	
       	return false;
       }
@@ -365,7 +363,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * @see android.view.View.OnClickListener#onClick(android.view.View)
 		 */
 		public void onClick(View v) { // for clicks on "scan" button
-			scanCode();	    
+			scanCode(this);	    
     }
 		
 		/* (non-Javadoc)
@@ -374,7 +372,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		@Override
 		public boolean onSearchRequested() {
 		  boolean dummy = super.onSearchRequested();
-		  scanCode(); // if the search button is pressed: scan barcode
+		  scanCode(this); // if the search button is pressed: scan barcode
 		  return dummy;
 		}
 

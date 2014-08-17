@@ -45,7 +45,7 @@ public class LearningActivity extends Activity {
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
   		if (productBarCode!=null){
   			handleProductBarcode(allergenStack());
-  		} else if (scannerAvailable()){
+  		} else if (MainActivity.scannerAvailable(this)){
   			startScanning();
     	}
     }
@@ -146,32 +146,6 @@ public class LearningActivity extends Activity {
 			return allergenStack;
 		}
 
-		@SuppressWarnings("deprecation")
-		private boolean scannerAvailable() {
-			if (MainActivity.deviceid.equals("000000000000000")) return true;
-    	PackageManager pm = getPackageManager();
-      try {
-         pm.getApplicationInfo(SCANNER, 0);
-         return true;
-      } catch (NameNotFoundException e) {
-      	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-      	dialogBuilder.setTitle(R.string.warning);
-      	dialogBuilder.setMessage(R.string.no_scanner);
-      	dialogBuilder.setCancelable(false);
-      	AlertDialog dialog = dialogBuilder.create();
-      	dialog.setButton(getString(R.string.ok), new OnClickListener() {
-					
-      		public void onClick(DialogInterface dialog, int which) {	
-      			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.scannerUrl)));
-      			startActivity(browserIntent);
-          }
-				});
-      	dialog.show();
-      	
-      	return false;
-      }
-    }
-    
 		@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
