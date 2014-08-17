@@ -71,10 +71,12 @@ public class RemoteDatabase {
 
 	private static BufferedReader postData(String action, String key, Object value,String deviceid) throws IOException {
 		TreeMap<String, String> data = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-		if (value instanceof TreeMap) {
-			data.put(key, createJsonArray((TreeMap<?, ?>) value));
-		} else {
-			data.put(key, value.toString());
+		if (key!=null && value !=null){
+			if (value instanceof TreeMap) {
+				data.put(key, createJsonArray((TreeMap<?, ?>) value));
+			} else {
+				data.put(key, value.toString());
+			}
 		}
 		if (deviceid!=null){
 			data.put("device", deviceid);
@@ -182,9 +184,6 @@ public class RemoteDatabase {
 	public static boolean setInfo(String deviceid, TreeMap<Integer, TreeMap<Long, Integer>> containments) throws IOException {
 		Log.d(TAG, "RemoteDatabase.setInfo(...)");
 		if (deviceid == null || deviceid.isEmpty()) {
-			return false;
-		}
-		if (containments == null || containments.isEmpty()) {
 			return false;
 		}
 		BufferedReader reader = postData("setInfo", "content", containments, deviceid);

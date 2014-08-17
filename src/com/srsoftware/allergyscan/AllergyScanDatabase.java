@@ -158,11 +158,9 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 				}
 			}
 
-			if (containments != null && !containments.isEmpty()) {
-				if (RemoteDatabase.setInfo(MainActivity.deviceid, containments)){
-					settings.edit().putBoolean("deviceEnabled", true).commit();
-					System.out.println("Device enabled!");
-				}
+			if (RemoteDatabase.setInfo(MainActivity.deviceid, containments)){
+				settings.edit().putBoolean("deviceEnabled", true).commit();
+				System.out.println("Device enabled!");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
