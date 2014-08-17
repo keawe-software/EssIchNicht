@@ -2,9 +2,9 @@ package com.srsoftware.allergyscan;
 
 final class ProductData {
     private String name;
-    private Long barcode;
+    private Barcode barcode;
 
-    public ProductData(Long barcode, String name) {
+    public ProductData(Barcode barcode, String name) {
         this.barcode=barcode;
         this.name = name;
     }
@@ -13,7 +13,7 @@ final class ProductData {
         return name;
     }
     
-    public Long barcode(){
+    public Barcode barcode(){
     	return barcode;
     }
 

@@ -13,9 +13,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -37,7 +34,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	private static SharedPreferences settings = null;
 	private static AllergyScanDatabase localDatabase=null;
 	private static String TAG="AllergyScan";
-	private Long productCode;
+	private Barcode productCode;
 	private ProductData product;
 	private ListView list;
 	private ArrayList<String> listItems;
@@ -94,7 +91,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       	alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode 
       	alert.show(); // Pressing "OK" calls learnCode()      		
      	} else {
-     		if (productCode!=null) handleProductCode(productCode); // if a product has been scanned before: handle it      			
+     		if (productCode!=null) handleProductBarcode(productCode); // if a product has been scanned before: handle it      			
       }
     }
 		
@@ -144,25 +141,13 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     }
 
 		/**
-		 * check, whether the scanning library is available. if so: start the scanning activity
-		 * @param c 
-		 */
-		private void scanCode(Context c) {
-			Log.d(TAG, "Main.scanCode("+productCode+")");
-    	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    	if (scannerAvailable(c)){     		
-    		startScanning();
-    	}
-    }
-		
-		/**
 		 * handle a barcode aquired before
-		 * @param productCode2 
+		 * @param barcode 
 		 */
-		private void handleProductCode(Long productCode2) {			
+		private void handleProductBarcode(Barcode barcode) {			
 //  		AllergyScanDatabase database=new AllergyScanDatabase(this);
-  		product=localDatabase.getProduct(productCode2); // check, if there already is information about the corrosponding product in the local db
-			LearningActivity.productBarCode=productCode2; // hand the product code to the learning activity
+  		product=localDatabase.getProduct(barcode); // check, if there already is information about the corrosponding product in the local db
+			LearningActivity.productBarCode=barcode; // hand the product code to the learning activity
 			// this is for the case, that the product is unknown, or data for a unclassified allergen shall be added
 			
 			
@@ -213,20 +198,25 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * start the scanning activity
 		 */
 		private void startScanning() {
-			Intent intent=new Intent(LearningActivity.SCANNER+".SCAN");
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-			intent.putExtra("SCAN_MODE", "PRODUCT_MODE");			
-			startActivityForResult(intent, 0);
+			if (MainActivity.deviceid.equals("000000000000000")){
+				productCode=Barcode.random();
+				handleProductBarcode(productCode);
+			} else {
+				Intent intent=new Intent(LearningActivity.SCANNER+".SCAN");
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+				intent.putExtra("SCAN_MODE", "PRODUCT_MODE");			
+				startActivityForResult(intent, 0);
+			}
 		}
 		
-		static Long getBarCode(Intent intent){
+		static Barcode getBarCode(Intent intent){
     	Integer fb=formatBytes(intent.getStringExtra("SCAN_RESULT_FORMAT"));
     	if (fb==null){
       	Log.d(TAG, "unknown SCAN_RESULT_FORMAT: "+intent.getStringExtra("SCAN_RESULT_FORMAT"));
       	return null;
     	}
    		String code = fb+intent.getStringExtra("SCAN_RESULT");
-   		return Long.parseLong(code);
+   		return new Barcode(code);
 		}
 		
 		private static Integer formatBytes(String format){
@@ -259,36 +249,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       	}
     }
 		
-		/**
-		 * check, whether the barcode scanning library is available
-		 * @return
-		 */
-		static boolean scannerAvailable(final Context c) {
-			if (deviceid.equals("000000000000000")) return true;
-    	PackageManager pm = c.getPackageManager();
-      try {
-         pm.getApplicationInfo(LearningActivity.SCANNER, 0);
-         return true;
-      } catch (Exception e) { // if some exception occurs, this will be most likely caused by the missing scanner library
-      	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(c);
-      	dialogBuilder.setTitle(R.string.warning);
-        dialogBuilder.setMessage(R.string.no_scanner);
-        dialogBuilder.setCancelable(false);
-        AlertDialog dialog = dialogBuilder.create();
-      	dialog.setButton(DialogInterface.BUTTON_POSITIVE,c.getString(R.string.ok), new DialogInterface.OnClickListener() {
-					
-					public void onClick(DialogInterface dialog, int which) {
-						Log.d(TAG, "should start browser");
-						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(c.getString(R.string.scannerUrl)));
-						c.startActivity(browserIntent);
-					}
-				});
-        dialog.show();
-      	
-      	return false;
-      }
-    }
-
 		/**
 		 * go back to the system desktop
 		 */
@@ -363,7 +323,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * @see android.view.View.OnClickListener#onClick(android.view.View)
 		 */
 		public void onClick(View v) { // for clicks on "scan" button
-			scanCode(this);	    
+   		startScanning();
     }
 		
 		/* (non-Javadoc)
@@ -372,7 +332,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		@Override
 		public boolean onSearchRequested() {
 		  boolean dummy = super.onSearchRequested();
-		  scanCode(this); // if the search button is pressed: scan barcode
+   		startScanning(); // if the search button is pressed: scan barcode
 		  return dummy;
 		}
 
@@ -384,7 +344,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			if (allergen.startsWith("?")||allergen.startsWith("+")||allergen.startsWith("-")){ // respond only to clicks on actual allergens
 				allergen=allergen.substring(1).trim(); // get the name of the allergen, should be unique
 				final Integer allergenId=localDatabase.getAid(allergen); // get the allergen id
-				final Long barcode=product.barcode(); // get the product id
+				final Barcode barcode=product.barcode(); // get the product id
 				final String productName=product.name(); // get the product name
 				
 				/* here a dialog is built, which asks, whether the selected allergen is contained in the current product */
@@ -396,7 +356,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 						localDatabase.storeAllergenInfo(allergenId,barcode,true);
 						if (autoSyncEnabled()){
 							localDatabase.syncWithRemote(true);
-							handleProductCode(barcode);
+							handleProductBarcode(barcode);
 						}
 					}
 				});
@@ -405,7 +365,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 						localDatabase.storeAllergenInfo(allergenId,barcode,false);
 						if (autoSyncEnabled()){
 							localDatabase.syncWithRemote(true);
-							handleProductCode(barcode);
+							handleProductBarcode(barcode);
 						}
 					}
 				});

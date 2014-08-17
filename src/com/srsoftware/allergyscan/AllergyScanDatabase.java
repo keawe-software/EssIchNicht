@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -257,7 +258,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		database.close();
 	}
 
-	public ProductData getProduct(Long barcode) {
+	public ProductData getProduct(Barcode barcode) {
 		SQLiteDatabase database = getReadableDatabase();
 		String[] fields = { "name" };
 		Cursor cursor = database.query(PRODUCT_TABLE, fields, "barcode = " + barcode, null, null, null, null);
@@ -271,7 +272,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		return result;
 	}
 
-	public TreeSet<Integer> getContainedAllergens(Long barcode, Set<Integer> limitTo) {
+	public TreeSet<Integer> getContainedAllergens(Barcode barcode, Set<Integer> limitTo) {
 		SQLiteDatabase db = getReadableDatabase();
 		String[] fields = { "aid", "contained" };
 		Cursor cursor = db.query(CONTENT_TABLE, fields, "contained=1 AND " + "pid=" + barcode, null, null, null, null);
@@ -286,7 +287,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		return result;
 	}
 
-	public TreeSet<Integer> getUnContainedAllergens(Long barcode, Set<Integer> limitTo) {
+	public TreeSet<Integer> getUnContainedAllergens(Barcode barcode, Set<Integer> limitTo) {
 		SQLiteDatabase db = getReadableDatabase();
 		String[] fields = { "aid", "contained" };
 		Cursor cursor = db.query(CONTENT_TABLE, fields, "contained=0 AND " + "barcode=" + barcode, null, null, null, null);
@@ -320,7 +321,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public void storeAllergenInfo(int allergenId, Long barcode, boolean b) {
+	public void storeAllergenInfo(int allergenId, Barcode barcode, boolean b) {
 		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo not implemented");
 		// TODO Auto-generated method stub
 
@@ -337,11 +338,11 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		database.close();
 	}
 
-	public ProductData storeProduct(Long barcode, String name) {
+	public ProductData storeProduct(Barcode barcode, String name) {
 		Log.d(TAG, "AllergyScanDatabse.storeProduct(" + barcode + "," + name + ")");
 		SQLiteDatabase database = getWritableDatabase();
 		ContentValues values = new ContentValues();
-		values.put("barcode", barcode);
+		values.put("barcode", barcode.get());
 		values.put("name", name);
 		long rowid = database.insert(PRODUCT_TABLE, null, values);
 		database.close();
@@ -373,5 +374,11 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		}
 		database.close();
 		return result;
+	}
+
+	Stack<Allergen> allergenStack() {
+		Stack<Allergen> allergenStack=new Stack<Allergen>();
+		allergenStack.addAll(getActiveAllergens().values());
+		return allergenStack;
 	}
 }

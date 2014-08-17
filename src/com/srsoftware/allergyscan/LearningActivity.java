@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -21,12 +20,10 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.srsoftware.allergyscan.R;
-
 public class LearningActivity extends Activity {
 		protected static String TAG="AllergyScan";
 		protected static String SCANNER="com.google.zxing.client.android";
-		protected static Long productBarCode=null;
+		protected static Barcode productBarCode=null;
 		private SharedPreferences settings;
 		private AllergyScanDatabase localDatabase;
 
@@ -44,8 +41,8 @@ public class LearningActivity extends Activity {
     	Log.d(TAG, "LearningActivity.onResume()");
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
   		if (productBarCode!=null){
-  			handleProductBarcode(allergenStack());
-  		} else if (MainActivity.scannerAvailable(this)){
+  			learnProductBarcode(localDatabase.allergenStack());
+  		} else if (scannerAvailable()){
   			startScanning();
     	}
     }
@@ -55,8 +52,38 @@ public class LearningActivity extends Activity {
         getMenuInflater().inflate(R.menu.activity_learning, menu);
         return true;
     }
+     
+ 		/**
+ 		 * check, whether the barcode scanning library is available
+ 		 * @return
+ 		 */
+ 		private boolean scannerAvailable() {
+ 			if (MainActivity.deviceid.equals("000000000000000")) return true;
+     	PackageManager pm = getPackageManager();
+       try {
+          pm.getApplicationInfo(LearningActivity.SCANNER, 0);
+          return true;
+       } catch (Exception e) { // if some exception occurs, this will be most likely caused by the missing scanner library
+       	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+       	dialogBuilder.setTitle(R.string.warning);
+         dialogBuilder.setMessage(R.string.no_scanner);
+         dialogBuilder.setCancelable(false);
+         AlertDialog dialog = dialogBuilder.create();
+       	dialog.setButton(DialogInterface.BUTTON_POSITIVE,getString(R.string.ok), new DialogInterface.OnClickListener() {
+ 					
+ 					public void onClick(DialogInterface dialog, int which) {
+ 						Log.d(TAG, "should start browser");
+ 						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.scannerUrl)));
+ 						startActivity(browserIntent);
+ 					}
+ 				});
+         dialog.show();
+       	
+       	return false;
+       }
+     }
     
- 		private void handleProductBarcode(final Stack<Allergen> allergenStack) {
+ 		private void learnProductBarcode(final Stack<Allergen> allergenStack) {
 			Log.d(TAG, "LearningActivity.handleProductBarcode("+productBarCode+")");
 			ProductData product = localDatabase.getProduct(productBarCode);
 			if (product==null){
@@ -75,7 +102,7 @@ public class LearningActivity extends Activity {
 						String productName=input.getText().toString();
 						if (productName.length()<3){
 							Toast.makeText(getApplicationContext(), "Bezeichnung zu kurz!", Toast.LENGTH_LONG).show();
-							handleProductBarcode(allergenStack);
+							learnProductBarcode(allergenStack);
 						} else try {
 							ProductData newProduct = localDatabase.storeProduct(productBarCode,productName);
 							if (newProduct==null){
@@ -128,10 +155,10 @@ public class LearningActivity extends Activity {
 			}
 		}
 
-		private void startScanning() {
+		void startScanning() {
 			if (MainActivity.deviceid.equals("000000000000000")){
-				productBarCode=randomCode();
-				handleProductBarcode(allergenStack());
+				productBarCode=Barcode.random();
+				learnProductBarcode(localDatabase.allergenStack());
 			} else {
 				Intent intent=new Intent(SCANNER+".SCAN"); // start zxing scanne
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -140,11 +167,7 @@ public class LearningActivity extends Activity {
 			}
 		}
 
-		private Stack<Allergen> allergenStack() {
-			Stack<Allergen> allergenStack=new Stack<Allergen>();
-			allergenStack.addAll(localDatabase.getActiveAllergens().values());
-			return allergenStack;
-		}
+
 
 		@Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -171,14 +194,5 @@ public class LearningActivity extends Activity {
           	finish(); //*/
           }
       	}
-    }
-
-		static Long randomCode() {
-			int number=(int)(100000*Math.random());
-			if (number<10) return Long.parseLong("180000"+number); 
-			if (number<100) return Long.parseLong("18000"+number); 
-			if (number<1000) return Long.parseLong("1800"+number); 
-			if (number<10000) return Long.parseLong("180"+number);
-			return Long.parseLong("18"+number);
     }
 }
