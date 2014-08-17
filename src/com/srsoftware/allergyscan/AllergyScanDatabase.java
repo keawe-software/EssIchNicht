@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,6 +56,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		createTables(db);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void syncWithRemote(boolean autosync) {
 		// TODO: this should be done in separate thread
 		if (!autosync) {
@@ -70,7 +70,8 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 			if (array != null) {
 				SQLiteDatabase database = getWritableDatabase();
-				for (@SuppressWarnings("unchecked")	Iterator<String> it = array.keys(); it.hasNext();) {
+				for (@SuppressWarnings("unchecked")
+				Iterator<String> it = array.keys(); it.hasNext();) {
 					String barcodeString = it.next();
 					String name = array.getString(barcodeString);
 					Long barcode = Long.parseLong(barcodeString);
@@ -90,66 +91,63 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 			array = RemoteDatabase.getNewAllergens(getAllAllergens());
 			if (array != null) {
-				for (@SuppressWarnings("unchecked")	Iterator<String> it = array.keys(); it.hasNext();) {
-					try { /* TODO: hierbei werden Duplikate in der Datenbank angelegt
-						Reproduktion:
-						Neues Allergen in lokaler Datenbank anlegen, dann Synchronisieren
-						*/
-					String remoteAidString = it.next();
-					String name = array.getString(remoteAidString);					
-					Integer localAllergenId=getLocalAllergenId(name);					
-					Integer remoteAid = Integer.parseInt(remoteAidString);					
-					System.out.println(remoteAid + "=>" + name);
-					ContentValues values = new ContentValues();
-					values.put("aid", remoteAid);
+				for (@SuppressWarnings("unchecked")
+				Iterator<String> it = array.keys(); it.hasNext();) {
+					try {
+						String remoteAidString = it.next();
+						String name = array.getString(remoteAidString);
+						Integer localAllergenId = getLocalAllergenId(name);
+						Integer remoteAid = Integer.parseInt(remoteAidString);
+						System.out.println(remoteAid + "=>" + name);
+						ContentValues values = new ContentValues();
+						values.put("aid", remoteAid);
 						SQLiteDatabase database = getWritableDatabase();
-						if (localAllergenId!=null){
+						if (localAllergenId != null) {
 							values.put("laid", localAllergenId);
-							database.update(ALLERGEN_TABLE, values, "laid="+localAllergenId, null);
+							database.update(ALLERGEN_TABLE, values, "laid=" + localAllergenId, null);
 						} else {
 							values.put("name", name);
 							values.put("active", false);
 							database.insert(ALLERGEN_TABLE, null, values);
 						}
 						database.close();
-					} catch (SQLiteConstraintException sqlce) {						
-					} // Ignore duplicates
+					} catch (SQLiteConstraintException sqlce) {} // Ignore duplicates
 				}
-				
+
 			}
-			
-			TreeMap<Integer,TreeMap<Long,Integer>> containments=getAllContainments();
-			
+
+			TreeMap<Integer, TreeMap<Long, Integer>> containments = getAllContainments();
+
 			AllergenList activeAllergens = getActiveAllergens();
-			if (activeAllergens!=null && !activeAllergens.isEmpty()){
-				array=RemoteDatabase.getInfo(activeAllergens);				
-				System.out.println("Response: "+array);
-				for (Iterator it = array.keys(); it.hasNext();){
+			if (activeAllergens != null && !activeAllergens.isEmpty()) {
+				array = RemoteDatabase.getInfo(activeAllergens);
+				System.out.println("Response: " + array);
+				for (Iterator it = array.keys(); it.hasNext();) {
 					Integer aid = Integer.parseInt(it.next().toString());
-					Integer laid=getLocalAllergenId(aid);
+					Integer laid = getLocalAllergenId(aid);
 					try {
-						JSONObject inner=array.getJSONObject(aid.toString());
-						SQLiteDatabase db=getWritableDatabase();
-						for (Iterator it2=inner.keys(); it2.hasNext();){
+						JSONObject inner = array.getJSONObject(aid.toString());
+						SQLiteDatabase db = getWritableDatabase();
+						for (Iterator it2 = inner.keys(); it2.hasNext();) {
 							Long barcode = Long.parseLong(it2.next().toString());
-							Integer contained=Integer.parseInt(inner.get(barcode.toString()).toString());
-							ContentValues values=new ContentValues();
+							Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
+							ContentValues values = new ContentValues();
 							values.put("laid", laid);
 							values.put("barcode", barcode);
 							values.put("contained", contained);
 							db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 						}
 						db.close();
-					} catch (JSONException je){
+					} catch (JSONException je) {
 						// exceptions will be thrown at empty results and can be ignored
 						System.err.println(je.getMessage());
 					}
 				}
-			// TODO: implement getInfo
+				// TODO: implement getInfo
 			}
-			
-			if (containments!=null && !containments.isEmpty()){
-				RemoteDatabase.setInfo(MainActivity.deviceid,containments);
+
+			if (containments != null && !containments.isEmpty()) {
+				RemoteDatabase.setInfo(MainActivity.deviceid, containments);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -161,18 +159,18 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	private TreeMap<Integer, TreeMap<Long, Integer>> getAllContainments() {
-		TreeMap<Integer, TreeMap<Long, Integer>> result=new TreeMap<Integer, TreeMap<Long,Integer>>();
+		TreeMap<Integer, TreeMap<Long, Integer>> result = new TreeMap<Integer, TreeMap<Long, Integer>>();
 		AllergenList allergens = getAllAllergens();
-		SQLiteDatabase db=getReadableDatabase();
-		
-		for (Allergen allergen:allergens.values()){
+		SQLiteDatabase db = getReadableDatabase();
+
+		for (Allergen allergen : allergens.values()) {
 			String[] columns = { "barcode", "contained" };
-			Cursor cursor=db.query(CONTENT_TABLE, columns, "laid="+allergen.local_id, null, null, null, null);
+			Cursor cursor = db.query(CONTENT_TABLE, columns, "laid=" + allergen.local_id, null, null, null, null);
 			cursor.moveToFirst();
-			while (!cursor.isAfterLast()){
+			while (!cursor.isAfterLast()) {
 				TreeMap<Long, Integer> map = result.get(allergen.aid);
-				if (map==null){
-					map=new TreeMap<Long, Integer>();
+				if (map == null) {
+					map = new TreeMap<Long, Integer>();
 					result.put(allergen.aid, map);
 				}
 				map.put(cursor.getLong(0), cursor.getInt(1));
@@ -199,19 +197,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		}
 		db.close();
 		return newProducts;
-	}
-
-	private TreeSet<Long> getAllBarCodes() {
-		SQLiteDatabase db = getReadableDatabase();
-		String[] fields = { "barcode" };
-		Cursor cursor = db.query(PRODUCT_TABLE, fields, null, null, null, null, null);
-		cursor.moveToFirst();
-		TreeSet<Long> result = new TreeSet<Long>();
-		while (!cursor.isAfterLast()) {
-			result.add(cursor.getLong(0));
-			cursor.moveToNext();
-		}
-		return result;
 	}
 
 	private void dropTables(SQLiteDatabase db) {
@@ -372,7 +357,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.close();
 		return laid;
 	}
-	
+
 	private Integer getLocalAllergenId(int aid) {
 		SQLiteDatabase db = getReadableDatabase();
 		String[] fields = { "laid" };
@@ -391,18 +376,18 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.delete(CONTENT_TABLE, "aid=" + aid + " AND pid=" + pid, null);
 		db.close();
 	}
-	
+
 	public void resetAllergenInfo(int localAllergenId, Barcode barcode) {
-		Log.d(TAG, "AllergyScanDatabase.resetAllergenInfo("+localAllergenId+", "+barcode+")");
-		SQLiteDatabase database=getWritableDatabase();
-		database.delete(CONTENT_TABLE, "laid="+localAllergenId+" AND barcode="+barcode.get(), null);
+		Log.d(TAG, "AllergyScanDatabase.resetAllergenInfo(" + localAllergenId + ", " + barcode + ")");
+		SQLiteDatabase database = getWritableDatabase();
+		database.delete(CONTENT_TABLE, "laid=" + localAllergenId + " AND barcode=" + barcode.get(), null);
 		database.close();
 	}
 
 	public void storeAllergenInfo(int localAllergenId, Barcode barcode, boolean contained) {
-		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo("+localAllergenId+", "+barcode+", "+contained+")");
-		SQLiteDatabase database=getWritableDatabase();
-		ContentValues values=new ContentValues();
+		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo(" + localAllergenId + ", " + barcode + ", " + contained + ")");
+		SQLiteDatabase database = getWritableDatabase();
+		ContentValues values = new ContentValues();
 		values.put("laid", localAllergenId);
 		values.put("barcode", barcode.get());
 		values.put("contained", contained);
@@ -416,8 +401,8 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		SQLiteDatabase database = getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("name", name);
-		if (localAllergenId!=null){ // if we already have a synonym: update name (i.e. uppercase/lowercase letters)
-			database.update(ALLERGEN_TABLE, values, "laid="+localAllergenId, null);
+		if (localAllergenId != null) { // if we already have a synonym: update name (i.e. uppercase/lowercase letters)
+			database.update(ALLERGEN_TABLE, values, "laid=" + localAllergenId, null);
 		} else { // otherwise: store new allergen
 			values.put("aid", 0);
 			values.put("active", true);
@@ -465,7 +450,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	Stack<Allergen> allergenStack() {
-		Stack<Allergen> allergenStack=new Stack<Allergen>();
+		Stack<Allergen> allergenStack = new Stack<Allergen>();
 		allergenStack.addAll(getActiveAllergens().values());
 		return allergenStack;
 	}
