@@ -343,7 +343,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			String allergenName = ((TextView) view).getText().toString();
 			if (allergenName.startsWith("?")||allergenName.startsWith("+")||allergenName.startsWith("-")){ // respond only to clicks on actual allergens
 				allergenName=allergenName.substring(1).trim(); // get the name of the allergen, should be unique
-				final Integer localAllergenId=localDatabase.getLocalAid(allergenName); // get the allergen id
+				final Integer localAllergenId=localDatabase.getLocalAllergenId(allergenName); // get the allergen id
 				final Barcode barcode=product.barcode(); // get the product id
 				final String productName=product.name(); // get the product name
 				

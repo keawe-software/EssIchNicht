@@ -14,6 +14,6 @@ public class Allergen {
 	
 	@Override
 	public String toString() {		
-		return name;
+		return name+"("+local_id+"/"+aid+")";
 	}
 }

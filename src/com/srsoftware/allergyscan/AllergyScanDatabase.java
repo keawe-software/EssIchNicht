@@ -89,26 +89,32 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 			array = RemoteDatabase.getNewAllergens(getAllAllergens());
 			if (array != null) {
-				SQLiteDatabase database = getWritableDatabase();
 				for (@SuppressWarnings("unchecked")	Iterator<String> it = array.keys(); it.hasNext();) {
-					String remoteAidString = it.next();
-					String name = array.getString(remoteAidString);
-					Integer remoteAid = Integer.parseInt(remoteAidString);
-					ContentValues values = new ContentValues();
-					values.put("aid", remoteAid);
-					values.put("name", name);
-					values.put("active", false);
-					System.out.println(remoteAid + "=>" + name);
 					try { /* TODO: hierbei werden Duplikate in der Datenbank angelegt
 						Reproduktion:
 						Neues Allergen in lokaler Datenbank anlegen, dann Synchronisieren
 						*/
-						database.insert(ALLERGEN_TABLE, null, values);
+					String remoteAidString = it.next();
+					String name = array.getString(remoteAidString);					
+					Integer localAllergenId=getLocalAllergenId(name);					
+					Integer remoteAid = Integer.parseInt(remoteAidString);					
+					System.out.println(remoteAid + "=>" + name);
+					ContentValues values = new ContentValues();
+					values.put("aid", remoteAid);
+						SQLiteDatabase database = getWritableDatabase();
+						if (localAllergenId!=null){
+							values.put("laid", localAllergenId);
+							database.update(ALLERGEN_TABLE, values, "laid="+localAllergenId, null);
+						} else {
+							values.put("name", name);
+							values.put("active", false);
+							database.insert(ALLERGEN_TABLE, null, values);
+						}
+						database.close();
 					} catch (SQLiteConstraintException sqlce) {						
 					} // Ignore duplicates
 				}
 				
-				database.close();
 			}
 			
 			AllergenList allergens = getActiveAllergens();
@@ -302,7 +308,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		return result;
 	}
 
-	public int getLocalAid(String allergen) {
+	public Integer getLocalAllergenId(String allergen) {
 		SQLiteDatabase db = getReadableDatabase();
 		String[] fields = { "laid" };
 		Cursor cursor = db.query(ALLERGEN_TABLE, fields, "name='" + allergen + "'", null, null, null, null);
@@ -335,12 +341,17 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 	public void storeAllergen(String name) {
 		Log.d(TAG, "AllergyScanDatabse.storeAllergen(" + name + ")");
+		Integer localAllergenId = getLocalAllergenId(name); // find out, whether we already have a synonym name / other upper/lowercase letters
 		SQLiteDatabase database = getWritableDatabase();
 		ContentValues values = new ContentValues();
-		values.put("aid", 0);
 		values.put("name", name);
-		values.put("active", 0);
-		database.insert(ALLERGEN_TABLE, null, values);
+		if (localAllergenId!=null){ // if we already have a synonym: update name (i.e. uppercase/lowercase letters)
+			database.update(ALLERGEN_TABLE, values, "laid="+localAllergenId, null);
+		} else { // otherwise: store new allergen
+			values.put("aid", 0);
+			values.put("active", true);
+			database.insert(ALLERGEN_TABLE, null, values);
+		}
 		database.close();
 	}
 
