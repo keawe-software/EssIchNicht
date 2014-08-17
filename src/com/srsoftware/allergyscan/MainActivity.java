@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,7 +32,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	protected static String deviceid = null;
 	private static SharedPreferences settings = null;
 	private static AllergyScanDatabase localDatabase=null;
-	private static String TAG="AllergyScan";
 	private Barcode productCode;
 	private ProductData product;
 	private ListView list;
@@ -74,7 +72,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		@Override
     protected void onResume() {
     	super.onResume();
-    	Log.d(TAG, "MainActivity.onResume()");
     	if (expired()) {
     		goHome();
     		return;
@@ -103,7 +100,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
      * start the learning activity
      */
     private void learnCode() {
-    	Log.d(TAG, "MainActivity.learnCode");
     	startActivity(new Intent(this,LearningActivity.class));    	
     }
       	
@@ -155,7 +151,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			Toast.makeText(getApplicationContext(), R.string.unknown_product, Toast.LENGTH_LONG).show();
   			startLearningActivity();
   		} else { // we already have information about this product
-    		Log.d(TAG, product.toString());
   			TextView productTitle = (TextView)findViewById(R.id.productTitle); // display the product title
 
   			productTitle.setText(product.name());
@@ -212,7 +207,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		static Barcode getBarCode(Intent intent){
     	Integer fb=formatBytes(intent.getStringExtra("SCAN_RESULT_FORMAT"));
     	if (fb==null){
-      	Log.d(TAG, "unknown SCAN_RESULT_FORMAT: "+intent.getStringExtra("SCAN_RESULT_FORMAT"));
       	return null;
     	}
    		String code = fb+intent.getStringExtra("SCAN_RESULT");
@@ -240,11 +234,9 @@ public class MainActivity extends Activity implements OnClickListener, android.c
      */
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
       if (requestCode == 0) {
-      		Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
           if (resultCode == RESULT_OK) {
           	productCode=getBarCode(intent);
           } else if (resultCode == RESULT_CANCELED) {
-          	Log.d(TAG, "scanning aborted");
           }
       	}
     }

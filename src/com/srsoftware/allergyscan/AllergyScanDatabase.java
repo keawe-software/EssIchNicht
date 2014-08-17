@@ -19,7 +19,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class AllergyScanDatabase extends SQLiteOpenHelper {
 
@@ -38,13 +37,11 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	private void createTables(SQLiteDatabase db) {
-		Log.d(TAG, "AllergyScanDatabase.createTables()");
 		Vector<String> queries = new Vector<String>();
 		queries.add("CREATE TABLE IF NOT EXISTS " + ALLERGEN_TABLE + " (laid INTEGER NOT NULL PRIMARY KEY, aid INTEGER, name TEXT COLLATE NOCASE NOT NULL, active BOOL NOT NULL)");
 		queries.add("CREATE TABLE IF NOT EXISTS " + CONTENT_TABLE + " (laid INTEGER NOT NULL, barcode INTEGER NOT NULL, contained BOOL NOT NULL, PRIMARY KEY(laid,barcode))");
 		queries.add("CREATE TABLE IF NOT EXISTS " + PRODUCT_TABLE + " (barcode INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL)");
 		for (String query : queries) {
-			Log.d(TAG, query);
 			db.execSQL(query);
 		}
 
@@ -212,7 +209,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	private void dropTables(SQLiteDatabase db) {
-		Log.d(TAG, "AllergyScanDatabase.dropTables()");
 		db.execSQL("DROP TABLE IF EXISTS " + PRODUCT_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + ALLERGEN_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + CONTENT_TABLE);
@@ -390,14 +386,12 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	public void resetAllergenInfo(int localAllergenId, Barcode barcode) {
-		Log.d(TAG, "AllergyScanDatabase.resetAllergenInfo(" + localAllergenId + ", " + barcode + ")");
 		SQLiteDatabase database = getWritableDatabase();
 		database.delete(CONTENT_TABLE, "laid=" + localAllergenId + " AND barcode=" + barcode.get(), null);
 		database.close();
 	}
 
 	public void storeAllergenInfo(int localAllergenId, Barcode barcode, boolean contained) {
-		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo(" + localAllergenId + ", " + barcode + ", " + contained + ")");
 		SQLiteDatabase database = getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("laid", localAllergenId);
@@ -408,7 +402,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	public void storeAllergen(String name) {
-		Log.d(TAG, "AllergyScanDatabse.storeAllergen(" + name + ")");
 		Integer localAllergenId = getLocalAllergenId(name); // find out, whether we already have a synonym name / other upper/lowercase letters
 		SQLiteDatabase database = getWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -424,7 +417,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	public ProductData storeProduct(Barcode barcode, String name) {
-		Log.d(TAG, "AllergyScanDatabse.storeProduct(" + barcode + "," + name + ")");
 		SQLiteDatabase database = getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("barcode", barcode.get());

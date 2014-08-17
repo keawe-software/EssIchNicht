@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,7 +17,6 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 	private Button noButton;
 	private View progressBar;
 	private SharedPreferences settings;
-	private static String TAG="AllergyScan";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -41,7 +39,6 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.d(TAG, "SynchronizeActivity.onResume()");
     if (autoSyncEnabled()){
     	sync();
     } else {
@@ -96,7 +93,6 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 	 */
 	private boolean autoSyncEnabled() {    	
 		boolean result=settings.getBoolean("autoUpdate", false);
-		System.out.println(result);
   	return result;
   }
 

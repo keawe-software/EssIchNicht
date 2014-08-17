@@ -14,14 +14,12 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
 public class LearningActivity extends Activity {
-		protected static String TAG="AllergyScan";
 		protected static String SCANNER="com.google.zxing.client.android";
 		protected static Barcode productBarCode=null;
 		private SharedPreferences settings;
@@ -38,7 +36,6 @@ public class LearningActivity extends Activity {
      @Override
     protected void onResume() {
     	super.onResume();
-    	Log.d(TAG, "LearningActivity.onResume()");
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
   		if (productBarCode!=null){
   			learnProductBarcode(localDatabase.allergenStack());
@@ -72,7 +69,6 @@ public class LearningActivity extends Activity {
        	dialog.setButton(DialogInterface.BUTTON_POSITIVE,getString(R.string.ok), new DialogInterface.OnClickListener() {
  					
  					public void onClick(DialogInterface dialog, int which) {
- 						Log.d(TAG, "should start browser");
  						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.scannerUrl)));
  						startActivity(browserIntent);
  					}
@@ -84,7 +80,6 @@ public class LearningActivity extends Activity {
      }
     
  		private void learnProductBarcode(final Stack<Allergen> allergenStack) {
-			Log.d(TAG, "LearningActivity.handleProductBarcode("+productBarCode+")");
 			ProductData product = localDatabase.getProduct(productBarCode);
 			if (product==null){
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -121,9 +116,7 @@ public class LearningActivity extends Activity {
 		}		
 
 		protected void askForAllergens(final Stack<Allergen> allergens, final ProductData product) {
-			Log.d(TAG, "AskForAllergens("+allergens+","+product+")");			
 			if (allergens.isEmpty()){// if all allergens have been asked for
-				Log.d(TAG, "asking done, resetting product infos");
 				productBarCode=null;
 				finish();
 			} else { // entry != null, which means we have another allergen in question
@@ -146,7 +139,6 @@ public class LearningActivity extends Activity {
 				});
 				alert.setNeutralButton(R.string.dont_know, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						Log.d(TAG, "don't know, whether "+product.name()+" contains "+allergen);
 						askForAllergens(allergens, product);
 					}
 				});
@@ -190,7 +182,6 @@ public class LearningActivity extends Activity {
       			Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
           	productBarCode = randomCode();
           	/*/
-          	Log.d(TAG, "scanning aborted");
           	finish(); //*/
           }
       	}

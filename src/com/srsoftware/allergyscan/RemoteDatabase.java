@@ -16,15 +16,11 @@ import java.util.TreeSet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 public class RemoteDatabase {
-	protected static String TAG = "AllergyScan";
 	private static String adress = "http://allergy.srsoftware.de?action=";
 	static Integer missingCredits = null;
 
 	public static TreeMap<Integer, String> getAvailableAllergens() throws IOException {
-		Log.d(TAG, "getAvailableAllergens");
 		BufferedReader reader = postData("allergenList", null);
 		String line;
 		TreeMap<Integer, String> result = new TreeMap<Integer, String>();
@@ -46,7 +42,6 @@ public class RemoteDatabase {
 
 	private static BufferedReader postData(String action, TreeMap<String, String> data) throws IOException {
 		URL url = new URL(adress + action);
-		Log.d(TAG, "trying to send POST data to " + url + ":");
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
 		connection.setDoOutput(true);
@@ -57,7 +52,6 @@ public class RemoteDatabase {
 			for (Iterator<Entry<String, String>> it = data.entrySet().iterator(); it.hasNext();) {
 				Entry<String, String> entry = it.next();
 				out.writeBytes(entry.getKey() + "=" + entry.getValue());
-				Log.d(TAG, entry.getKey() + "=" + entry.getValue());
 				if (it.hasNext()) {
 					out.write('&');
 				}
@@ -113,29 +107,25 @@ public class RemoteDatabase {
 
 	public static JSONObject getNewProducts() throws IOException, JSONException {
 		try {
-			Log.d(TAG, "RemoteDatabase.getNewProducts(...)");
 			BufferedReader reader = postData("getNewProducts");
 			JSONObject array = new JSONObject(reader.readLine());
 			reader.close();
 			return array;
 		} catch (JSONException e) { // usually happens with empty reply
-			Log.e(TAG, e.getMessage());
 			return null;
 		}
 	}
 
 	public static void storeNewProducts(TreeMap<Long, String> products) throws IOException {
-		Log.d(TAG, "RemoteDatabase.storeNewProducts(...)");
 		if (products == null || products.isEmpty()) {
 			return;
 		}
 		BufferedReader reader = postData("storeNewProducts", "products", products);
-		System.out.println(reader.readLine());
+		reader.readLine();
 		reader.close();
 	}
 
 	public static JSONObject getNewAllergens(AllergenList allergens) throws IOException {
-		Log.d(TAG, "RemoteDatabase.getNewAllergens(...)");
 		TreeSet<Integer> remoteIds = new TreeSet<Integer>();
 		TreeSet<String> newNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 		for (Allergen allergen : allergens.values()) {
@@ -155,14 +145,12 @@ public class RemoteDatabase {
 			reader.close();
 			return array;
 		} catch (JSONException e) { // usually happens with empty reply
-			Log.e(TAG, e.getMessage());
 			return null;
 		}
 
 	}
 
 	public static JSONObject getInfo(AllergenList allergens) throws IOException {
-		Log.d(TAG, "RemoteDatabase.getInfo(...)");
 		if (allergens==null || allergens.isEmpty()) return null;
 		TreeSet<Integer> remoteAids = new TreeSet<Integer>();
 		for (Allergen allergen : allergens.values()) {
@@ -174,13 +162,11 @@ public class RemoteDatabase {
 			reader.close();
 			return array;
 		} catch (JSONException e) { // usually happens with empty reply
-			Log.e(TAG, e.getMessage());
 			return null;
 		}
 	}
 
 	public static boolean setInfo(String deviceid, TreeMap<Integer, TreeMap<Long, Integer>> containments) throws IOException {
-		Log.d(TAG, "RemoteDatabase.setInfo(...)");
 		if (deviceid == null || deviceid.isEmpty()) {
 			return false;
 		}
@@ -190,7 +176,6 @@ public class RemoteDatabase {
 		BufferedReader reader = postData("setInfo", "content", containments, deviceid);
 		String reply=reader.readLine();
 		reader.close();
-		System.out.println(reply);
 		return reply.equals("ENABLE");
 	}
 

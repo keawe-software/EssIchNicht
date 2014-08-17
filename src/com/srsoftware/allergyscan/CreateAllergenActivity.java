@@ -3,23 +3,18 @@ package com.srsoftware.allergyscan;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.widget.AutoCompleteTextView;
 
-import com.srsoftware.allergyscan.R;
-
 public class CreateAllergenActivity extends Activity implements OnKeyListener {
-	protected static String TAG="AllergyScan";
 	private AutoCompleteTextView text;
 	private AllergyScanDatabase localDatabase;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "CreateAllergenActivity.onCreate");
         setContentView(R.layout.activity_create_allergen);
         SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
         localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle

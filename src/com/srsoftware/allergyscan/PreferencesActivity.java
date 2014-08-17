@@ -15,7 +15,6 @@ import com.srsoftware.allergyscan.R;
 public class PreferencesActivity extends Activity implements OnClickListener {
 	
 		private CheckBox autoUpdateCheckbox;
-		protected static String TAG="AllergyScan";
 		private SharedPreferences settings;
     @Override
     public void onCreate(Bundle savedInstanceState) {

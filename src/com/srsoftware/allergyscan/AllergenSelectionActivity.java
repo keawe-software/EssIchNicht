@@ -18,7 +18,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 public class AllergenSelectionActivity extends Activity implements OnClickListener {
-		protected static String TAG="AllergyScan";
 		private Button createButton,storeButton;
 		private ListView list;
 		private AllergenList availableAllergens;
