@@ -179,18 +179,19 @@ public class RemoteDatabase {
 		}
 	}
 
-	public static void setInfo(String deviceid, TreeMap<Integer, TreeMap<Long, Integer>> containments) throws IOException {
+	public static boolean setInfo(String deviceid, TreeMap<Integer, TreeMap<Long, Integer>> containments) throws IOException {
 		Log.d(TAG, "RemoteDatabase.setInfo(...)");
 		if (deviceid == null || deviceid.isEmpty()) {
-			return;
+			return false;
 		}
 		if (containments == null || containments.isEmpty()) {
-			return;
+			return false;
 		}
 		BufferedReader reader = postData("setInfo", "content", containments, deviceid);
-		System.out.println(reader.readLine());
+		String reply=reader.readLine();
 		reader.close();
-	
+		System.out.println(reply);
+		return reply.equals("ENABLE");
 	}
 
 }
