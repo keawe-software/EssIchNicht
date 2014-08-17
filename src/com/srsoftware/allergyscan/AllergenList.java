@@ -1,5 +1,6 @@
 package com.srsoftware.allergyscan;
 
+import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -30,7 +31,9 @@ public class AllergenList {
 	}
 
 	public Vector<Allergen> values() {
-		return new Vector<Allergen>(allergens.values());
+		Vector<Allergen> result = new Vector<Allergen>(allergens.values());
+		Collections.sort(result);
+		return result;
 	}
 
 	public int size() {

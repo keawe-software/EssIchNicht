@@ -1,6 +1,6 @@
 package com.srsoftware.allergyscan;
 
-public class Allergen {
+public class Allergen implements Comparable<Allergen>{
 	public Integer local_id;
 	public String name;
 	public Integer aid;
@@ -15,5 +15,9 @@ public class Allergen {
 	@Override
 	public String toString() {		
 		return name;//+"("+local_id+"/"+aid+")"; // ids are for debug purposes
+	}
+
+	public int compareTo(Allergen another) {
+		return name.compareTo(another.name);
 	}
 }
