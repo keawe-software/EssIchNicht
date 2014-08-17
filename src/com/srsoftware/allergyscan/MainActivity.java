@@ -340,20 +340,20 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * if item in the allergen list is clicked
 		 */
 		public void onItemClick(AdapterView<?> arg0, View view, int arg2, long arg3) {
-			String allergen = ((TextView) view).getText().toString();
-			if (allergen.startsWith("?")||allergen.startsWith("+")||allergen.startsWith("-")){ // respond only to clicks on actual allergens
-				allergen=allergen.substring(1).trim(); // get the name of the allergen, should be unique
-				final Integer allergenId=localDatabase.getAid(allergen); // get the allergen id
+			String allergenName = ((TextView) view).getText().toString();
+			if (allergenName.startsWith("?")||allergenName.startsWith("+")||allergenName.startsWith("-")){ // respond only to clicks on actual allergens
+				allergenName=allergenName.substring(1).trim(); // get the name of the allergen, should be unique
+				final Integer localAllergenId=localDatabase.getLocalAid(allergenName); // get the allergen id
 				final Barcode barcode=product.barcode(); // get the product id
 				final String productName=product.name(); // get the product name
 				
 				/* here a dialog is built, which asks, whether the selected allergen is contained in the current product */
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);				
-				alert.setTitle(allergen);
-				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen));				
+				alert.setTitle(allergenName);
+				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergenName));				
 				alert.setPositiveButton(R.string.yes, new android.content.DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) { // if "contained" clicked: store
-						localDatabase.storeAllergenInfo(allergenId,barcode,true);
+						localDatabase.storeAllergenInfo(localAllergenId,barcode,true);
 						if (autoSyncEnabled()){
 							localDatabase.syncWithRemote(true);
 							handleProductBarcode(barcode);
@@ -362,7 +362,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 				});
 				alert.setNegativeButton(R.string.no, new android.content.DialogInterface.OnClickListener() { // if "not contained" clicked: store
 					public void onClick(DialogInterface dialog, int whichButton) {
-						localDatabase.storeAllergenInfo(allergenId,barcode,false);
+						localDatabase.storeAllergenInfo(localAllergenId,barcode,false);
 						if (autoSyncEnabled()){
 							localDatabase.syncWithRemote(true);
 							handleProductBarcode(barcode);

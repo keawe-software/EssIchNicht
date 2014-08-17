@@ -302,9 +302,9 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		return result;
 	}
 
-	public int getAid(String allergen) {
+	public int getLocalAid(String allergen) {
 		SQLiteDatabase db = getReadableDatabase();
-		String[] fields = { "barcode" };
+		String[] fields = { "laid" };
 		Cursor cursor = db.query(ALLERGEN_TABLE, fields, "name='" + allergen + "'", null, null, null, null);
 		cursor.moveToFirst();
 		Integer aid = null;
@@ -321,11 +321,11 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public void storeAllergenInfo(int allergenId, Barcode barcode, boolean contained) {
-		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo("+allergenId+", "+barcode+", "+contained+")");
+	public void storeAllergenInfo(int localAllergenId, Barcode barcode, boolean contained) {
+		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo("+localAllergenId+", "+barcode+", "+contained+")");
 		SQLiteDatabase database=getWritableDatabase();
 		ContentValues values=new ContentValues();
-		values.put("laid", allergenId);
+		values.put("laid", localAllergenId);
 		values.put("barcode", barcode.get());
 		values.put("contained", contained);
 		database.insert(CONTENT_TABLE, null, values);
