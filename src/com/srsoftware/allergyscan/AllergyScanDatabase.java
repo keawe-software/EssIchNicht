@@ -127,7 +127,10 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 					Integer laid = getLocalAllergenId(aid);
 					try {
 						JSONObject inner = array.getJSONObject(aid.toString());
-						SQLiteDatabase db = getWritableDatabase();
+						SQLiteDatabase db = getWritableDatabase();						
+						
+						TreeMap<Long, Integer> containtmentsForCurrentAid = containments.get(aid);
+						
 						for (Iterator it2 = inner.keys(); it2.hasNext();) {
 							Long barcode = Long.parseLong(it2.next().toString());
 							Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
@@ -136,6 +139,13 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 							values.put("barcode", barcode);
 							values.put("contained", contained);
 							db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+							
+							if (containtmentsForCurrentAid.get(barcode).equals(contained)){
+								containtmentsForCurrentAid.remove(barcode); // remove information already known to the server
+							}
+						}
+						if (containtmentsForCurrentAid.isEmpty()){
+							containments.remove(aid);
 						}
 						db.close();
 					} catch (JSONException je) {
@@ -143,7 +153,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 						System.err.println(je.getMessage());
 					}
 				}
-				// TODO: implement getInfo
 			}
 
 			if (containments != null && !containments.isEmpty()) {
