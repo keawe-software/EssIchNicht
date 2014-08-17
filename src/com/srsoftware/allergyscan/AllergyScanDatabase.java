@@ -40,7 +40,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	private void createTables(SQLiteDatabase db) {
 		Log.d(TAG, "AllergyScanDatabase.createTables()");
 		Vector<String> queries = new Vector<String>();
-		queries.add("CREATE TABLE IF NOT EXISTS " + ALLERGEN_TABLE + " (laid INTEGER NOT NULL PRIMARY KEY, aid INTEGER, name TEXT NOT NULL, active BOOL NOT NULL)");
+		queries.add("CREATE TABLE IF NOT EXISTS " + ALLERGEN_TABLE + " (laid INTEGER NOT NULL PRIMARY KEY, aid INTEGER, name TEXT COLLATE NOCASE NOT NULL, active BOOL NOT NULL)");
 		queries.add("CREATE TABLE IF NOT EXISTS " + CONTENT_TABLE + " (laid INTEGER NOT NULL, barcode INTEGER NOT NULL, contained BOOL NOT NULL, PRIMARY KEY(laid,barcode))");
 		queries.add("CREATE TABLE IF NOT EXISTS " + PRODUCT_TABLE + " (barcode INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL)");
 		for (String query : queries) {
