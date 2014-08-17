@@ -274,8 +274,8 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 	public TreeSet<Integer> getContainedAllergens(Barcode barcode, Set<Integer> limitTo) {
 		SQLiteDatabase db = getReadableDatabase();
-		String[] fields = { "aid", "contained" };
-		Cursor cursor = db.query(CONTENT_TABLE, fields, "contained=1 AND " + "pid=" + barcode, null, null, null, null);
+		String[] fields = { "laid", "contained" };
+		Cursor cursor = db.query(CONTENT_TABLE, fields, "contained=1 AND " + "barcode=" + barcode, null, null, null, null);
 		cursor.moveToFirst();
 		TreeSet<Integer> result = new TreeSet<Integer>();
 		while (!cursor.isAfterLast()) {
@@ -289,7 +289,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 	public TreeSet<Integer> getUnContainedAllergens(Barcode barcode, Set<Integer> limitTo) {
 		SQLiteDatabase db = getReadableDatabase();
-		String[] fields = { "aid", "contained" };
+		String[] fields = { "laid", "contained" };
 		Cursor cursor = db.query(CONTENT_TABLE, fields, "contained=0 AND " + "barcode=" + barcode, null, null, null, null);
 		cursor.moveToFirst();
 		TreeSet<Integer> result = new TreeSet<Integer>();
