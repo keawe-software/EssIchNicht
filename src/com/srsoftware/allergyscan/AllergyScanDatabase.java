@@ -141,7 +141,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 								}
 							}
 						}
-						if (containtmentsForCurrentAid.isEmpty()){
+						if (containtmentsForCurrentAid==null || containtmentsForCurrentAid.isEmpty()){
 							containments.remove(aid);
 						}
 						db.close();
