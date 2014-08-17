@@ -321,9 +321,15 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public void storeAllergenInfo(int allergenId, Barcode barcode, boolean b) {
-		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo not implemented");
-		// TODO Auto-generated method stub
+	public void storeAllergenInfo(int allergenId, Barcode barcode, boolean contained) {
+		Log.d(TAG, "AllergyScanDatabse.storeAllergenInfo("+allergenId+", "+barcode+", "+contained+")");
+		SQLiteDatabase database=getWritableDatabase();
+		ContentValues values=new ContentValues();
+		values.put("laid", allergenId);
+		values.put("barcode", barcode.get());
+		values.put("contained", contained);
+		database.insert(CONTENT_TABLE, null, values);
+		database.close();
 
 	}
 
