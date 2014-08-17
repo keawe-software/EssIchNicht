@@ -159,7 +159,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			TextView productTitle = (TextView)findViewById(R.id.productTitle); // display the product title
 
   			productTitle.setText(product.name());
-  			AllergenList allAllergens = localDatabase.getAllAllergens(); // get the list of activated allergens
+  			AllergenList allAllergens = localDatabase.getActiveAllergens(); // get the list of activated allergens
   			listItems.clear(); // clear the display list
 
   			TreeSet<Integer> contained=localDatabase.getContainedAllergens(product.barcode(),allAllergens.keySet()); // get the list of contained allergens
