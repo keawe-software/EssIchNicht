@@ -14,6 +14,7 @@
     <string name="enter_allergen">Neues Allergen in Datenbank eintragen:</string>
     <string name="enter_product_name">Bitte geben Sie einen Namen für das Produkt (#product) ein.</string>
     <string name="expired">Sie nutzen eine Testversion des Programmes. Diese Testversion ist abgelaufen.</string>
+    <string name="free_version_hint">Sie nutzen eine kostenlose Version des Programmes. In der kostenlosen Version können Sie maximal zwei Nahrungsmittel aktivieren. Um mehr Nahrungsmittel wählen zu können, können Sie die Vollversion kaufen oder sich das Programm aus dem Quellcode selbst erstellen.</string>
     <string name="hello_world">Hello world!</string>
     <string name="hint">Hinweis</string>
     <string name="info">info</string>
