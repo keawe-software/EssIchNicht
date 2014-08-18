@@ -31,7 +31,6 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_allergen_selection);
 
-
         settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
         localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
         createButton=(Button)findViewById(R.id.createAllergenButton);
@@ -39,7 +38,6 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
         list = (ListView)findViewById(R.id.listView1);
         createButton.setOnClickListener(this);
         storeButton.setOnClickListener(this);
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
     }
     
     
@@ -113,6 +111,9 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
      			}
        	}
       }
+     	while (enabledAllergens.size()>2){ // for the free version
+     		enabledAllergens.remove(0); // TODO: remove for full version
+     	}
      	localDatabase.setEnabled(enabledAllergens);
 		  finish();
 		  startSynchronizeActivity();
