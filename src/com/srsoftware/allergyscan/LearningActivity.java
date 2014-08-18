@@ -10,8 +10,6 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
@@ -39,7 +37,7 @@ public class LearningActivity extends Activity {
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
   		if (productBarCode!=null){
   			learnProductBarcode(localDatabase.allergenStack());
-  		} else if (scannerAvailable()){
+  		} else if (MainActivity.scannerAvailable(this)){
   			startScanning();
     	}
     }
@@ -49,36 +47,7 @@ public class LearningActivity extends Activity {
         getMenuInflater().inflate(R.menu.activity_learning, menu);
         return true;
     }
-     
- 		/**
- 		 * check, whether the barcode scanning library is available
- 		 * @return
- 		 */
- 		private boolean scannerAvailable() {
- 			if (MainActivity.deviceid.equals("000000000000000")) return true;
-     	PackageManager pm = getPackageManager();
-       try {
-          pm.getApplicationInfo(LearningActivity.SCANNER, 0);
-          return true;
-       } catch (Exception e) { // if some exception occurs, this will be most likely caused by the missing scanner library
-       	AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-       	dialogBuilder.setTitle(R.string.warning);
-         dialogBuilder.setMessage(R.string.no_scanner);
-         dialogBuilder.setCancelable(false);
-         AlertDialog dialog = dialogBuilder.create();
-       	dialog.setButton(DialogInterface.BUTTON_POSITIVE,getString(R.string.ok), new DialogInterface.OnClickListener() {
- 					
- 					public void onClick(DialogInterface dialog, int which) {
- 						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.scannerUrl)));
- 						startActivity(browserIntent);
- 					}
- 				});
-         dialog.show();
-       	
-       	return false;
-       }
-     }
-    
+ 
  		private void learnProductBarcode(final Stack<Allergen> allergenStack) {
 			ProductData product = localDatabase.getProduct(productBarCode);
 			if (product==null){

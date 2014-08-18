@@ -40,7 +40,7 @@
             android:id="@+id/dont_sync"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/dont_autosync" />
+            android:text="@string/dont_sync" />
 
     </LinearLayout>
 

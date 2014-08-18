@@ -9,7 +9,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginTop="154dp"
+        android:gravity="center_vertical|center_horizontal"
         android:text="@string/learning_mode"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
