@@ -19,6 +19,7 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 	private View progressBar;
 	private SharedPreferences settings;
 	private static String TAG="AllergyScan";
+	static boolean shutdown=false;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,11 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 		onceOkButton.setOnClickListener(this);
 
 		noButton = (Button) findViewById(R.id.dont_sync);
+		if (shutdown){
+			noButton.setText(R.string.dont_sync_shutdown);
+		} else {
+			noButton.setText(R.string.dont_sync);
+		}
 		noButton.setOnClickListener(this);
 		
 		progressBar = findViewById(R.id.progressBar1);
@@ -62,14 +68,19 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 		if (v == alwaysOkButton) {
 			settings.edit().putBoolean("autoUpdate", true).commit();
 			sync();
+			shutdown=false;
 		}
 		if (v == onceOkButton) {
 			settings.edit().putBoolean("autoUpdate", false).commit();
 			sync();
+			shutdown=false;
 		}
 		if (v == noButton) {
 			finish();
-			goHome();
+			if (shutdown){
+				goHome();
+			}
+			shutdown=false;
 		}
 	}
 

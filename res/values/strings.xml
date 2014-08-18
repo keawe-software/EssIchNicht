@@ -9,7 +9,8 @@
     <string name="contains_question">Ist #allergen in #product enthalten?</string>
     <string name="create_allergen">neues Allergen hinzufügen</string>
     <string name="dedication">Diese Anwendung ist Dorett Pretsch gewidmet, welche mich im Jahre 2012 dazu inspiriert hat. Ich danke außerdem Kathi und Gerd, sowie allen fleißigen Testern.\n\n--Stephan Richter--\nwww.srsoftware.de</string>
-    <string name="dont_autosync">Nein. Programm beenden.</string>
+    <string name="dont_sync">Nein. Nicht synchronisieren.</string>
+    <string name="dont_sync_shutdown">Nein. Programm beenden.</string>
     <string name="dont_know">keine Ahnung</string>
     <string name="enter_allergen">Neues Allergen in Datenbank eintragen:</string>
     <string name="enter_product_name">Bitte geben Sie einen Namen für das Produkt (#product) ein.</string>
