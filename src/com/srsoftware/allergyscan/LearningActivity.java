@@ -89,6 +89,13 @@ public class LearningActivity extends Activity {
 				alert.show();
 			} else askForAllergens(allergenStack,product);
 		}		
+ 		
+    /**
+     * show the synchronization activity
+     */
+    private void startSynchronizeActivity() {    	
+			startActivity(new Intent(this,SynchronizeActivity.class)); // start the learning activity
+		}
 
 		protected void askForAllergens(final Stack<Allergen> allergens, final ProductData product) {
 			Log.d(TAG, "AskForAllergens("+allergens+","+product+")");			
@@ -96,6 +103,7 @@ public class LearningActivity extends Activity {
 				Log.d(TAG, "asking done, resetting product infos");
 				productBarCode=null;
 				finish();
+				startSynchronizeActivity();
 			} else { // entry != null, which means we have another allergen in question
 				final Allergen allergen=allergens.pop();
 			
