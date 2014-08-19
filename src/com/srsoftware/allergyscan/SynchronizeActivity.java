@@ -1,6 +1,9 @@
 package com.srsoftware.allergyscan;
 
+import java.net.UnknownHostException;
+
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,21 +13,21 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class SynchronizeActivity extends Activity implements OnClickListener {
+public class SynchronizeActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener {
 
 	private Button alwaysOkButton;
 	private Button onceOkButton;
 	private Button noButton;
 	private View progressBar;
 	private SharedPreferences settings;
-	static boolean shutdown=false;
-	
+	static boolean urgent = false;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_synchronize);
-    settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
-    
+		settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
+
 		alwaysOkButton = (Button) findViewById(R.id.alway_ok);
 		alwaysOkButton.setOnClickListener(this);
 
@@ -32,27 +35,27 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 		onceOkButton.setOnClickListener(this);
 
 		noButton = (Button) findViewById(R.id.dont_sync);
-		if (shutdown){
+		if (urgent) {
 			noButton.setText(R.string.dont_sync_shutdown);
 		} else {
 			noButton.setText(R.string.dont_sync);
 		}
 		noButton.setOnClickListener(this);
-		
+
 		progressBar = findViewById(R.id.progressBar1);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-    if (autoSyncEnabled()){
-    	sync();
-    } else {
-  		alwaysOkButton.setEnabled(true);
-  		onceOkButton.setEnabled(true);
-  		noButton.setEnabled(true);
-  		progressBar.setVisibility(View.INVISIBLE);
-    }
+		if (autoSyncEnabled()) {
+			sync();
+		} else {
+			alwaysOkButton.setEnabled(true);
+			onceOkButton.setEnabled(true);
+			noButton.setEnabled(true);
+			progressBar.setVisibility(View.INVISIBLE);
+		}
 	}
 
 	@Override
@@ -65,19 +68,17 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 		if (v == alwaysOkButton) {
 			settings.edit().putBoolean("autoUpdate", true).commit();
 			sync();
-			shutdown=false;
 		}
 		if (v == onceOkButton) {
 			settings.edit().putBoolean("autoUpdate", false).commit();
 			sync();
-			shutdown=false;
 		}
 		if (v == noButton) {
 			finish();
-			if (shutdown){
+			if (urgent) {
 				goHome();
 			}
-			shutdown=false;
+			urgent = false;
 		}
 	}
 
@@ -93,24 +94,39 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 		public void run() {
 			SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
 			AllergyScanDatabase localDatabase = new AllergyScanDatabase(getApplicationContext(), settings); // create database handle
-			if (autoSyncEnabled()){
-				synchronizeActivity.finish();
-				localDatabase.syncWithRemote(false);
-			} else {
-				localDatabase.syncWithRemote(false);
+			try {
+				if (autoSyncEnabled()) {
+					synchronizeActivity.finish();
+					localDatabase.syncWithRemote();
+				} else {
+					localDatabase.syncWithRemote();
+					synchronizeActivity.finish();
+				}
+			} catch (UnknownHostException e) {
+				if (urgent){
+					MainActivity.network_status=MainActivity.FATAL;
+					urgent=false;
+				} else {
+					MainActivity.network_status=MainActivity.FAIL;
+				}
 				synchronizeActivity.finish();
 			}
-		}
+		}		
 	}
 	
+
+
 	/**
 	 * check, whether automatic updates are enabled on this device
+	 * 
 	 * @return true, if automatic updates are not deactivated
 	 */
-	private boolean autoSyncEnabled() {    	
-		boolean result=settings.getBoolean("autoUpdate", false);
-  	return result;
-  }
+	private boolean autoSyncEnabled() {
+		boolean result = settings.getBoolean("autoUpdate", false);
+		return result;
+	}
+
+
 
 	private void sync() {
 		alwaysOkButton.setEnabled(false);
@@ -129,5 +145,9 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 		startMain.addCategory(Intent.CATEGORY_HOME);
 		startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(startMain);
+	}
+
+	public void onClick(DialogInterface dialog, int which) {
+		finish();
 	}
 }

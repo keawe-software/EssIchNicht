@@ -45,12 +45,19 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (MainActivity.network_status != MainActivity.GOOD){
+			finish();
+			return;
+		}
 		createListOfAllAllergens();
-
 	};
-
+	
 	private void startSynchronizeActivity() {
-		SynchronizeActivity.shutdown=true;
+		startSynchronizeActivity(false);
+	}
+
+	private void startSynchronizeActivity(boolean urgent) {
+		SynchronizeActivity.urgent=urgent;
 		startActivity(new Intent(this, SynchronizeActivity.class)); // start the learning activity
 	}
 
@@ -58,7 +65,7 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
 		availableAllergens = localDatabase.getAllAllergens();
 		if (availableAllergens == null || availableAllergens.isEmpty()) {
 			Toast.makeText(getApplicationContext(), R.string.no_allergens_in_database, Toast.LENGTH_LONG).show();
-			startSynchronizeActivity();
+			startSynchronizeActivity(true);
 		} else {
 			list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 			List<Allergen> allergens = availableAllergens.values(); // make string list
@@ -120,7 +127,7 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
 	}
 
 	private boolean showFreeVersionHint(Vector<Allergen> enabledAllergens) {
-		if (enabledAllergens.size() > 2) {
+		if (enabledAllergens.size() > 2000) {
 			Log.d(TAG, "showFreeVersionHint");
 			AlertDialog ad = new AlertDialog.Builder(this).create();
 			ad.setCancelable(false); // disable Back button

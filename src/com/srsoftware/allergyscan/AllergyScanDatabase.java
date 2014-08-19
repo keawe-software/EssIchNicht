@@ -1,6 +1,7 @@
 package com.srsoftware.allergyscan;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -57,12 +58,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void syncWithRemote(boolean autosync) {
-		// TODO: this should be done in separate thread
-		if (!autosync) {
-			// TODO: ask user
-		}
-
+	public void syncWithRemote() throws UnknownHostException {
 		JSONObject array;
 		try {
 			TreeSet<Long> remoteBarcodes = new TreeSet<Long>();
@@ -162,10 +158,12 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 				settings.edit().putBoolean("deviceEnabled", true).commit();
 				System.out.println("Device enabled!");
 			}
-		} catch (IOException e) {
+		} catch (UnknownHostException uhe){
+			throw uhe;
+		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (JSONException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
