@@ -31,15 +31,21 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener, OnItemClickListener {
 
+	static final int GOOD = 1;
+	static final int FAIL = 0;
+	static final int FATAL = -1;
 	protected static String deviceid = null;
 	private static SharedPreferences settings = null;
 	private static AllergyScanDatabase localDatabase=null;
-	private Barcode productCode;
+	public static int network_status = GOOD;
+	static Barcode productCode;
 	private ProductData product;
 	private ListView list;
 	private ArrayList<String> listItems;
 	@SuppressWarnings("rawtypes")
 	private ArrayAdapter adapter;
+	private AlertDialog networkFailDialog = null;
+	private AlertDialog trainingDialog = null;
 	
     /* (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -84,16 +90,28 @@ public class MainActivity extends Activity implements OnClickListener, android.c
       	Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
       	selectAllergens();
       } else if (!deviceEnabled()){ // if device has not been enabled, yet:
-      	AlertDialog alert=new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
-      	alert.setTitle(R.string.hint);
-      	alert.setMessage(getString(R.string.not_enabled).replace("#count", ""+missingCredits()));
-      	alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode 
-      	alert.show(); // Pressing "OK" calls learnCode()      		
+			trainingDialog = new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
+			trainingDialog.setTitle(R.string.hint);
+			trainingDialog.setMessage(getString(R.string.not_enabled).replace("#count", "" + missingCredits()));
+			trainingDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode
+			trainingDialog.show(); // Pressing "OK" calls learnCode()
      	} else {
      		if (productCode!=null) handleProductBarcode(productCode); // if a product has been scanned before: handle it      			
       }
     }
 		
+	public void reportNetworkFail() {
+		if (network_status==FAIL){
+			Toast.makeText(getApplicationContext(), R.string.network_problem, Toast.LENGTH_LONG).show();
+		} else {
+			networkFailDialog = new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
+			networkFailDialog.setTitle(R.string.hint);		
+			networkFailDialog.setMessage(getString(R.string.network_problem)+ " " + getString(R.string.will_shut_down));
+			networkFailDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode
+			networkFailDialog.show();
+		}
+	}
+
 		private int missingCredits() {
 			return settings.getInt("missingCredits", 10);
 		}
@@ -163,13 +181,15 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			
   			if (!contained.isEmpty()){ // add the contained allergens to the list dispayed
   				listItems.add(getString(R.string.contains));  			
-  				for (int aid:contained) listItems.add("+ "+allAllergens.get(aid));
+				for (int aid : contained)
+					listItems.add("+ " + allAllergens.get(aid));
   			}
 
   			TreeSet<Integer> uncontained=localDatabase.getUnContainedAllergens(product.barcode(),allAllergens.keySet()); // get the list of allergens, which are not contained
   			if (!uncontained.isEmpty()){ // add the set of allergens, which are not contained ti the displayed list
   				listItems.add(getString(R.string.not_contained));  			
-  				for (int aid:uncontained) listItems.add("- "+allAllergens.get(aid));
+				for (int aid : uncontained)
+					listItems.add("- " + allAllergens.get(aid));
   			}
   			
   			Set<Integer> unclear = allAllergens.keySet(); // construct the list, of unclassified allergens
@@ -178,7 +198,8 @@ public class MainActivity extends Activity implements OnClickListener, android.c
   			
   			if (!unclear.isEmpty()){
   				listItems.add(getString(R.string.unclear));  			
-  				for (int aid:unclear) listItems.add("? "+allAllergens.get(aid)); // add the unclassified allergens to the displayed list
+				for (int aid : unclear)
+					listItems.add("? " + allAllergens.get(aid)); // add the unclassified allergens to the displayed list
   			}
   			
   			adapter.notifyDataSetChanged(); // actually change the display    		
@@ -187,6 +208,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     }
 
 		private void startLearningActivity() {
+		LearningActivity.deviceEnabled=deviceEnabled();
 			Intent intent=new Intent(this,LearningActivity.class); // start the learning activity
 			startActivity(intent);
 		}
@@ -276,6 +298,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		 * go back to the system desktop
 		 */
 		void goHome() {
+		network_status=GOOD;
     	Toast.makeText(getApplicationContext(), R.string.will_shut_down, Toast.LENGTH_LONG).show();
 			Intent startMain = new Intent(Intent.ACTION_MAIN);
 			startMain.addCategory(Intent.CATEGORY_HOME);
@@ -306,10 +329,18 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     public boolean onOptionsItemSelected(MenuItem item) {    	
     	boolean dummy = super.onOptionsItemSelected(item);
     	switch (item.getItemId()){
-    		case R.id.allergen_selection: selectAllergens(); break;
-    		case R.id.menu_settings: editPreferences(); break;
-    		case R.id.update: startSynchronizeActivity(); break;
-    		case R.id.info: showInfoActivity(); break;
+		case R.id.allergen_selection:
+			selectAllergens();
+			break;
+		case R.id.menu_settings:
+			editPreferences();
+			break;
+		case R.id.update:
+			startSynchronizeActivity();
+			break;
+		case R.id.info:
+			showInfoActivity();
+			break;
     	}
       return dummy;
     }
@@ -338,9 +369,16 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		/* (non-Javadoc)
 		 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
 		 */
-		public void onClick(DialogInterface arg0, int arg1) { // for clicks on "not yet enabled" dialog
+	public void onClick(DialogInterface dialog, int arg1) { // for clicks on "not yet enabled" dialog
+		if (dialog == trainingDialog) {
 			learnCode();
     }
+		if (dialog == networkFailDialog) if (network_status == FATAL) {
+			goHome();
+		} else {
+			network_status = GOOD;
+		}
+	}
 
 		/* (non-Javadoc)
 		 * @see android.view.View.OnClickListener#onClick(android.view.View)
@@ -378,7 +416,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 					public void onClick(DialogInterface dialog, int whichButton) { // if "contained" clicked: store
 						localDatabase.storeAllergenInfo(localAllergenId,barcode,true);
 						if (autoSyncEnabled()){
-							localDatabase.syncWithRemote(true);
+						startSynchronizeActivity();
 						}
 						handleProductBarcode(barcode);
 					}
@@ -387,7 +425,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 					public void onClick(DialogInterface dialog, int whichButton) {
 						localDatabase.storeAllergenInfo(localAllergenId,barcode,false);
 						if (autoSyncEnabled()){
-							localDatabase.syncWithRemote(true);
+						startSynchronizeActivity();
 						}
 						handleProductBarcode(barcode);
 					}
@@ -396,7 +434,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 					public void onClick(DialogInterface dialog, int whichButton) {
 						localDatabase.resetAllergenInfo(localAllergenId,barcode);
 						if (autoSyncEnabled()){
-							localDatabase.syncWithRemote(true);
+						startSynchronizeActivity();
 						}
 						handleProductBarcode(barcode);
 					}

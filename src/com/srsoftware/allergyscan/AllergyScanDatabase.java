@@ -1,6 +1,7 @@
 package com.srsoftware.allergyscan;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -18,6 +19,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class AllergyScanDatabase extends SQLiteOpenHelper {
@@ -54,12 +56,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void syncWithRemote(boolean autosync) {
-		// TODO: this should be done in separate thread
-		if (!autosync) {
-			// TODO: ask user
-		}
-
+	public void syncWithRemote() throws UnknownHostException {
 		JSONObject array;
 		try {
 			TreeSet<Long> remoteBarcodes = new TreeSet<Long>();
@@ -154,12 +151,11 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			if (RemoteDatabase.setInfo(MainActivity.deviceid, containments)){
 				settings.edit().putBoolean("deviceEnabled", true).commit();
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (UnknownHostException uhe){
+			throw uhe;
+		} catch (SQLiteDatabaseLockedException sdle){
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException e) {
 		}
 	}
 
