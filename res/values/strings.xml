@@ -58,4 +58,5 @@
     <string name="welcome">Wilkommen!</string>
     <string name="will_shut_down">Anwendung wird nun beendet.</string>
     <string name="yes">Ja</string>
+    <string name="back">Zurück</string>
 </resources>

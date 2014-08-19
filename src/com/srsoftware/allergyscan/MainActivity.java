@@ -40,7 +40,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	private static AllergyScanDatabase localDatabase = null;
 	static String TAG = "AllergyScan";
 	public static int network_status = GOOD;
-	private Barcode productCode;
+	static Barcode productCode;
 	private ProductData product;
 	private ListView list;
 	private ArrayList<String> listItems;
@@ -224,6 +224,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	}
 
 	private void startLearningActivity() {
+		LearningActivity.deviceEnabled=deviceEnabled();
 		Intent intent = new Intent(this, LearningActivity.class); // start the learning activity
 		startActivity(intent);
 	}

@@ -15,13 +15,16 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class LearningActivity extends Activity {
+public class LearningActivity extends Activity implements android.view.View.OnClickListener {
 		protected static String TAG="AllergyScan";
 		protected static String SCANNER="com.google.zxing.client.android";
 		protected static Barcode productBarCode=null;
+		public static boolean deviceEnabled;
 		private SharedPreferences settings;
 		private AllergyScanDatabase localDatabase;
 
@@ -31,6 +34,8 @@ public class LearningActivity extends Activity {
       setContentView(R.layout.activity_learning);
       settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
     	localDatabase=new AllergyScanDatabase(getApplicationContext(),settings); // create database handle
+  		Button backButton = (Button) findViewById(R.id.backButton); // start to listen to the scan-button
+  		backButton.setOnClickListener(this);
     }
 
      @Override
@@ -92,8 +97,10 @@ public class LearningActivity extends Activity {
  		
     /**
      * show the synchronization activity
+     * @param urgent 
      */
-    private void startSynchronizeActivity() {    	
+    private void startSynchronizeActivity(boolean urgent) {
+    	SynchronizeActivity.urgent=urgent;
 			startActivity(new Intent(this,SynchronizeActivity.class)); // start the learning activity
 		}
 
@@ -103,7 +110,9 @@ public class LearningActivity extends Activity {
 				Log.d(TAG, "asking done, resetting product infos");
 				productBarCode=null;
 				finish();
-				startSynchronizeActivity();
+				if (!deviceEnabled){
+					startSynchronizeActivity(true);
+				}
 			} else { // entry != null, which means we have another allergen in question
 				final Allergen allergen=allergens.pop();
 			
@@ -173,4 +182,9 @@ public class LearningActivity extends Activity {
           }
       	}
     }
+
+		public void onClick(View v) {
+			MainActivity.productCode=null;
+			finish();
+		}
 }
