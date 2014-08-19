@@ -19,6 +19,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -160,11 +161,11 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			}
 		} catch (UnknownHostException uhe){
 			throw uhe;
+		} catch (SQLiteDatabaseLockedException sdle){
+			Log.w(TAG, "Databse was locked!");
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
