@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,7 +17,6 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 	private Button noButton;
 	private View progressBar;
 	private SharedPreferences settings;
-	private static String TAG="AllergyScan";
 	static boolean shutdown=false;
 	
 	@Override
@@ -47,7 +45,6 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.d(TAG, "SynchronizeActivity.onResume()");
     if (autoSyncEnabled()){
     	sync();
     } else {
@@ -96,8 +93,13 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 		public void run() {
 			SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
 			AllergyScanDatabase localDatabase = new AllergyScanDatabase(getApplicationContext(), settings); // create database handle
-			localDatabase.syncWithRemote(false);
-			synchronizeActivity.finish();
+			if (autoSyncEnabled()){
+				synchronizeActivity.finish();
+				localDatabase.syncWithRemote(false);
+			} else {
+				localDatabase.syncWithRemote(false);
+				synchronizeActivity.finish();
+			}
 		}
 	}
 	
@@ -107,7 +109,6 @@ public class SynchronizeActivity extends Activity implements OnClickListener {
 	 */
 	private boolean autoSyncEnabled() {    	
 		boolean result=settings.getBoolean("autoUpdate", false);
-		System.out.println(result);
   	return result;
   }
 

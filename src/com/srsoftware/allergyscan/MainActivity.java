@@ -50,7 +50,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         deviceid = getDeviceId(); // request the id and store in global variable
         setContentView(R.layout.activity_main); 
         settings=getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
@@ -326,7 +326,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
     /**
      * show the synchronization activity
      */
-    private void startSynchronizeActivity() {
+    private void startSynchronizeActivity() {    	
 			startActivity(new Intent(this,SynchronizeActivity.class)); // start the learning activity
 		}
 
