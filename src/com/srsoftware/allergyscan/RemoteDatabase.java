@@ -113,7 +113,7 @@ public class RemoteDatabase {
 		return '"' + URLEncoder.encode(text.toString(), "UTF-8") + '"';
 	}
 
-	public static JSONObject getNewProducts() throws IOException, JSONException {
+	public static JSONObject getNewProducts() throws IOException {
 		try {
 			Log.d(TAG, "RemoteDatabase.getNewProducts(...)");
 			BufferedReader reader = postData("getNewProducts");
@@ -121,7 +121,7 @@ public class RemoteDatabase {
 			reader.close();
 			return array;
 		} catch (JSONException e) { // usually happens with empty reply
-			Log.e(TAG, e.getMessage());
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -157,7 +157,7 @@ public class RemoteDatabase {
 			reader.close();
 			return array;
 		} catch (JSONException e) { // usually happens with empty reply
-			Log.e(TAG, e.getMessage());
+			e.printStackTrace();
 			return null;
 		}
 
@@ -176,7 +176,7 @@ public class RemoteDatabase {
 			reader.close();
 			return array;
 		} catch (JSONException e) { // usually happens with empty reply
-			Log.e(TAG, e.getMessage());
+			e.printStackTrace();
 			return null;
 		}
 	}
