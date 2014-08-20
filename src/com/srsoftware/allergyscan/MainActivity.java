@@ -1,6 +1,5 @@
 package com.srsoftware.allergyscan;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -47,7 +46,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	@SuppressWarnings("rawtypes")
 	private ArrayAdapter adapter;
 	private AlertDialog networkFailDialog = null;
-	private AlertDialog trainingDialog = null;
 
 	/*
 	 * (non-Javadoc)
@@ -100,12 +98,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		if (chosenAllergens.isEmpty()) { // if there are no allergens selected, yet:
 			Toast.makeText(getApplicationContext(), R.string.no_allergens_selected, Toast.LENGTH_LONG).show(); // send a waring
 			selectAllergens();
-		} else if (!deviceEnabled()) { // if device has not been enabled, yet:
-			trainingDialog = new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
-			trainingDialog.setTitle(R.string.hint);
-			trainingDialog.setMessage(getString(R.string.not_enabled).replace("#count", "" + missingCredits()));
-			trainingDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode
-			trainingDialog.show(); // Pressing "OK" calls learnCode()
 		} else {
 			if (productCode != null) handleProductBarcode(productCode); // if a product has been scanned before: handle it
 		}
@@ -122,18 +114,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			networkFailDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode
 			networkFailDialog.show();
 		}
-	}
-
-	private int missingCredits() {
-		return settings.getInt("missingCredits", 10);
-	}
-
-	/**
-	 * start the learning activity
-	 */
-	private void learnCode() {
-		Log.d(TAG, "MainActivity.learnCode");
-		startActivity(new Intent(this, LearningActivity.class));
 	}
 
 	/**
@@ -158,17 +138,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * check, whether the device is enabled or has been enabled before
-	 * 
-	 * @return true, only if the device has been enabled by the server once in the past
-	 * @throws IOException
-	 */
-	private boolean deviceEnabled() {
-		if (deviceid.equals("000000000000000")) return true;
-		return settings.getBoolean("deviceEnabled", false); // if already enabled: skip checking and return true
 	}
 
 	/**
@@ -224,7 +193,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	}
 
 	private void startLearningActivity() {
-		LearningActivity.deviceEnabled=deviceEnabled();
 		Intent intent = new Intent(this, LearningActivity.class); // start the learning activity
 		startActivity(intent);
 	}
@@ -400,9 +368,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	 */
 	public void onClick(DialogInterface dialog, int arg1) { // for clicks on "not yet enabled" dialog
 		Log.d(TAG, "onClick(DialogInterface arg0, int arg1)");
-		if (dialog == trainingDialog) {
-			learnCode();
-		}
 		if (dialog == networkFailDialog) if (network_status == FATAL) {
 			goHome();
 		} else {

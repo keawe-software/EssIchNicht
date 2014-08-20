@@ -28,8 +28,6 @@
     <string name="no_allergens_selected">Noch keine Inhaltsstoffe ausgewählt!</string>
     <string name="no_scanner">Der ZXing-Barcodescanner ist nicht installiert. Dieser ist aber notwendig. Bitte installieren Sie diesen!</string>
     <string name="not_contained">enthält nicht:</string>
-    <string name="not_enabled">Die Software ist auf diesem Gerät noch nicht in vollem Umfang freigeschaltet. Um in der kostenlosen Version alle Funktion uneingeschränkt nutzen zu können, müssen Sie zum Wohle der Community noch #count Produktinfos einpflegen.</string>
-    <string name="now_enabled">Das Gerät wurde nun freigeschaltet.</string>
     <string name="ok">Ok</string>
     <string name="ok_always_sync">Ja, bei Bedarf stets aktualisieren</string>
     <string name="performing_update">Update der Stoffdatenbank wird durchgeführt. Bitte warten...</string>
@@ -52,7 +50,7 @@
     <string name="title_activity_scan">EssIchNicht</string>
     <string name="title_activity_synchronize">Aktualisierung - EssIchNicht</string>
     <string name="unclear">unklar:</string>
-    <string name="unknown_product">Dies ist ein unbekanntes Produkt. Lernmodus wird gestartet...</string>
+    <string name="unknown_product">Dieses Produkt ist noch nicht in der Datenbank. Lernmodus wird gestartet...</string>
     <string name="update">Aktualisierung ausführen</string>
     <string name="warning">Warnung!</string>
     <string name="welcome">Wilkommen!</string>

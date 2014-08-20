@@ -32,8 +32,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	public static final String CONTENT_TABLE = "content";
 	public static final String PRODUCT_TABLE = "products";
 
-	private SharedPreferences settings;
-
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		createTables(db);
@@ -155,10 +153,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 				}
 			}
 
-			if (RemoteDatabase.setInfo(MainActivity.deviceid, containments)){
-				settings.edit().putBoolean("deviceEnabled", true).commit();
-				System.out.println("Device enabled!");
-			}
+			RemoteDatabase.setInfo(MainActivity.deviceid, containments);
 		} catch (UnknownHostException uhe){
 			throw uhe;
 		} catch (SQLiteDatabaseLockedException sdle){
@@ -216,12 +211,10 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + PRODUCT_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + ALLERGEN_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + CONTENT_TABLE);
-		settings.edit().putBoolean("deviceEnabled", true).commit();
 	}
 
 	public AllergyScanDatabase(Context context, SharedPreferences settings) {
 		super(context, "allergenDB", null, DB_VERSION);
-		this.settings = settings;
 	}
 
 	public AllergenList getAllAllergens() {
