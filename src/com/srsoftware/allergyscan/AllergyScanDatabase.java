@@ -13,6 +13,7 @@ import java.util.Vector;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.accounts.NetworkErrorException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -57,13 +58,15 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void syncWithRemote() throws UnknownHostException {
+	public void syncWithRemote() throws NetworkErrorException {
 		JSONObject array;
 		try {
 			TreeSet<Long> remoteBarcodes = new TreeSet<Long>();
 			array = RemoteDatabase.getNewProducts();
-
-			if (array != null) {
+			
+			if (array == null) {
+				throw new NetworkErrorException("Did not recieve any data from Server");
+			} else {
 				SQLiteDatabase database = getWritableDatabase();
 				for (@SuppressWarnings("unchecked")
 				Iterator<String> it = array.keys(); it.hasNext();) {
@@ -85,7 +88,9 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			RemoteDatabase.storeNewProducts(getNewProducts(remoteBarcodes));
 
 			array = RemoteDatabase.getNewAllergens(getAllAllergens());
-			if (array != null) {
+			if (array == null) {
+				throw new NetworkErrorException("Did not recieve any data from Server");
+			} else {
 				for (@SuppressWarnings("unchecked")
 				Iterator<String> it = array.keys(); it.hasNext();) {
 					try {
@@ -155,7 +160,8 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 			RemoteDatabase.setInfo(MainActivity.deviceid, containments);
 		} catch (UnknownHostException uhe){
-			throw uhe;
+			uhe.printStackTrace();
+			throw new NetworkErrorException(uhe.getMessage());
 		} catch (SQLiteDatabaseLockedException sdle){
 			Log.w(TAG, "Databse was locked!");
 		} catch (JSONException e) {
