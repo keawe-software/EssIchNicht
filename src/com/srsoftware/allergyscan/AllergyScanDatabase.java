@@ -63,10 +63,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		try {
 			TreeSet<Long> remoteBarcodes = new TreeSet<Long>();
 			array = RemoteDatabase.getNewProducts();
-			
-			if (array == null) {
-				throw new NetworkErrorException("Did not recieve any data from Server");
-			} else {
+			if (array != null) {
 				SQLiteDatabase database = getWritableDatabase();
 				for (@SuppressWarnings("unchecked")
 				Iterator<String> it = array.keys(); it.hasNext();) {
@@ -88,9 +85,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			RemoteDatabase.storeNewProducts(getNewProducts(remoteBarcodes));
 
 			array = RemoteDatabase.getNewAllergens(getAllAllergens());
-			if (array == null) {
-				throw new NetworkErrorException("Did not recieve any data from Server");
-			} else {
+			if (array != null) {
 				for (@SuppressWarnings("unchecked")
 				Iterator<String> it = array.keys(); it.hasNext();) {
 					try {
@@ -121,48 +116,48 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			AllergenList activeAllergens = getActiveAllergens();
 			if (activeAllergens != null && !activeAllergens.isEmpty()) {
 				array = RemoteDatabase.getInfo(activeAllergens);
-				System.out.println("Response: " + array);
-				for (Iterator it = array.keys(); it.hasNext();) {
-					Integer aid = Integer.parseInt(it.next().toString());
-					Integer laid = getLocalAllergenId(aid);
-					try {
-						JSONObject inner = array.getJSONObject(aid.toString());
-						SQLiteDatabase db = getWritableDatabase();						
-						
-						TreeMap<Long, Integer> containtmentsForCurrentAid = containments.get(aid);
-						
-						for (Iterator it2 = inner.keys(); it2.hasNext();) {
-							Long barcode = Long.parseLong(it2.next().toString());
-							Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
-							ContentValues values = new ContentValues();
-							values.put("laid", laid);
-							values.put("barcode", barcode);
-							values.put("contained", contained);
-							db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-							
-							if (containtmentsForCurrentAid!=null){
-								Integer dummy = containtmentsForCurrentAid.get(barcode);
-								if (dummy!=null && dummy.equals(contained)){
-									containtmentsForCurrentAid.remove(barcode); // remove information already known to the server
+				if (array != null) {
+					for (Iterator it = array.keys(); it.hasNext();) {
+						Integer aid = Integer.parseInt(it.next().toString());
+						Integer laid = getLocalAllergenId(aid);
+						try {
+							JSONObject inner = array.getJSONObject(aid.toString());
+							SQLiteDatabase db = getWritableDatabase();
+
+							TreeMap<Long, Integer> containtmentsForCurrentAid = containments.get(aid);
+
+							for (Iterator it2 = inner.keys(); it2.hasNext();) {
+								Long barcode = Long.parseLong(it2.next().toString());
+								Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
+								ContentValues values = new ContentValues();
+								values.put("laid", laid);
+								values.put("barcode", barcode);
+								values.put("contained", contained);
+								db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+								if (containtmentsForCurrentAid != null) {
+									Integer dummy = containtmentsForCurrentAid.get(barcode);
+									if (dummy != null && dummy.equals(contained)) {
+										containtmentsForCurrentAid.remove(barcode); // remove information already known to the server
+									}
 								}
 							}
+							if (containtmentsForCurrentAid == null || containtmentsForCurrentAid.isEmpty()) {
+								containments.remove(aid);
+							}
+							db.close();
+						} catch (JSONException je) {
+							// exceptions will be thrown at empty results and can be ignored
+							System.err.println(je.getMessage());
 						}
-						if (containtmentsForCurrentAid==null || containtmentsForCurrentAid.isEmpty()){
-							containments.remove(aid);
-						}
-						db.close();
-					} catch (JSONException je) {
-						// exceptions will be thrown at empty results and can be ignored
-						System.err.println(je.getMessage());
 					}
 				}
 			}
-
 			RemoteDatabase.setInfo(MainActivity.deviceid, containments);
-		} catch (UnknownHostException uhe){
+		} catch (UnknownHostException uhe) {
 			uhe.printStackTrace();
 			throw new NetworkErrorException(uhe.getMessage());
-		} catch (SQLiteDatabaseLockedException sdle){
+		} catch (SQLiteDatabaseLockedException sdle) {
 			Log.w(TAG, "Databse was locked!");
 		} catch (JSONException e) {
 			e.printStackTrace();

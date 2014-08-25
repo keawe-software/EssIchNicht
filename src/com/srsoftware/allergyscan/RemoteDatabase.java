@@ -116,7 +116,7 @@ public class RemoteDatabase {
 	public static JSONObject getNewProducts() throws IOException {
 		try {
 			Log.d(TAG, "RemoteDatabase.getNewProducts(...)");
-			BufferedReader reader = postData("getNewProducts");
+			BufferedReader reader = postData("getNewProducts");			
 			JSONObject array = new JSONObject(reader.readLine());
 			reader.close();
 			return array;
