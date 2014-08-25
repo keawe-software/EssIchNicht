@@ -13,6 +13,7 @@ import java.util.Vector;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.accounts.NetworkErrorException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -30,8 +31,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	public static final String ALLERGEN_TABLE = "allergens";
 	public static final String CONTENT_TABLE = "content";
 	public static final String PRODUCT_TABLE = "products";
-
-	private SharedPreferences settings;
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
@@ -56,12 +55,11 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void syncWithRemote() throws UnknownHostException {
+	public void syncWithRemote() throws NetworkErrorException {
 		JSONObject array;
 		try {
 			TreeSet<Long> remoteBarcodes = new TreeSet<Long>();
 			array = RemoteDatabase.getNewProducts();
-
 			if (array != null) {
 				SQLiteDatabase database = getWritableDatabase();
 				for (@SuppressWarnings("unchecked")
@@ -113,47 +111,49 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			AllergenList activeAllergens = getActiveAllergens();
 			if (activeAllergens != null && !activeAllergens.isEmpty()) {
 				array = RemoteDatabase.getInfo(activeAllergens);
-				for (Iterator it = array.keys(); it.hasNext();) {
-					Integer aid = Integer.parseInt(it.next().toString());
-					Integer laid = getLocalAllergenId(aid);
-					try {
-						JSONObject inner = array.getJSONObject(aid.toString());
-						SQLiteDatabase db = getWritableDatabase();						
-						
-						TreeMap<Long, Integer> containtmentsForCurrentAid = containments.get(aid);
-						
-						for (Iterator it2 = inner.keys(); it2.hasNext();) {
-							Long barcode = Long.parseLong(it2.next().toString());
-							Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
-							ContentValues values = new ContentValues();
-							values.put("laid", laid);
-							values.put("barcode", barcode);
-							values.put("contained", contained);
-							db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-							
-							if (containtmentsForCurrentAid!=null){
-								Integer dummy = containtmentsForCurrentAid.get(barcode);
-								if (dummy!=null && dummy.equals(contained)){
-									containtmentsForCurrentAid.remove(barcode); // remove information already known to the server
+				if (array != null) {
+					for (Iterator it = array.keys(); it.hasNext();) {
+						Integer aid = Integer.parseInt(it.next().toString());
+						Integer laid = getLocalAllergenId(aid);
+						try {
+							JSONObject inner = array.getJSONObject(aid.toString());
+							SQLiteDatabase db = getWritableDatabase();
+
+							TreeMap<Long, Integer> containtmentsForCurrentAid = containments.get(aid);
+
+							for (Iterator it2 = inner.keys(); it2.hasNext();) {
+								Long barcode = Long.parseLong(it2.next().toString());
+								Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
+								ContentValues values = new ContentValues();
+								values.put("laid", laid);
+								values.put("barcode", barcode);
+								values.put("contained", contained);
+								db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+								if (containtmentsForCurrentAid != null) {
+									Integer dummy = containtmentsForCurrentAid.get(barcode);
+									if (dummy != null && dummy.equals(contained)) {
+										containtmentsForCurrentAid.remove(barcode); // remove information already known to the server
+									}
 								}
 							}
+							if (containtmentsForCurrentAid == null || containtmentsForCurrentAid.isEmpty()) {
+								containments.remove(aid);
+							}
+							db.close();
+						} catch (JSONException je) {
+							// exceptions will be thrown at empty results and can be ignored
+							System.err.println(je.getMessage());
 						}
-						if (containtmentsForCurrentAid==null || containtmentsForCurrentAid.isEmpty()){
-							containments.remove(aid);
-						}
-						db.close();
-					} catch (JSONException je) {
-						// exceptions will be thrown at empty results and can be ignored
 					}
 				}
 			}
 
-			if (RemoteDatabase.setInfo(MainActivity.deviceid, containments)){
-				settings.edit().putBoolean("deviceEnabled", true).commit();
-			}
-		} catch (UnknownHostException uhe){
-			throw uhe;
-		} catch (SQLiteDatabaseLockedException sdle){
+			RemoteDatabase.setInfo(MainActivity.deviceid, containments);
+		} catch (UnknownHostException uhe) {
+			uhe.printStackTrace();
+			throw new NetworkErrorException(uhe.getMessage());
+		} catch (SQLiteDatabaseLockedException sdle) {
 		} catch (JSONException e) {
 		} catch (IOException e) {
 		}
@@ -204,12 +204,10 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + PRODUCT_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + ALLERGEN_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + CONTENT_TABLE);
-		settings.edit().putBoolean("deviceEnabled", true).commit();
 	}
 
 	public AllergyScanDatabase(Context context, SharedPreferences settings) {
 		super(context, "allergenDB", null, DB_VERSION);
-		this.settings = settings;
 	}
 
 	public AllergenList getAllAllergens() {

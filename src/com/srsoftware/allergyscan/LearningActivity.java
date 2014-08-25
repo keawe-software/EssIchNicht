@@ -23,7 +23,6 @@ public class LearningActivity extends Activity implements android.view.View.OnCl
 		protected static String TAG="AllergyScan";
 		protected static String SCANNER="com.google.zxing.client.android";
 		protected static Barcode productBarCode=null;
-		public static boolean deviceEnabled;
 		private SharedPreferences settings;
 		private AllergyScanDatabase localDatabase;
 
@@ -90,22 +89,10 @@ public class LearningActivity extends Activity implements android.view.View.OnCl
 			} else askForAllergens(allergenStack,product);
 		}		
  		
-    /**
-     * show the synchronization activity
-     * @param urgent 
-     */
-    private void startSynchronizeActivity(boolean urgent) {
-    	SynchronizeActivity.urgent=urgent;
-			startActivity(new Intent(this,SynchronizeActivity.class)); // start the learning activity
-		}
-
 		protected void askForAllergens(final Stack<Allergen> allergens, final ProductData product) {
 			if (allergens.isEmpty()){// if all allergens have been asked for
 				productBarCode=null;
 				finish();
-				if (!deviceEnabled){
-					startSynchronizeActivity(true);
-				}
 			} else { // entry != null, which means we have another allergen in question
 				final Allergen allergen=allergens.pop();
 			
@@ -164,12 +151,7 @@ public class LearningActivity extends Activity implements android.view.View.OnCl
           		productBarCode = MainActivity.getBarCode(intent);
           		// here the product code is set; afterwards onResume is called again
           } else if (resultCode == RESULT_CANCELED) {
-          	/*
-      		  // TODO: remove random code setting and warning message for final version
-      			Log.w(TAG, "abort overridden in LearningActivity.onActivityResult!");
-          	productBarCode = randomCode();
-          	/*/
-          	finish(); //*/
+          	finish();
           }
       	}
     }

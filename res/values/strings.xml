@@ -4,6 +4,7 @@
     <string name="app_name">EssIchNicht</string>
     <string name="auto_update">autoUpdate</string>
     <string name="automatic_database_updates">Datenbank automatisch aktualisieren</string>
+    <string name="back">Zurück</string>
     <string name="cancel">abbrechen</string>
     <string name="contains">enthält:</string>
     <string name="contains_question">Ist #allergen in #product enthalten?</string>
@@ -21,15 +22,14 @@
     <string name="info">Info</string>
     <string name="learning_mode">Lernmodus\n\nZurück-Taste benutzen, um wieder in den normalen Modus zu kommen</string>
     <string name="menu_settings">Einstellungen</string>
+    <string name="moreInfo">mehr Informationen darüber</string>
     <string name="name_of_allergen_here">&lt;Bezeichnung&gt;</string>
-    <string name="network_problem">Es konnte keine Internetverbindung hergestellt werden!</string>
+    <string name="network_problem">Es konnte keine Verbindung zur Online-Datenbank hergestellt werden!</string>
     <string name="no">Nein</string>
     <string name="no_allergens_in_database">Es befinden sich noch keine Inhaltsstoffe in der Datenbank!</string>
     <string name="no_allergens_selected">Noch keine Inhaltsstoffe ausgewählt!</string>
     <string name="no_scanner">Der ZXing-Barcodescanner ist nicht installiert. Dieser ist aber notwendig. Bitte installieren Sie diesen!</string>
     <string name="not_contained">enthält nicht:</string>
-    <string name="not_enabled">Die Software ist auf diesem Gerät noch nicht in vollem Umfang freigeschaltet. Um in der kostenlosen Version alle Funktion uneingeschränkt nutzen zu können, müssen Sie zum Wohle der Community noch #count Produktinfos einpflegen.</string>
-    <string name="now_enabled">Das Gerät wurde nun freigeschaltet.</string>
     <string name="ok">Ok</string>
     <string name="ok_always_sync">Ja, bei Bedarf stets aktualisieren</string>
     <string name="performing_update">Update der Stoffdatenbank wird durchgeführt. Bitte warten...</string>
@@ -52,11 +52,11 @@
     <string name="title_activity_scan">EssIchNicht</string>
     <string name="title_activity_synchronize">Aktualisierung - EssIchNicht</string>
     <string name="unclear">unklar:</string>
-    <string name="unknown_product">Dies ist ein unbekanntes Produkt. Lernmodus wird gestartet...</string>
+    <string name="unknown_product">Dieses Produkt ist noch nicht in der Datenbank. Lernmodus wird gestartet...</string>
     <string name="update">Aktualisierung ausführen</string>
+    <string name="update_info">Damit nicht ständig eine Internetverbindung benötigt wird, benutzt die App eine Kopie eines Teils der Online-Datenbank auf diesem Gerät. Diese lokale Kopie muss jedoch ab und zu mit der Internet-basierten \"Mutter\"-Datenbank abgeglichen werden. Das kann automatisch im Hintergrund passieren, oder von Ihnen händisch über das Menü ausgeführt werden, wenn es Ihnen passt.</string>
     <string name="warning">Warnung!</string>
     <string name="welcome">Wilkommen!</string>
     <string name="will_shut_down">Anwendung wird nun beendet.</string>
     <string name="yes">Ja</string>
-    <string name="back">Zurück</string>
 </resources>

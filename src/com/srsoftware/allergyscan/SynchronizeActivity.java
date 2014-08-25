@@ -1,8 +1,8 @@
 package com.srsoftware.allergyscan;
 
-import java.net.UnknownHostException;
-
+import android.accounts.NetworkErrorException;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,9 +15,7 @@ import android.widget.Toast;
 
 public class SynchronizeActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener {
 
-	private Button alwaysOkButton;
-	private Button onceOkButton;
-	private Button noButton;
+	private Button alwaysOkButton,onceOkButton,noButton,infoOkButton;
 	private View progressBar;
 	private SharedPreferences settings;
 	static boolean urgent = false;
@@ -27,6 +25,9 @@ public class SynchronizeActivity extends Activity implements OnClickListener, an
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_synchronize);
 		settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
+
+		infoOkButton = (Button) findViewById(R.id.moreInfo);
+		infoOkButton.setOnClickListener(this);
 
 		alwaysOkButton = (Button) findViewById(R.id.alway_ok);
 		alwaysOkButton.setOnClickListener(this);
@@ -54,6 +55,7 @@ public class SynchronizeActivity extends Activity implements OnClickListener, an
 			alwaysOkButton.setEnabled(true);
 			onceOkButton.setEnabled(true);
 			noButton.setEnabled(true);
+			infoOkButton.setEnabled(true);
 			progressBar.setVisibility(View.INVISIBLE);
 		}
 	}
@@ -65,6 +67,14 @@ public class SynchronizeActivity extends Activity implements OnClickListener, an
 	}
 
 	public void onClick(View v) {
+		if (v==infoOkButton){
+			AlertDialog infoDialog = new AlertDialog.Builder(this).create(); // show warning message. learning mode will be toggled by the message button
+			infoDialog.setTitle(R.string.hint);
+			infoDialog.setMessage(getString(R.string.update_info));
+			infoDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode
+			infoDialog.show(); // Pressing "OK" calls learnCode()
+
+		}
 		if (v == alwaysOkButton) {
 			settings.edit().putBoolean("autoUpdate", true).commit();
 			sync();
@@ -95,14 +105,14 @@ public class SynchronizeActivity extends Activity implements OnClickListener, an
 			SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
 			AllergyScanDatabase localDatabase = new AllergyScanDatabase(getApplicationContext(), settings); // create database handle
 			try {
-				if (autoSyncEnabled()) {
+				if (!urgent && autoSyncEnabled()) {
 					synchronizeActivity.finish();
 					localDatabase.syncWithRemote();
 				} else {
 					localDatabase.syncWithRemote();
 					synchronizeActivity.finish();
 				}
-			} catch (UnknownHostException e) {
+			} catch (NetworkErrorException e) {
 				if (urgent){
 					MainActivity.network_status=MainActivity.FATAL;
 					urgent=false;
@@ -130,6 +140,7 @@ public class SynchronizeActivity extends Activity implements OnClickListener, an
 		alwaysOkButton.setEnabled(false);
 		onceOkButton.setEnabled(false);
 		noButton.setEnabled(false);
+		infoOkButton.setEnabled(false);
 		progressBar.setVisibility(View.VISIBLE);
 		new SyncThread(this).start();
 	}

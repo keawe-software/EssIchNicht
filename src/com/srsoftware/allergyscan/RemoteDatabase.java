@@ -107,7 +107,7 @@ public class RemoteDatabase {
 		return '"' + URLEncoder.encode(text.toString(), "UTF-8") + '"';
 	}
 
-	public static JSONObject getNewProducts() throws IOException, JSONException {
+	public static JSONObject getNewProducts() throws IOException {
 		try {
 			BufferedReader reader = postData("getNewProducts");
 			JSONObject array = new JSONObject(reader.readLine());
