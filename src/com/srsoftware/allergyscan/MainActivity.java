@@ -174,8 +174,9 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			TreeSet<Integer> uncontained = localDatabase.getUnContainedAllergens(product.barcode(), allAllergens.keySet()); // get the list of allergens, which are not contained
 			if (!uncontained.isEmpty()) { // add the set of allergens, which are not contained ti the displayed list
 				listItems.add(getString(R.string.not_contained));
-				for (int aid : uncontained)
+				for (int aid : uncontained){
 					listItems.add("- " + allAllergens.get(aid));
+				}
 			}
 
 			Set<Integer> unclear = allAllergens.keySet(); // construct the list, of unclassified allergens
@@ -184,8 +185,9 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 
 			if (!unclear.isEmpty()) {
 				listItems.add(getString(R.string.unclear));
-				for (int aid : unclear)
+				for (int aid : unclear){
 					listItems.add("? " + allAllergens.get(aid)); // add the unclassified allergens to the displayed list
+				}
 			}
 
 			adapter.notifyDataSetChanged(); // actually change the display
@@ -416,31 +418,21 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			alert.setPositiveButton(R.string.yes, new android.content.DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) { // if "contained" clicked: store
 					localDatabase.storeAllergenInfo(localAllergenId, barcode, true);
-					if (autoSyncEnabled()) {
-						startSynchronizeActivity();
-					}
 					handleProductBarcode(barcode);
 				}
 			});
 			alert.setNegativeButton(R.string.no, new android.content.DialogInterface.OnClickListener() { // if "not contained" clicked: store
 				public void onClick(DialogInterface dialog, int whichButton) {
 					localDatabase.storeAllergenInfo(localAllergenId, barcode, false);
-					if (autoSyncEnabled()) {
-						startSynchronizeActivity();
-					}
 					handleProductBarcode(barcode);
 				}
 			});
 			alert.setNeutralButton(R.string.dont_know, new android.content.DialogInterface.OnClickListener() { // if "don't know" clicked: ignore
 				public void onClick(DialogInterface dialog, int whichButton) {
 					localDatabase.resetAllergenInfo(localAllergenId, barcode);
-					if (autoSyncEnabled()) {
-						startSynchronizeActivity();
-					}
 					handleProductBarcode(barcode);
 				}
 			});
-
 			alert.show();
 		}
 	}
