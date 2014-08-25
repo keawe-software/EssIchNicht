@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -55,6 +56,7 @@ public class SynchronizeActivity extends Activity implements OnClickListener, an
 			alwaysOkButton.setEnabled(true);
 			onceOkButton.setEnabled(true);
 			noButton.setEnabled(true);
+			infoOkButton.setEnabled(true);
 			progressBar.setVisibility(View.INVISIBLE);
 		}
 	}
@@ -101,10 +103,13 @@ public class SynchronizeActivity extends Activity implements OnClickListener, an
 
 		@Override
 		public void run() {
+			if (urgent){
+				Log.d(MainActivity.TAG, "sync(urgent!)");
+			}
 			SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
 			AllergyScanDatabase localDatabase = new AllergyScanDatabase(getApplicationContext(), settings); // create database handle
 			try {
-				if (autoSyncEnabled()) {
+				if (!urgent && autoSyncEnabled()) {
 					synchronizeActivity.finish();
 					localDatabase.syncWithRemote();
 				} else {
@@ -135,12 +140,11 @@ public class SynchronizeActivity extends Activity implements OnClickListener, an
 		return result;
 	}
 
-
-
 	private void sync() {
 		alwaysOkButton.setEnabled(false);
 		onceOkButton.setEnabled(false);
 		noButton.setEnabled(false);
+		infoOkButton.setEnabled(false);
 		progressBar.setVisibility(View.VISIBLE);
 		new SyncThread(this).start();
 	}

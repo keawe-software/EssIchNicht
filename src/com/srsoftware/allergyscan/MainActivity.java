@@ -166,8 +166,9 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 
 			if (!contained.isEmpty()) { // add the contained allergens to the list dispayed
 				listItems.add(getString(R.string.contains));
-				for (int aid : contained)
+				for (int aid : contained){
 					listItems.add("+ " + allAllergens.get(aid));
+				}
 			}
 
 			TreeSet<Integer> uncontained = localDatabase.getUnContainedAllergens(product.barcode(), allAllergens.keySet()); // get the list of allergens, which are not contained
