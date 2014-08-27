@@ -468,4 +468,12 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		allergenStack.addAll(getActiveAllergens().values());
 		return allergenStack;
 	}
+
+	public void storeAllergenInfo(Allergen allergen, Barcode barcode, boolean contained) {
+		storeAllergenInfo(allergen.local_id,barcode,contained);
+	}
+
+	public void resetAllergenInfo(Allergen allergen, Barcode barcode) {
+		resetAllergenInfo(allergen.local_id,barcode);
+	}
 }
