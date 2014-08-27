@@ -20,11 +20,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,10 +43,10 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	public static int network_status = GOOD;
 	static Barcode productCode;
 	private ProductData product;
-	private ListView list;
-	private ArrayList<String> listItems;
+	private LinearLayout list;
+	//private ArrayList<TextView> listItems;
 	@SuppressWarnings("rawtypes")
-	private ArrayAdapter adapter;
+	//private ArrayAdapter adapter;
 	private AlertDialog networkFailDialog = null;
 
 	/*
@@ -63,11 +65,11 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		localDatabase = new AllergyScanDatabase(getApplicationContext(), settings); // create database handle
 
 		/* prepare result list */
-		list = (ListView) findViewById(R.id.containmentList);
-		listItems = new ArrayList<String>();
-		adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listItems);
-		list.setAdapter(adapter);
-		list.setOnItemClickListener(this);
+		list = (LinearLayout) findViewById(R.id.containmentList);
+		//listItems = new ArrayList<TextView>();
+		//adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listItems);
+		//list.setAdapter(adapter);
+		//list.setOnItemClickListener(this);
 
 		Button scanButton = (Button) findViewById(R.id.scanButton); // start to listen to the scan-button
 		scanButton.setOnClickListener(this);
@@ -161,22 +163,40 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			productTitle.setText(product.name());
 			changeHint.setText(R.string.change_hint);
 			AllergenList allAllergens = localDatabase.getActiveAllergens(); // get the list of activated allergens
-			listItems.clear(); // clear the display list
+			//listItems.clear(); // clear the display list
+			list.removeAllViews();
 
 			TreeSet<Integer> contained = localDatabase.getContainedAllergens(product.barcode(), allAllergens.keySet()); // get the list of contained allergens
-
+			TextView entry;
+			int id=0;
 			if (!contained.isEmpty()) { // add the contained allergens to the list dispayed
-				listItems.add(getString(R.string.contains));
+				entry=new TextView(this);
+				entry.setText(R.string.contains);
+				entry.setId(id++);
+				list.addView(entry);
+				//listItems.add(entry);
 				for (int aid : contained){
-					listItems.add("+ " + allAllergens.get(aid));
+					entry=new TextView(this);
+					entry.setId(id++);
+					entry.setText("+ " + allAllergens.get(aid));
+					//listItems.add(entry);
+					list.addView(entry);
 				}
 			}
 
 			TreeSet<Integer> uncontained = localDatabase.getUnContainedAllergens(product.barcode(), allAllergens.keySet()); // get the list of allergens, which are not contained
 			if (!uncontained.isEmpty()) { // add the set of allergens, which are not contained ti the displayed list
-				listItems.add(getString(R.string.not_contained));
+				entry=new TextView(this);
+				entry.setId(id++);
+				entry.setText(R.string.not_contained);
+				list.addView(entry);
+				//listItems.add(entry);
 				for (int aid : uncontained){
-					listItems.add("- " + allAllergens.get(aid));
+					entry=new TextView(this);
+					entry.setId(id++);
+					entry.setText("- " + allAllergens.get(aid));
+					list.addView(entry);
+					//listItems.add(entry);
 				}
 			}
 
@@ -185,13 +205,21 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			unclear.removeAll(uncontained);
 
 			if (!unclear.isEmpty()) {
-				listItems.add(getString(R.string.unclear));
+				entry=new TextView(this);
+				entry.setId(id++);
+				entry.setText(R.string.unclear);
+				list.addView(entry);
+				//listItems.add(entry);
 				for (int aid : unclear){
-					listItems.add("? " + allAllergens.get(aid)); // add the unclassified allergens to the displayed list
+					entry=new TextView(this);
+					entry.setId(id++);
+					entry.setText("? " + allAllergens.get(aid));
+					list.addView(entry);
+					//listItems.add(entry); // add the unclassified allergens to the displayed list
 				}
 			}
 
-			adapter.notifyDataSetChanged(); // actually change the display
+//			adapter.notifyDataSetChanged(); // actually change the display
 		}
 		// productCode=null;
 	}
