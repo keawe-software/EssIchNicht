@@ -162,7 +162,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 					button=new Button(this);
 					button.setText("+ " + allergen.name);
 					button.setGravity(Gravity.LEFT);
-					button.setBackgroundColor(Color.MAGENTA);
+					button.setBackgroundColor(Color.rgb(255, 136, 0));
 					button.setTag(allergen);
 					button.setOnClickListener(this);
 					list.addView(button);
@@ -179,7 +179,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 					button=new Button(this);
 					button.setText("- " + allergen.name);
 					button.setGravity(Gravity.LEFT);		
-					button.setBackgroundColor(Color.GREEN);
+					button.setBackgroundColor(Color.rgb(153,204,0));
 					button.setTag(allergen);
 					button.setOnClickListener(this);
 					list.addView(button);
@@ -198,7 +198,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 					button=new Button(this);
 					button.setText("? " + allergen.name);
 					button.setGravity(Gravity.LEFT);
-					button.setBackgroundColor(Color.YELLOW);
+					button.setBackgroundColor(Color.rgb(51,181,229));
 					button.setOnClickListener(this);
 					button.setTag(allergen);
 					list.addView(button);
