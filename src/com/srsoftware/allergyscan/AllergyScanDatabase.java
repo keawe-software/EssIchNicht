@@ -114,11 +114,18 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			TreeMap<Integer, TreeMap<Long, Integer>> containments = getAllContainments();
 
 			AllergenList activeAllergens = getActiveAllergens();
-			if (activeAllergens != null && !activeAllergens.isEmpty()) {
+			// TODO: das sollte nach barcodes geordnet werden und in der Ebene darunter nach ids.
+			// Das macht die Daten kleiner und vielleicht den Algorithmus schneller?
+			// beispiel: [0,{[123456,+],[456789,-]}],[1,{[123456,-]}],[3,{[123456,-]}] ist länger als
+			// [123456,{[0,+],[1,-],[3,-]}],[456789,{[0,-]}]
+			// Das ganze sollte serverseitig mit einer neuen Methode umgesetzt werden, um Kompatibilität mit den im Test befindlichen Clients aufrecht zu erhalten
+			if (activeAllergens != null && !activeAllergens.isEmpty()) {				
 				array = RemoteDatabase.getInfo(activeAllergens);
+				System.out.println(array);
 				if (array != null) {
 					for (Iterator it = array.keys(); it.hasNext();) {
 						Integer aid = Integer.parseInt(it.next().toString());
+						System.out.println("processing "+aid);
 						Integer laid = getLocalAllergenId(aid);
 						try {
 							JSONObject inner = array.getJSONObject(aid.toString());
@@ -128,6 +135,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 							for (Iterator it2 = inner.keys(); it2.hasNext();) {
 								Long barcode = Long.parseLong(it2.next().toString());
+								System.out.println("barcdoe: "+barcode);
 								Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
 								ContentValues values = new ContentValues();
 								values.put("laid", laid);

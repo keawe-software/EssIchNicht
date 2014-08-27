@@ -132,8 +132,9 @@ public class RemoteDatabase {
 			return;
 		}
 		BufferedReader reader = postData("storeNewProducts", "products", products);
-		System.out.println(reader.readLine());
+		String line=reader.readLine();
 		reader.close();
+		Log.d(TAG, "recieved result: "+line);
 	}
 
 	public static JSONObject getNewAllergens(AllergenList allergens) throws IOException {
@@ -189,7 +190,7 @@ public class RemoteDatabase {
 		BufferedReader reader = postData("setInfo", "content", containments, deviceid);
 		String reply=reader.readLine();
 		reader.close();
-		System.out.println(reply);
+		Log.d(TAG, "recieved result: "+reply);
 		return reply.equals("ENABLE");
 	}
 
