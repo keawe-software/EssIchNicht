@@ -1,10 +1,9 @@
 package com.srsoftware.allergyscan;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,25 +12,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener, OnItemClickListener {
+public class MainActivity extends Activity implements OnClickListener, android.content.DialogInterface.OnClickListener {
 
 	static final int GOOD = 1;
 	static final int FAIL = 0;
@@ -43,10 +39,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	public static int network_status = GOOD;
 	static Barcode productCode;
 	private ProductData product;
-	private LinearLayout list;
-	//private ArrayList<TextView> listItems;
-	@SuppressWarnings("rawtypes")
-	//private ArrayAdapter adapter;
 	private AlertDialog networkFailDialog = null;
 
 	/*
@@ -54,7 +46,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	 * 
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -64,12 +55,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
 		localDatabase = new AllergyScanDatabase(getApplicationContext(), settings); // create database handle
 
-		/* prepare result list */
-		list = (LinearLayout) findViewById(R.id.containmentList);
-		//listItems = new ArrayList<TextView>();
-		//adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listItems);
-		//list.setAdapter(adapter);
-		//list.setOnItemClickListener(this);
 
 		Button scanButton = (Button) findViewById(R.id.scanButton); // start to listen to the scan-button
 		scanButton.setOnClickListener(this);
@@ -163,63 +148,62 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			productTitle.setText(product.name());
 			changeHint.setText(R.string.change_hint);
 			AllergenList allAllergens = localDatabase.getActiveAllergens(); // get the list of activated allergens
-			//listItems.clear(); // clear the display list
+			LinearLayout list = (LinearLayout) findViewById(R.id.containmentList);
 			list.removeAllViews();
 
-			TreeSet<Integer> contained = localDatabase.getContainedAllergens(product.barcode(), allAllergens.keySet()); // get the list of contained allergens
-			TextView entry;
-			int id=0;
+			TreeSet<Integer> aidsOfContainedAllergens = localDatabase.getContainedAllergens(product.barcode(), allAllergens.keySet()); // get the list of contained allergens
+			Vector<Allergen>contained=allAllergens.selectByLocalAId(aidsOfContainedAllergens);
+			Button button;
 			if (!contained.isEmpty()) { // add the contained allergens to the list dispayed
-				entry=new TextView(this);
-				entry.setText(R.string.contains);
-				entry.setId(id++);
-				list.addView(entry);
-				//listItems.add(entry);
-				for (int aid : contained){
-					entry=new TextView(this);
-					entry.setId(id++);
-					entry.setText("+ " + allAllergens.get(aid));
-					//listItems.add(entry);
-					list.addView(entry);
+				TextView hint=new TextView(this);
+				hint.setText(R.string.contains);
+				list.addView(hint);
+				for (Allergen allergen : contained){
+					button=new Button(this);
+					button.setText("+ " + allergen.name);
+					button.setGravity(Gravity.LEFT);
+					button.setBackgroundColor(Color.MAGENTA);
+					button.setTag(allergen);
+					button.setOnClickListener(this);
+					list.addView(button);
 				}
 			}
 
-			TreeSet<Integer> uncontained = localDatabase.getUnContainedAllergens(product.barcode(), allAllergens.keySet()); // get the list of allergens, which are not contained
+			TreeSet<Integer> aidsOfUncontainedAllergens = localDatabase.getUnContainedAllergens(product.barcode(), allAllergens.keySet()); // get the list of allergens, which are not contained
+			Vector<Allergen>uncontained=allAllergens.selectByLocalAId(aidsOfUncontainedAllergens);
 			if (!uncontained.isEmpty()) { // add the set of allergens, which are not contained ti the displayed list
-				entry=new TextView(this);
-				entry.setId(id++);
-				entry.setText(R.string.not_contained);
-				list.addView(entry);
-				//listItems.add(entry);
-				for (int aid : uncontained){
-					entry=new TextView(this);
-					entry.setId(id++);
-					entry.setText("- " + allAllergens.get(aid));
-					list.addView(entry);
-					//listItems.add(entry);
+				TextView hint=new TextView(this);
+				hint.setText(R.string.not_contained);
+				list.addView(hint);
+				for (Allergen allergen : uncontained){
+					button=new Button(this);
+					button.setText("- " + allergen.name);
+					button.setGravity(Gravity.LEFT);		
+					button.setBackgroundColor(Color.GREEN);
+					button.setTag(allergen);
+					button.setOnClickListener(this);
+					list.addView(button);
 				}
 			}
 
-			Set<Integer> unclear = allAllergens.keySet(); // construct the list, of unclassified allergens
-			unclear.removeAll(contained);
-			unclear.removeAll(uncontained);
+			AllergenList unclear = allAllergens; // construct the list, of unclassified allergens
+			unclear.removeAll(aidsOfContainedAllergens);
+			unclear.removeAll(aidsOfUncontainedAllergens);
 
 			if (!unclear.isEmpty()) {
-				entry=new TextView(this);
-				entry.setId(id++);
-				entry.setText(R.string.unclear);
-				list.addView(entry);
-				//listItems.add(entry);
-				for (int aid : unclear){
-					entry=new TextView(this);
-					entry.setId(id++);
-					entry.setText("? " + allAllergens.get(aid));
-					list.addView(entry);
-					//listItems.add(entry); // add the unclassified allergens to the displayed list
+				TextView hint=new TextView(this);
+				hint.setText(R.string.unclear);
+				list.addView(hint);
+				for (Allergen allergen : unclear.values()){
+					button=new Button(this);
+					button.setText("? " + allergen.name);
+					button.setGravity(Gravity.LEFT);
+					button.setBackgroundColor(Color.YELLOW);
+					button.setOnClickListener(this);
+					button.setTag(allergen);
+					list.addView(button);
 				}
 			}
-
-//			adapter.notifyDataSetChanged(); // actually change the display
 		}
 		// productCode=null;
 	}
@@ -428,7 +412,40 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	 */
 	public void onClick(View v) { // for clicks on "scan" button
 		Log.d(TAG, "onClick(View v)");
-		startScanning();
+		Object tag=v.getTag();
+		if (tag==null){
+			startScanning();
+		} else {
+			if (tag instanceof Allergen) {// respond only to clicks on actual allergens			
+				final Allergen allergen = (Allergen) tag;
+				final Barcode barcode = product.barcode(); // get the product id
+				final String productName = product.name(); // get the product name
+
+				/* here a dialog is built, which asks, whether the selected allergen is contained in the current product */
+				AlertDialog.Builder alert = new AlertDialog.Builder(this);
+				alert.setTitle(allergen.name);
+				alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergen.name));
+				alert.setPositiveButton(R.string.yes, new android.content.DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) { // if "contained" clicked: store
+						localDatabase.storeAllergenInfo(allergen, barcode, true);
+						handleProductBarcode(barcode);
+					}
+				});
+				alert.setNegativeButton(R.string.no, new android.content.DialogInterface.OnClickListener() { // if "not contained" clicked: store
+					public void onClick(DialogInterface dialog, int whichButton) {
+						localDatabase.storeAllergenInfo(allergen, barcode, false);
+						handleProductBarcode(barcode);
+					}
+				});
+				alert.setNeutralButton(R.string.dont_know, new android.content.DialogInterface.OnClickListener() { // if "don't know" clicked: ignore
+					public void onClick(DialogInterface dialog, int whichButton) {
+						localDatabase.resetAllergenInfo(allergen, barcode);
+						handleProductBarcode(barcode);
+					}
+				});
+				alert.show();							
+			}
+		}
 	}
 
 	/*
@@ -441,43 +458,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		boolean dummy = super.onSearchRequested();
 		startScanning(); // if the search button is pressed: scan barcode
 		return dummy;
-	}
-
-	/**
-	 * if item in the allergen list is clicked
-	 */
-	public void onItemClick(AdapterView<?> arg0, View view, int arg2, long arg3) {
-		String allergenName = ((TextView) view).getText().toString();
-		if (allergenName.startsWith("?") || allergenName.startsWith("+") || allergenName.startsWith("-")) { // respond only to clicks on actual allergens
-			allergenName = allergenName.substring(1).trim(); // get the name of the allergen, should be unique
-			final Integer localAllergenId = localDatabase.getLocalAllergenId(allergenName); // get the allergen id
-			final Barcode barcode = product.barcode(); // get the product id
-			final String productName = product.name(); // get the product name
-
-			/* here a dialog is built, which asks, whether the selected allergen is contained in the current product */
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle(allergenName);
-			alert.setMessage(getString(R.string.contains_question).replace("#product", productName).replace("#allergen", allergenName));
-			alert.setPositiveButton(R.string.yes, new android.content.DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) { // if "contained" clicked: store
-					localDatabase.storeAllergenInfo(localAllergenId, barcode, true);
-					handleProductBarcode(barcode);
-				}
-			});
-			alert.setNegativeButton(R.string.no, new android.content.DialogInterface.OnClickListener() { // if "not contained" clicked: store
-				public void onClick(DialogInterface dialog, int whichButton) {
-					localDatabase.storeAllergenInfo(localAllergenId, barcode, false);
-					handleProductBarcode(barcode);
-				}
-			});
-			alert.setNeutralButton(R.string.dont_know, new android.content.DialogInterface.OnClickListener() { // if "don't know" clicked: ignore
-				public void onClick(DialogInterface dialog, int whichButton) {
-					localDatabase.resetAllergenInfo(localAllergenId, barcode);
-					handleProductBarcode(barcode);
-				}
-			});
-			alert.show();
-		}
 	}
 
 	/**
