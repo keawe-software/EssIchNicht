@@ -17,6 +17,7 @@
     <string name="enter_allergen">Neuen Inhaltsstoff in Datenbank eintragen:</string>
     <string name="enter_product_name">Bitte geben Sie einen Namen für das Produkt (#product) ein.</string>
     <string name="expired">Sie nutzen eine Testversion des Programmes. Diese Testversion ist abgelaufen.</string>
+    <string name="fdroid">FDoid Store</string>
     <string name="free_version_hint">Sie nutzen eine kostenlose Version des Programmes. In der kostenlosen Version können Sie maximal zwei Nahrungsmittel aktivieren. Um mehr Nahrungsmittel wählen zu können, können Sie die Vollversion kaufen oder sich das Programm aus dem Quellcode selbst erstellen.</string>
     <string name="hello_world">Hello world!</string>
     <string name="hint">Hinweis</string>
@@ -34,12 +35,13 @@
     <string name="ok">Ok</string>
     <string name="ok_always_sync">Ja, bei Bedarf stets aktualisieren</string>
     <string name="performing_update">Update der Stoffdatenbank wird durchgeführt. Bitte warten...</string>
+    <string name="play">Play Store</string>
     <string name="product_code">Produkt-Code</string>
     <string name="product_name">Name des Produkts</string>
     <string name="save_value">speichern</string>
     <string name="scan">Scannen!</string>
     <string name="scan_hint">Scannen Sie einen Barcode, um Informationen zu einem Produkt zu erhalten.</string>
-    <string name="scannerUrl">https://f-droid.org/repository/browse/?fdid=com.google.zxing.client.android</string>
+    <string name="fdroidUrl">https://f-droid.org/repository/browse/?fdid=com.google.zxing.client.android</string>
     <string name="select_allergens">Wählen Sie die Stoffe, die Sie nicht mögen.</string>
     <string name="select_contained_allergens">Wählen Sie dann, welche Stoffe das Produkt enthält</string>
     <string name="server_not_available">Es konnte keine Verbingung zum Server hergestellt werden.</string>
@@ -62,4 +64,5 @@
     <string name="welcome">Wilkommen!</string>
     <string name="will_shut_down">Anwendung wird nun beendet.</string>
     <string name="yes">Ja</string>
+    <string name="playUrl">https://play.google.com/store/apps/details?id=com.google.zxing.client.android</string>
 </resources>

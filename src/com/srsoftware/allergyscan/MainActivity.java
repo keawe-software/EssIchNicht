@@ -233,11 +233,25 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			dialogBuilder.setMessage(R.string.no_scanner);
 			dialogBuilder.setCancelable(false);
 			AlertDialog dialog = dialogBuilder.create();
-			dialog.setButton(DialogInterface.BUTTON_POSITIVE, c.getString(R.string.ok), new DialogInterface.OnClickListener() {
+			dialog.setButton(DialogInterface.BUTTON_POSITIVE, c.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+
+				public void onClick(DialogInterface dialog, int which) {
+					
+				}
+			});
+			dialog.setButton(DialogInterface.BUTTON_NEGATIVE, c.getString(R.string.play), new DialogInterface.OnClickListener() {
 
 				public void onClick(DialogInterface dialog, int which) {
 					Log.d(TAG, "should start browser");
-					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(c.getString(R.string.scannerUrl)));
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(c.getString(R.string.playUrl)));
+					c.startActivity(browserIntent);
+				}
+			});
+			dialog.setButton(DialogInterface.BUTTON_NEUTRAL, c.getString(R.string.fdroid), new DialogInterface.OnClickListener() {
+
+				public void onClick(DialogInterface dialog, int which) {
+					Log.d(TAG, "should start browser");
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(c.getString(R.string.fdroidUrl)));
 					c.startActivity(browserIntent);
 				}
 			});
