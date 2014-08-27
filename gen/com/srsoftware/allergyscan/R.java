@@ -15,29 +15,30 @@ public final class R {
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int allergen_selection=0x7f070014;
-        public static final int alway_ok=0x7f070010;
+        public static final int allergen_selection=0x7f070015;
+        public static final int alway_ok=0x7f070011;
         public static final int autoCompleteTextView1=0x7f070004;
-        public static final int autoUpdateCheckbox=0x7f07000c;
+        public static final int autoUpdateCheckbox=0x7f07000d;
         public static final int backButton=0x7f070007;
-        public static final int container=0x7f07000d;
-        public static final int containmentList=0x7f070009;
+        public static final int changeHint=0x7f07000a;
+        public static final int container=0x7f07000e;
+        public static final int containmentList=0x7f07000b;
         public static final int createAllergenButton=0x7f070002;
-        public static final int dont_sync=0x7f070012;
-        public static final int info=0x7f070016;
+        public static final int dont_sync=0x7f070013;
+        public static final int info=0x7f070017;
         public static final int infoText=0x7f070005;
         public static final int learningMode=0x7f070006;
         public static final int listView1=0x7f070001;
-        public static final int menu_settings=0x7f070013;
-        public static final int moreInfo=0x7f07000f;
-        public static final int once_ok=0x7f070011;
-        public static final int preferencesCaption=0x7f07000b;
+        public static final int menu_settings=0x7f070014;
+        public static final int moreInfo=0x7f070010;
+        public static final int once_ok=0x7f070012;
+        public static final int preferencesCaption=0x7f07000c;
         public static final int productTitle=0x7f070008;
-        public static final int progressBar1=0x7f07000e;
-        public static final int scanButton=0x7f07000a;
+        public static final int progressBar1=0x7f07000f;
+        public static final int scanButton=0x7f070009;
         public static final int storeAllergenSelection=0x7f070003;
         public static final int sync_warning=0x7f070000;
-        public static final int update=0x7f070015;
+        public static final int update=0x7f070016;
     }
     public static final class layout {
         public static final int activity_allergen_selection=0x7f030000;
@@ -67,6 +68,7 @@ public final class R {
         public static final int automatic_database_updates=0x7f040003;
         public static final int back=0x7f040004;
         public static final int cancel=0x7f040005;
+        public static final int change_hint=0x7f04003c;
         public static final int contains=0x7f040006;
         public static final int contains_question=0x7f040007;
         public static final int create_allergen=0x7f040008;
@@ -98,10 +100,12 @@ public final class R {
         public static final int product_name=0x7f040022;
         public static final int save_value=0x7f040023;
         public static final int scan=0x7f040024;
+        public static final int scan_hint=0x7f04003d;
         public static final int scannerUrl=0x7f040025;
         public static final int select_allergens=0x7f040026;
         public static final int select_contained_allergens=0x7f040027;
         public static final int server_not_available=0x7f040028;
+        public static final int sync_complete=0x7f04003b;
         public static final int sync_once=0x7f040029;
         public static final int sync_warning=0x7f04002a;
         public static final int title_activity_allergen_selection=0x7f04002b;

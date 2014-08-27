@@ -13,15 +13,6 @@
         android:text="@string/welcome"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <ListView
-        android:id="@+id/containmentList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/productTitle" >
-
-    </ListView>
-
     <Button
         android:id="@+id/scanButton"
         android:layout_width="wrap_content"
@@ -29,5 +20,27 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="@string/scan" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/productTitle"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/changeHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:hint="@string/scan_hint"
+            android:textColor="@android:color/darker_gray" />
+
+        <ListView
+            android:id="@+id/containmentList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </ListView>
+    </LinearLayout>
 
 </RelativeLayout>

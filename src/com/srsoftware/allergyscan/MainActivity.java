@@ -157,8 +157,9 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 		} else { // we already have information about this product
 			Log.d(TAG, product.toString());
 			TextView productTitle = (TextView) findViewById(R.id.productTitle); // display the product title
-
+			TextView changeHint = (TextView) findViewById(R.id.changeHint);
 			productTitle.setText(product.name());
+			changeHint.setText(R.string.change_hint);
 			AllergenList allAllergens = localDatabase.getActiveAllergens(); // get the list of activated allergens
 			listItems.clear(); // clear the display list
 
