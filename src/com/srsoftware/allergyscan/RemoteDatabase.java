@@ -184,7 +184,7 @@ public class RemoteDatabase {
 
 	public static boolean setInfo(String deviceid, TreeMap<Integer, TreeMap<Long, Integer>> containments) throws IOException {
 		Log.d(TAG, "RemoteDatabase.setInfo(...)");
-		if (deviceid == null || deviceid.isEmpty()) {
+		if (deviceid == null || deviceid.equals("")) {
 			return false;
 		}
 		BufferedReader reader = postData("setInfo", "content", containments, deviceid);
