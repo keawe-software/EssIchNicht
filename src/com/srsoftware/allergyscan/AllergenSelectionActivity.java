@@ -92,11 +92,16 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
 			storeAllergenSelection();
 		}
 		if (v == createButton) {
+			storeAllergenSelection(false);
 			createNewAllergen();
 		}
 	}
 
 	private void storeAllergenSelection() {
+		storeAllergenSelection(true);
+	}
+
+	private void storeAllergenSelection(boolean updateAfter) {
 		int size = list.getCount();
 		Vector<Allergen> enabledAllergens = new Vector<Allergen>();
 		for (int i = 0; i < size; i++) {
@@ -109,8 +114,10 @@ public class AllergenSelectionActivity extends Activity implements OnClickListen
 		}
 		if (!showFreeVersionHint(enabledAllergens)){
 			localDatabase.setEnabled(enabledAllergens);
-			finish();
-			startSynchronizeActivity();
+			if (updateAfter){
+				finish();
+				startSynchronizeActivity();
+			}
 		}
 	}
 
