@@ -120,45 +120,32 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			// [123456,{[0,+],[1,-],[3,-]}],[456789,{[0,-]}]
 			// Das ganze sollte serverseitig mit einer neuen Methode umgesetzt werden, um Kompatibilität mit den im Test befindlichen Clients aufrecht zu erhalten
 			if (activeAllergens != null && !activeAllergens.isEmpty()) {				
-				array = RemoteDatabase.getInfo(activeAllergens);
-				System.out.println(array);
+				array = RemoteDatabase.getContainments(activeAllergens);
 				if (array != null) {
+					// barcode => ( aid => contained)
+					//TreeMap<Long,TreeMap<Integer,Integer>> localContainmentInfo=getLocalContainmentInfo();
+					TreeMap<Long,TreeMap<Integer,Integer>> remoteContainmentInfo=new TreeMap<Long, TreeMap<Integer,Integer>>();
 					for (Iterator it = array.keys(); it.hasNext();) {
-						Integer aid = Integer.parseInt(it.next().toString());
-						System.out.println("processing "+aid);
-						Integer laid = getLocalAllergenId(aid);
-						try {
-							JSONObject inner = array.getJSONObject(aid.toString());
-							SQLiteDatabase db = getWritableDatabase();
-
-							TreeMap<Long, Integer> containtmentsForCurrentAid = containments.get(aid);
-
+						String obj=it.next().toString();
+						Long barcode = Long.parseLong(obj);
+						TreeMap<Integer,Integer> barcodeInfo=remoteContainmentInfo.get(barcode);
+						if (barcodeInfo==null){
+							barcodeInfo=new TreeMap<Integer, Integer>();
+							remoteContainmentInfo.put(barcode, barcodeInfo);
+						}						
+						try {							
+							JSONObject inner = array.getJSONObject(obj);
 							for (Iterator it2 = inner.keys(); it2.hasNext();) {
-								Long barcode = Long.parseLong(it2.next().toString());
-								System.out.println("barcdoe: "+barcode);
-								Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
-								ContentValues values = new ContentValues();
-								values.put("laid", laid);
-								values.put("barcode", barcode);
-								values.put("contained", contained);
-								db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-
-								if (containtmentsForCurrentAid != null) {
-									Integer dummy = containtmentsForCurrentAid.get(barcode);
-									if (dummy != null && dummy.equals(contained)) {
-										containtmentsForCurrentAid.remove(barcode); // remove information already known to the server
-									}
-								}
-							}
-							if (containtmentsForCurrentAid == null || containtmentsForCurrentAid.isEmpty()) {
-								containments.remove(aid);
-							}
-							db.close();
+								Integer aid = Integer.parseInt(it2.next().toString());
+								Integer contained = Integer.parseInt(inner.get(aid.toString()).toString());
+								barcodeInfo.put(aid, contained);
+							}						
 						} catch (JSONException je) {
 							// exceptions will be thrown at empty results and can be ignored
 							System.err.println(je.getMessage());
 						}
 					}
+					System.out.println(remoteContainmentInfo);
 				}
 			}
 			RemoteDatabase.setInfo(MainActivity.deviceid, containments);
