@@ -20,7 +20,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class AllergyScanDatabase extends SQLiteOpenHelper {
@@ -109,11 +109,18 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			TreeMap<Integer, TreeMap<Long, Integer>> containments = getAllContainments();
 
 			AllergenList activeAllergens = getActiveAllergens();
-			if (activeAllergens != null && !activeAllergens.isEmpty()) {
+			// TODO: das sollte nach barcodes geordnet werden und in der Ebene darunter nach ids.
+			// Das macht die Daten kleiner und vielleicht den Algorithmus schneller?
+			// beispiel: [0,{[123456,+],[456789,-]}],[1,{[123456,-]}],[3,{[123456,-]}] ist länger als
+			// [123456,{[0,+],[1,-],[3,-]}],[456789,{[0,-]}]
+			// Das ganze sollte serverseitig mit einer neuen Methode umgesetzt werden, um Kompatibilität mit den im Test befindlichen Clients aufrecht zu erhalten
+			if (activeAllergens != null && !activeAllergens.isEmpty()) {				
 				array = RemoteDatabase.getInfo(activeAllergens);
+				System.out.println(array);
 				if (array != null) {
 					for (Iterator it = array.keys(); it.hasNext();) {
 						Integer aid = Integer.parseInt(it.next().toString());
+						System.out.println("processing "+aid);
 						Integer laid = getLocalAllergenId(aid);
 						try {
 							JSONObject inner = array.getJSONObject(aid.toString());
@@ -123,6 +130,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 							for (Iterator it2 = inner.keys(); it2.hasNext();) {
 								Long barcode = Long.parseLong(it2.next().toString());
+								System.out.println("barcdoe: "+barcode);
 								Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
 								ContentValues values = new ContentValues();
 								values.put("laid", laid);
@@ -153,7 +161,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		} catch (UnknownHostException uhe) {
 			uhe.printStackTrace();
 			throw new NetworkErrorException(uhe.getMessage());
-		} catch (SQLiteDatabaseLockedException sdle) {
+		} catch (SQLiteException sdle) {
 		} catch (JSONException e) {
 		} catch (IOException e) {
 		}
@@ -177,6 +185,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 				map.put(cursor.getLong(0), cursor.getInt(1));
 				cursor.moveToNext();
 			}
+			cursor.close();
 		}
 		db.close();
 		return result;
@@ -196,6 +205,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			}
 			cursor.moveToNext();
 		}
+		cursor.close();
 		db.close();
 		return newProducts;
 	}
@@ -220,6 +230,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.put(new Allergen(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getInt(3)));
 			cursor.moveToNext();
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -244,6 +255,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		cursor.moveToFirst();
 		int result = 0;
 		if (!cursor.isAfterLast()) result = cursor.getInt(0);
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -255,6 +267,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		cursor.moveToFirst();
 		int result = 0;
 		if (!cursor.isAfterLast()) result = cursor.getInt(0);
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -275,6 +288,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.add(cursor.getInt(0));
 			cursor.moveToNext();
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -289,6 +303,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.add(cursor.getInt(0));
 			cursor.moveToNext();
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -309,6 +324,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			String name = cursor.getString(0);
 			result = new ProductData(barcode, name);
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -324,6 +340,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			if (limitTo.contains(aid)) result.add(aid);
 			cursor.moveToNext();
 		}
+		cursor.close();
 		db.close();
 		return result;
 	}
@@ -339,6 +356,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			if (limitTo.contains(aid)) result.add(aid);
 			cursor.moveToNext();
 		}
+		cursor.close();
 		db.close();
 		return result;
 	}
@@ -352,6 +370,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		if (!cursor.isAfterLast()) {
 			laid = cursor.getInt(0);
 		}
+		cursor.close();
 		db.close();
 		return laid;
 	}
@@ -365,6 +384,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		if (!cursor.isAfterLast()) {
 			laid = cursor.getInt(0);
 		}
+		cursor.close();
 		db.close();
 		return laid;
 	}
@@ -414,7 +434,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		long rowid = database.insert(PRODUCT_TABLE, null, values);
 		database.close();
 		if (rowid < 0) return null;
-		return new ProductData(barcode, name);
+		return new ProductData(barcode, name);		
 	}
 
 	public void setEnabled(Vector<Allergen> enabledAllergens) {
@@ -427,6 +447,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			values.put("active", 1);
 			db.update(ALLERGEN_TABLE, values, "laid=" + allergen.local_id, null);
 		}
+		db.close();
 	}
 
 	public AllergenList getActiveAllergens() {
@@ -439,6 +460,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.put(new Allergen(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getInt(3)));
 			cursor.moveToNext();
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -447,5 +469,13 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		Stack<Allergen> allergenStack = new Stack<Allergen>();
 		allergenStack.addAll(getActiveAllergens().values());
 		return allergenStack;
+	}
+
+	public void storeAllergenInfo(Allergen allergen, Barcode barcode, boolean contained) {
+		storeAllergenInfo(allergen.local_id,barcode,contained);
+	}
+
+	public void resetAllergenInfo(Allergen allergen, Barcode barcode) {
+		resetAllergenInfo(allergen.local_id,barcode);
 	}
 }
