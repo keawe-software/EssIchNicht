@@ -192,6 +192,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 				map.put(cursor.getLong(0), cursor.getInt(1));
 				cursor.moveToNext();
 			}
+			cursor.close();
 		}
 		db.close();
 		return result;
@@ -211,6 +212,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			}
 			cursor.moveToNext();
 		}
+		cursor.close();
 		db.close();
 		return newProducts;
 	}
@@ -236,6 +238,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.put(new Allergen(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getInt(3)));
 			cursor.moveToNext();
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -260,6 +263,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		cursor.moveToFirst();
 		int result = 0;
 		if (!cursor.isAfterLast()) result = cursor.getInt(0);
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -271,6 +275,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		cursor.moveToFirst();
 		int result = 0;
 		if (!cursor.isAfterLast()) result = cursor.getInt(0);
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -291,6 +296,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.add(cursor.getInt(0));
 			cursor.moveToNext();
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -305,6 +311,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.add(cursor.getInt(0));
 			cursor.moveToNext();
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -325,6 +332,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			String name = cursor.getString(0);
 			result = new ProductData(barcode, name);
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
@@ -340,6 +348,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			if (limitTo.contains(aid)) result.add(aid);
 			cursor.moveToNext();
 		}
+		cursor.close();
 		db.close();
 		return result;
 	}
@@ -355,6 +364,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			if (limitTo.contains(aid)) result.add(aid);
 			cursor.moveToNext();
 		}
+		cursor.close();
 		db.close();
 		return result;
 	}
@@ -368,6 +378,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		if (!cursor.isAfterLast()) {
 			laid = cursor.getInt(0);
 		}
+		cursor.close();
 		db.close();
 		return laid;
 	}
@@ -381,6 +392,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		if (!cursor.isAfterLast()) {
 			laid = cursor.getInt(0);
 		}
+		cursor.close();
 		db.close();
 		return laid;
 	}
@@ -434,7 +446,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		long rowid = database.insert(PRODUCT_TABLE, null, values);
 		database.close();
 		if (rowid < 0) return null;
-		return new ProductData(barcode, name);
+		return new ProductData(barcode, name);		
 	}
 
 	public void setEnabled(Vector<Allergen> enabledAllergens) {
@@ -447,6 +459,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			values.put("active", 1);
 			db.update(ALLERGEN_TABLE, values, "laid=" + allergen.local_id, null);
 		}
+		db.close();
 	}
 
 	public AllergenList getActiveAllergens() {
@@ -459,6 +472,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 			result.put(new Allergen(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getInt(3)));
 			cursor.moveToNext();
 		}
+		cursor.close();
 		database.close();
 		return result;
 	}
