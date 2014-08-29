@@ -111,7 +111,8 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 			}
 
-			TreeMap<Integer, TreeMap<Long, Integer>> containments = getAllContainments();
+			// aid => (barcode => contained)
+			TreeMap<Integer, TreeMap<Long, Integer>> localContainmentInfo = getAllContainments();
 
 			AllergenList activeAllergens = getActiveAllergens();
 			// TODO: das sollte nach barcodes geordnet werden und in der Ebene darunter nach ids.
@@ -123,7 +124,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 				array = RemoteDatabase.getContainments(activeAllergens);
 				if (array != null) {
 					// barcode => ( aid => contained)
-					//TreeMap<Long,TreeMap<Integer,Integer>> localContainmentInfo=getLocalContainmentInfo();
 					TreeMap<Long,TreeMap<Integer,Integer>> remoteContainmentInfo=new TreeMap<Long, TreeMap<Integer,Integer>>();
 					for (Iterator it = array.keys(); it.hasNext();) {
 						String obj=it.next().toString();
@@ -138,7 +138,19 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 							for (Iterator it2 = inner.keys(); it2.hasNext();) {
 								Integer aid = Integer.parseInt(it2.next().toString());
 								Integer contained = Integer.parseInt(inner.get(aid.toString()).toString());
-								barcodeInfo.put(aid, contained);
+								
+								TreeMap<Long, Integer> infoToSendToRemote = localContainmentInfo.get(aid);
+								if (infoToSendToRemote!=null && infoToSendToRemote.get(barcode)==contained){
+									// remote and local database have the same information about [aid] in [barcode]
+									// remove the info from the local array, as this does not need to be sent to the remote
+									infoToSendToRemote.remove(barcode);
+									System.out.println("local db and remote have the same info: "+barcode+(contained==1?" contains ":" does not contain ")+aid);									
+								} else {
+									// if local database has other information than the remote,
+									// store info to override local database soon
+									System.out.println("local db and remote have different info regarding "+aid+" in "+barcode);									
+									barcodeInfo.put(aid, contained);									
+								}
 							}						
 						} catch (JSONException je) {
 							// exceptions will be thrown at empty results and can be ignored
@@ -148,7 +160,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 					System.out.println(remoteContainmentInfo);
 				}
 			}
-			RemoteDatabase.setInfo(MainActivity.deviceid, containments);
+			//RemoteDatabase.setInfo(MainActivity.deviceid, localContainmentInfo);
 		} catch (UnknownHostException uhe) {
 			uhe.printStackTrace();
 			throw new NetworkErrorException(uhe.getMessage());
