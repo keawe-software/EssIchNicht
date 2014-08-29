@@ -106,58 +106,70 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 
 			}
 
-			TreeMap<Integer, TreeMap<Long, Integer>> containments = getAllContainments();
+			// aid => (barcode => contained)
+			TreeMap<Integer, TreeMap<Long, Integer>> localContainmentInfo = getAllContainments();
 
 			AllergenList activeAllergens = getActiveAllergens();
-			// TODO: das sollte nach barcodes geordnet werden und in der Ebene darunter nach ids.
-			// Das macht die Daten kleiner und vielleicht den Algorithmus schneller?
-			// beispiel: [0,{[123456,+],[456789,-]}],[1,{[123456,-]}],[3,{[123456,-]}] ist länger als
-			// [123456,{[0,+],[1,-],[3,-]}],[456789,{[0,-]}]
-			// Das ganze sollte serverseitig mit einer neuen Methode umgesetzt werden, um Kompatibilität mit den im Test befindlichen Clients aufrecht zu erhalten
 			if (activeAllergens != null && !activeAllergens.isEmpty()) {				
-				array = RemoteDatabase.getInfo(activeAllergens);
-				System.out.println(array);
+				array = RemoteDatabase.getContainments(activeAllergens);
 				if (array != null) {
+					// barcode => ( laid => contained)
+					TreeMap<Long,TreeMap<Integer,Integer>> remoteContainmentInfo=new TreeMap<Long, TreeMap<Integer,Integer>>();
 					for (Iterator it = array.keys(); it.hasNext();) {
-						Integer aid = Integer.parseInt(it.next().toString());
-						System.out.println("processing "+aid);
-						Integer laid = getLocalAllergenId(aid);
-						try {
-							JSONObject inner = array.getJSONObject(aid.toString());
-							SQLiteDatabase db = getWritableDatabase();
-
-							TreeMap<Long, Integer> containtmentsForCurrentAid = containments.get(aid);
-
+						String obj=it.next().toString();
+						Long barcode = Long.parseLong(obj);
+						TreeMap<Integer,Integer> barcodeInfo=remoteContainmentInfo.get(barcode);
+						if (barcodeInfo==null){
+							// aid => contained
+							barcodeInfo=new TreeMap<Integer, Integer>();
+							remoteContainmentInfo.put(barcode, barcodeInfo);
+						}						
+						try {							
+							JSONObject inner = array.getJSONObject(obj);
 							for (Iterator it2 = inner.keys(); it2.hasNext();) {
-								Long barcode = Long.parseLong(it2.next().toString());
-								System.out.println("barcdoe: "+barcode);
-								Integer contained = Integer.parseInt(inner.get(barcode.toString()).toString());
-								ContentValues values = new ContentValues();
-								values.put("laid", laid);
-								values.put("barcode", barcode);
-								values.put("contained", contained);
-								db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-
-								if (containtmentsForCurrentAid != null) {
-									Integer dummy = containtmentsForCurrentAid.get(barcode);
-									if (dummy != null && dummy.equals(contained)) {
-										containtmentsForCurrentAid.remove(barcode); // remove information already known to the server
+								Integer aid = Integer.parseInt(it2.next().toString());
+								Integer contained = Integer.parseInt(inner.get(aid.toString()).toString());
+								
+								TreeMap<Long, Integer> infoToSendToRemote = localContainmentInfo.get(aid);
+								if (infoToSendToRemote!=null && infoToSendToRemote.get(barcode)==contained){
+									// remote and local database have the same information about [aid] in [barcode]
+									// remove the info from the local array, as this does not need to be sent to the remote
+									infoToSendToRemote.remove(barcode);
+									if (infoToSendToRemote.isEmpty()){
+										localContainmentInfo.remove(aid);
 									}
+								} else {
+									// if local database has other information than the remote,
+									// store info to override local database soon
+									barcodeInfo.put(aid, contained);									
 								}
-							}
-							if (containtmentsForCurrentAid == null || containtmentsForCurrentAid.isEmpty()) {
-								containments.remove(aid);
-							}
-							db.close();
+							}						
 						} catch (JSONException je) {
 							// exceptions will be thrown at empty results and can be ignored
 							System.err.println(je.getMessage());
 						}
 					}
+					
+					// aid => laid
+					TreeMap<Integer,Integer> aidMap=getMappingFromAidsToLocalAids();
+					SQLiteDatabase db=getWritableDatabase();
+					for (Entry<Long, TreeMap<Integer, Integer>> entry:remoteContainmentInfo.entrySet()){
+						Long barcode=entry.getKey();
+						TreeMap<Integer, Integer> infos = entry.getValue();
+						for (Integer aid:infos.keySet()){
+							Integer contained = infos.get(aid);
+							Integer laid=aidMap.get(aid);
+							ContentValues values = new ContentValues();
+							values.put("laid", laid);
+							values.put("barcode", barcode);
+							values.put("contained", contained);
+							db.insertWithOnConflict(CONTENT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+						}
+					}
+					db.close();
 				}
 			}
-
-			RemoteDatabase.setInfo(MainActivity.deviceid, containments);
+			RemoteDatabase.setInfo(MainActivity.deviceid, localContainmentInfo);
 		} catch (UnknownHostException uhe) {
 			uhe.printStackTrace();
 			throw new NetworkErrorException(uhe.getMessage());
@@ -167,6 +179,25 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		}
 	}
 
+	private TreeMap<Integer, Integer> getMappingFromAidsToLocalAids() {
+		SQLiteDatabase db = getReadableDatabase();
+		String[] columns= { "aid", "laid" };
+		Cursor cursor=db.query(ALLERGEN_TABLE, columns, null, null, null, null, null);
+		cursor.moveToFirst();
+		TreeMap<Integer, Integer> result=new TreeMap<Integer, Integer>();
+		while (!cursor.isAfterLast()){
+			result.put(cursor.getInt(0), cursor.getInt(1));
+			cursor.moveToNext();
+		}
+		db.close();
+		return result;
+	}
+
+	/**
+	 * Returns informations about which allergens are contained in which products:
+	 * The result is a mapping in the form {aid:{barcode:contained}} 
+	 * @return Map
+	 */
 	private TreeMap<Integer, TreeMap<Long, Integer>> getAllContainments() {
 		TreeMap<Integer, TreeMap<Long, Integer>> result = new TreeMap<Integer, TreeMap<Long, Integer>>();
 		AllergenList allergens = getAllAllergens();
@@ -365,20 +396,6 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 		SQLiteDatabase db = getReadableDatabase();
 		String[] fields = { "laid" };
 		Cursor cursor = db.query(ALLERGEN_TABLE, fields, "name='" + allergen + "'", null, null, null, null);
-		cursor.moveToFirst();
-		Integer laid = null;
-		if (!cursor.isAfterLast()) {
-			laid = cursor.getInt(0);
-		}
-		cursor.close();
-		db.close();
-		return laid;
-	}
-
-	private Integer getLocalAllergenId(int aid) {
-		SQLiteDatabase db = getReadableDatabase();
-		String[] fields = { "laid" };
-		Cursor cursor = db.query(ALLERGEN_TABLE, fields, "aid='" + aid + "'", null, null, null, null);
 		cursor.moveToFirst();
 		Integer laid = null;
 		if (!cursor.isAfterLast()) {

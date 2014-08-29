@@ -474,7 +474,7 @@
         <dia:point val="39.5,11.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="33.8813,10.2996;45.1374,12.7004"/>
+        <dia:rectangle val="33.8813,10.3275;45.1188,12.6725"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -490,7 +490,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="39.5,10.9132"/>
+            <dia:point val="39.5,10.9225"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -536,7 +536,7 @@
         <dia:point val="39.5,14.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="36.7775,13.2996;42.2411,15.7004"/>
+        <dia:rectangle val="36.7775,13.3275;42.2225,15.6725"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -552,7 +552,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="39.5,13.9132"/>
+            <dia:point val="39.5,13.9225"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -598,7 +598,7 @@
         <dia:point val="55,10"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="55,9.38637;60.9986,10.9872"/>
+        <dia:rectangle val="55,9.405;60.98,10.95"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -632,7 +632,7 @@ Produkte ab#</dia:string>
         <dia:point val="55,13"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="55,12.3864;65.2436,13.9872"/>
+        <dia:rectangle val="55,12.405;65.225,13.95"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1051,12 +1051,12 @@ neu sind#</dia:string>
         <dia:point val="39.5,29.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="34.4562,28.3275;44.5437,30.6725"/>
+        <dia:rectangle val="32.825,28.2996;46.1936,30.7004"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#index.php?action=getInfo(aid*)
+            <dia:string>#index.php?action=getContainments(aid*)
 
 #</dia:string>
           </dia:attribute>
@@ -1067,7 +1067,7 @@ neu sind#</dia:string>
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="39.5,28.9225"/>
+            <dia:point val="39.5,28.9132"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -1147,12 +1147,12 @@ der bei ihm aktivierten Allergene#</dia:string>
         <dia:point val="39.5,32.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="35.25,31.3275;43.75,33.6725"/>
+        <dia:rectangle val="35.3387,31.2996;43.6799,33.7004"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#(aid:(barcode:contained))*
+            <dia:string>#(barcode:(ad:contained))*
 
 #</dia:string>
           </dia:attribute>
@@ -1163,7 +1163,7 @@ der bei ihm aktivierten Allergene#</dia:string>
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="39.5,31.9225"/>
+            <dia:point val="39.5,31.9132"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
