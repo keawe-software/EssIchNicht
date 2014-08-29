@@ -163,24 +163,6 @@ public class RemoteDatabase {
 		}
 
 	}
-
-	public static JSONObject getInfo(AllergenList allergens) throws IOException {
-		Log.d(TAG, "RemoteDatabase.getInfo(...)");
-		if (allergens==null || allergens.isEmpty()) return null;
-		TreeSet<Integer> remoteAids = new TreeSet<Integer>();
-		for (Allergen allergen : allergens.values()) {
-			remoteAids.add(allergen.aid);
-		}
-		try {
-			BufferedReader reader = postData("getInfo", "aids", remoteAids);
-			JSONObject array = new JSONObject(reader.readLine());
-			reader.close();
-			return array;
-		} catch (JSONException e) { // usually happens with empty reply
-			e.printStackTrace();
-			return null;
-		}
-	}
 	
 	public static JSONObject getContainments(AllergenList allergens) throws IOException {
 		Log.d(TAG, "RemoteDatabase.getContainments(...)");
