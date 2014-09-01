@@ -69,7 +69,7 @@ public class RemoteDatabase {
 		return result;
 	}
 
-	private static BufferedReader postData(String action, String key, Object value,String deviceid) throws IOException {
+	private static BufferedReader postData(String action, String key, Object value) throws IOException {
 		TreeMap<String, String> data = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 		if (key!=null && value !=null){
 			if (value instanceof TreeMap) {
@@ -78,16 +78,9 @@ public class RemoteDatabase {
 				data.put(key, value.toString());
 			}
 		}
-		if (deviceid!=null){
-			data.put("device", deviceid);
-		}
 		return postData(action, data);
 	}
 	
-	private static BufferedReader postData(String action, String key, Object value) throws IOException {
-		return postData(action, key, value, null);
-	}
-
 	private static String createJsonArray(TreeMap<?, ?> value) throws UnsupportedEncodingException {
 		StringBuffer result = new StringBuffer();
 		if (value == null || value.isEmpty()) {
@@ -183,12 +176,9 @@ public class RemoteDatabase {
 		}
 	}
 
-	public static boolean setInfo(String deviceid, TreeMap<Integer, TreeMap<Long, Integer>> containments) throws IOException {
+	public static boolean setInfo(TreeMap<Integer, TreeMap<Long, Integer>> containments) throws IOException {
 		Log.d(TAG, "RemoteDatabase.setInfo(...)");
-		if (deviceid == null || deviceid.equals("")) {
-			return false;
-		}
-		BufferedReader reader = postData("setInfo", "content", containments, deviceid);
+		BufferedReader reader = postData("setInfo", "content", containments);
 		String reply=reader.readLine();
 		reader.close();
 		Log.d(TAG, "recieved result: "+reply);

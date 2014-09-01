@@ -15,7 +15,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -32,7 +31,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	static final int GOOD = 1;
 	static final int FAIL = 0;
 	static final int FATAL = -1;
-	protected static String deviceid = null;
 	private static SharedPreferences settings = null;
 	private static AllergyScanDatabase localDatabase = null;
 	static String TAG = "AllergyScan";
@@ -50,7 +48,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		deviceid = getDeviceId(); // request the id and store in global variable
 		setContentView(R.layout.activity_main);
 		settings = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE); // create settings handle
 		localDatabase = new AllergyScanDatabase(getApplicationContext(), settings); // create database handle
@@ -101,16 +98,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 			networkFailDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), this); // this button will toggle learning mode
 			networkFailDialog.show();
 		}
-	}
-
-	/**
-	 * request the internal id of the device. this id should be unique.
-	 * 
-	 * @return
-	 */
-	private String getDeviceId() {
-		TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		return telephonyManager.getDeviceId();
 	}
 
 	/**
@@ -217,10 +204,7 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	 * start the scanning activity
 	 */
 	private void startScanning() {
-		if (MainActivity.deviceid.equals("000000000000000")) {
-			productCode = Barcode.random();
-			handleProductBarcode(productCode);
-		} else if (scannerAvailable(this)) {
+		if (scannerAvailable(this)) {
 			Intent intent = new Intent(LearningActivity.SCANNER + ".SCAN");
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 			intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
@@ -234,7 +218,6 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	 * @return
 	 */
 	static boolean scannerAvailable(final Context c) {
-		if (deviceid.equals("000000000000000")) return true;
 		PackageManager pm = c.getPackageManager();
 		try {
 			pm.getApplicationInfo(LearningActivity.SCANNER, 0);

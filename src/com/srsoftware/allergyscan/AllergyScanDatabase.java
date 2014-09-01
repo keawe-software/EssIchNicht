@@ -174,7 +174,7 @@ public class AllergyScanDatabase extends SQLiteOpenHelper {
 					db.close();
 				}
 			}
-			RemoteDatabase.setInfo(MainActivity.deviceid, localContainmentInfo);
+			RemoteDatabase.setInfo(localContainmentInfo);
 		} catch (UnknownHostException uhe) {
 			uhe.printStackTrace();
 			throw new NetworkErrorException(uhe.getMessage());
