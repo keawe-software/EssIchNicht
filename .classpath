@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="zxing/core/src/main/java"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="zxing/android"/>
+	<classpathentry kind="src" path="zxing/android-core"/>
+	<classpathentry kind="src" path="zxing/core"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="src" path="zxing/gen"/>
-	<classpathentry kind="src" path="zxing/android/gen"/>
-	<classpathentry kind="src" path="zxing/android/src"/>
-	<classpathentry kind="src" path="zxing/android-core/src/main/java"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>

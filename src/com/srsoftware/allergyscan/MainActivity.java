@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import com.google.zxing.client.android.CaptureActivity;
 
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
