@@ -204,12 +204,12 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	 * start the scanning activity
 	 */
 	private void startScanning() {
-		if (scannerAvailable(this)) {
+		//if (scannerAvailable(this)) {
 			Intent intent = new Intent(LearningActivity.SCANNER + ".SCAN");
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 			intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
 			startActivityForResult(intent, 0);
-		}
+		//}
 	}
 
 	/**
