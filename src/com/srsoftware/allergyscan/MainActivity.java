@@ -5,9 +5,6 @@ import java.util.Locale;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import com.google.zxing.client.android.CaptureActivity;
-
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -208,11 +205,55 @@ public class MainActivity extends Activity implements OnClickListener, android.c
 	 */
 	private void startScanning() {
 		//if (scannerAvailable(this)) {
-			Intent intent = new Intent(this,CaptureActivity.class);
+			Intent intent = new Intent(LearningActivity.SCANNER + ".SCAN");
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 			intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
 			startActivityForResult(intent, 0);
 		//}
+	}
+
+	/**
+	 * check, whether the barcode scanning library is available
+	 * 
+	 * @return
+	 */
+	static boolean scannerAvailable(final Context c) {
+		PackageManager pm = c.getPackageManager();
+		try {
+			pm.getApplicationInfo(LearningActivity.SCANNER, 0);
+			return true;
+		} catch (Exception e) { // if some exception occurs, this will be most likely caused by the missing scanner library
+			AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(c);
+			dialogBuilder.setTitle(R.string.warning);
+			dialogBuilder.setMessage(R.string.no_scanner);
+			dialogBuilder.setCancelable(false);
+			AlertDialog dialog = dialogBuilder.create();
+			dialog.setButton(DialogInterface.BUTTON_POSITIVE, c.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+
+				public void onClick(DialogInterface dialog, int which) {
+					
+				}
+			});
+			dialog.setButton(DialogInterface.BUTTON_NEGATIVE, c.getString(R.string.play), new DialogInterface.OnClickListener() {
+
+				public void onClick(DialogInterface dialog, int which) {
+					Log.d(TAG, "should start browser");
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(c.getString(R.string.playUrl)));
+					c.startActivity(browserIntent);
+				}
+			});
+			dialog.setButton(DialogInterface.BUTTON_NEUTRAL, c.getString(R.string.fdroid), new DialogInterface.OnClickListener() {
+
+				public void onClick(DialogInterface dialog, int which) {
+					Log.d(TAG, "should start browser");
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(c.getString(R.string.fdroidUrl)));
+					c.startActivity(browserIntent);
+				}
+			});
+			dialog.show();
+
+			return false;
+		}
 	}
 
 	static Barcode getBarCode(Intent intent) {

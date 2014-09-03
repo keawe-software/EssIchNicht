@@ -3,9 +3,6 @@ package com.srsoftware.allergyscan;
 import java.io.IOException;
 import java.util.Stack;
 
-import com.google.zxing.client.android.CaptureActivity;
-
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -23,7 +20,7 @@ import android.widget.Toast;
 
 public class LearningActivity extends Activity implements android.view.View.OnClickListener {
 	protected static String TAG = "AllergyScan";
-//	protected static String SCANNER = "com.google.zxing.client.android";
+	protected static String SCANNER = "com.google.zxing.client.android";
 	protected static Barcode productBarCode = null;
 	private SharedPreferences settings;
 	private AllergyScanDatabase localDatabase;
@@ -131,8 +128,7 @@ public class LearningActivity extends Activity implements android.view.View.OnCl
 	}
 
 	void startScanning() {
-		//Intent intent = new Intent(SCANNER + ".SCAN"); // start zxing scanne
-		Intent intent = new Intent(this, CaptureActivity.class);
+		Intent intent = new Intent(SCANNER + ".SCAN"); // start zxing scanne
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 		intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
 		startActivityForResult(intent, 0); // scanner calls onActivityResult
