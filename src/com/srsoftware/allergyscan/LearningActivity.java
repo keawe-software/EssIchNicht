@@ -21,6 +21,8 @@ import android.widget.Toast;
 public class LearningActivity extends Activity implements android.view.View.OnClickListener {
 	protected static String TAG = "AllergyScan";
 	protected static String SCANNER = "com.google.zxing.client.android";
+	// TODO: ZXing-Scanner has been integrated. But there is most probably plenty of code which is unused. Maybe we can clean up a little bit.
+	
 	protected static Barcode productBarCode = null;
 	private SharedPreferences settings;
 	private AllergyScanDatabase localDatabase;
