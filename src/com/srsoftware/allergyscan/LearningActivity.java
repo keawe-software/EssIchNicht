@@ -42,7 +42,7 @@ public class LearningActivity extends Activity implements android.view.View.OnCl
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		if (productBarCode != null) {
 			learnProductBarcode(localDatabase.allergenStack());
-		} else {//if (MainActivity.scannerAvailable(this)) {
+		} else {
 			startScanning();
 		}
 	}
